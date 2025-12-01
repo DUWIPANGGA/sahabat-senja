@@ -6,19 +6,23 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    public function up()
+    public function up(): void
     {
-        Schema::create('pemasukan', function (Blueprint $table) {
+        Schema::create('pemasukans', function (Blueprint $table) {
             $table->id();
             $table->date('tanggal');
             $table->string('sumber');
             $table->decimal('jumlah', 15, 2);
+            $table->string('keterangan')->nullable();
+            $table->foreignId('user_id')->nullable()->constrained('users')->onDelete('set null'); // user yang input
             $table->timestamps();
         });
+
+        
     }
 
-    public function down()
+    public function down(): void
     {
-        Schema::dropIfExists('pemasukan');
+        Schema::dropIfExists('pemasukans');
     }
 };

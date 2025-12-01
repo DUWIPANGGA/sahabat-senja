@@ -11,16 +11,29 @@ return new class extends Migration
      */
     public function up(): void
     {
-        // Kalau tabel belum ada, buat baru:
         Schema::create('datalansia', function (Blueprint $table) {
             $table->id();
+            
+            // Data lansia
             $table->string('nama_lansia', 100);
-            $table->integer('umur_lansia')->check('umur_lansia >= 40 AND umur_lansia <= 160');
+            $table->integer('umur_lansia');
+            $table->string('tempat_lahir_lansia', 100)->nullable();
+            $table->date('tanggal_lahir_lansia')->nullable();
+            $table->enum('jenis_kelamin_lansia', ['Laki-laki', 'Perempuan'])->nullable();
+            $table->string('gol_darah_lansia', 5)->nullable();
             $table->string('riwayat_penyakit_lansia', 255)->nullable();
+            $table->string('alergi_lansia', 255)->nullable();
+            $table->string('obat_rutin_lansia', 255)->nullable();
+            
+            // Data keluarga (relasi ke users)
             $table->string('nama_anak', 100);
             $table->string('alamat_lengkap', 255);
             $table->string('no_hp_anak', 15);
             $table->string('email_anak', 100);
+            
+            // Foreign key ke users (keluarga yang menangani)
+            $table->foreignId('user_id')->nullable()->constrained('users')->onDelete('set null');
+            
             $table->timestamps();
         });
     }

@@ -8,12 +8,14 @@ return new class extends Migration
 {
     public function up()
     {
-        Schema::create('pengeluaran', function (Blueprint $table) {
+        
+        Schema::create('pengeluarans', function (Blueprint $table) {
             $table->id();
             $table->date('tanggal');
             $table->string('keterangan');
-            $table->decimal('jumlah', 15, 2); // untuk menyimpan nominal uang
-            $table->timestamps(); // optional: created_at dan updated_at
+            $table->decimal('jumlah', 15, 2);
+            $table->foreignId('user_id')->nullable()->constrained('users')->onDelete('set null'); // user yang input
+            $table->timestamps();
         });
     }
 

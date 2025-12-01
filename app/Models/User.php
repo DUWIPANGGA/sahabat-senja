@@ -1,5 +1,4 @@
 <?php
-// app/Models/User.php
 
 namespace App\Models;
 
@@ -7,12 +6,11 @@ use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;
-
-    use HasFactory, Notifiable;
 
     protected $fillable = [
         'name',
@@ -66,5 +64,37 @@ class User extends Authenticatable
     public function isKeluarga()
     {
         return $this->role === 'keluarga';
+    }
+
+    /**
+     * Relasi ke datalansia (untuk keluarga)
+     */
+    public function datalansia(): HasMany
+    {
+        return $this->hasMany(Datalansia::class, 'user_id');
+    }
+
+    /**
+     * Relasi ke kondisi yang diinput (untuk perawat)
+     */
+    public function kondisiInput(): HasMany
+    {
+        return $this->hasMany(Kondisi::class, 'perawat_id');
+    }
+
+    /**
+     * Relasi ke pemasukan yang diinput
+     */
+    public function pemasukan(): HasMany
+    {
+        return $this->hasMany(Pemasukan::class, 'user_id');
+    }
+
+    /**
+     * Relasi ke pengeluaran yang diinput
+     */
+    public function pengeluaran(): HasMany
+    {
+        return $this->hasMany(Pengeluaran::class, 'user_id');
     }
 }

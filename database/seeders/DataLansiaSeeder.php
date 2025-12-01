@@ -24,7 +24,7 @@ class DatalansiaSeeder extends Seeder
                 'nama_anak' => 'Ahmad Wijaya',
                 'alamat_lengkap' => 'Jl. Melati No. 123, Jakarta Selatan',
                 'no_hp_anak' => '081234567893',
-                'email_anak' => 'ahmad.keluarga@carelansia.com'
+                'email_anak' => 'ahmad.keluarga.user@carelansia.com' // SESUAIKAN DENGAN USER
             ],
             [
                 'nama_lansia' => 'Bambang Sutrisno',
@@ -39,7 +39,7 @@ class DatalansiaSeeder extends Seeder
                 'nama_anak' => 'Sari Dewi',
                 'alamat_lengkap' => 'Jl. Mawar No. 45, Jakarta Timur',
                 'no_hp_anak' => '081234567894',
-                'email_anak' => 'sari.keluarga@carelansia.com'
+                'email_anak' => 'sari.keluarga.user@carelansia.com' // SESUAIKAN DENGAN USER
             ],
             [
                 'nama_lansia' => 'Marta Sari',
@@ -54,7 +54,7 @@ class DatalansiaSeeder extends Seeder
                 'nama_anak' => 'Rina Handayani',
                 'alamat_lengkap' => 'Jl. Kenanga No. 78, Jakarta Barat',
                 'no_hp_anak' => '081234567895',
-                'email_anak' => 'rina@example.com'
+                'email_anak' => 'rina.handayani@carelansia.com' // SESUAIKAN DENGAN USER
             ]
         ];
 

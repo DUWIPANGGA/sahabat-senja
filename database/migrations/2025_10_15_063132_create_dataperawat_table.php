@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('dataperawat', function (Blueprint $table) {
             $table->id();
-            $table->string('nama_lansia', 100);
+            $table->string('nama', 100);
             // $table->int('umur_lansia', 11)
             $table->string('email', 100);
             $table->text('alamat');
