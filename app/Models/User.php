@@ -11,8 +11,7 @@ use Illuminate\Notifications\Notifiable;
 class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;
-    // ... kode lainnya
-    
+
     use HasFactory, Notifiable;
 
     protected $fillable = [
