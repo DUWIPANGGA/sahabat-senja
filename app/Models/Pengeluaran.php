@@ -21,4 +21,5 @@ class Pengeluaran extends Model
         'tanggal' => 'date',
         'jumlah' => 'decimal:2'
     ];
+    
 }

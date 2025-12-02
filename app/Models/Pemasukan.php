@@ -21,4 +21,5 @@ class Pemasukan extends Model
         'tanggal' => 'date',
         'jumlah' => 'decimal:2'
     ];
+    
 }

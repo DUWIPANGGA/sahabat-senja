@@ -6,441 +6,35 @@
     <title>Laporan Pengeluaran - Sahabat Senja</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <style>
-    /* ========== Warna Coklat dan Krem ========== */
-    :root {
-        --primary-color: #8B4513;      /* Coklat tua */
-        --secondary-color: #A0522D;    /* Coklat sedang */
-        --accent-color: #D2691E;       /* Coklat muda */
-        --dark-bg: #654321;            /* Coklat tua gelap */
-        --light-bg: #fdf6e3;           /* Krem sangat muda */
-        --text-dark: #3E2723;          /* Coklat tua untuk teks */
-        --text-light: #5D4037;         /* Coklat sedang untuk teks */
-        --card-bg: #ffffff;
-        --hover-color: #CD853F;        /* Coklat pale untuk hover */
-        --card-shadow: 0 4px 6px rgba(139, 69, 19, 0.1);
-        --success-color: #8FBC8F;      /* Hijau earth tone */
-        --warning-color: #D2B48C;      /* Tan untuk warning */
-        --border-color: #E8DCC6;       /* Krem medium untuk border */
-        --cream-light: #FFF8DC;        /* Krem terang */
-        --cream-medium: #F5F0E6;       /* Krem medium */
-    }
-
-    body {
-        background: linear-gradient(135deg, var(--light-bg) 0%, var(--cream-light) 100%);
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        color: var(--text-dark);
-        min-height: 100vh;
-    }
-
-    /* Sidebar */
-    .sidebar {
-        background: linear-gradient(180deg, var(--primary-color) 0%, var(--dark-bg) 100%);
-        color: white;
-        width: 280px;
-        min-height: 100vh;
-        position: fixed;
-        box-shadow: 2px 0 10px rgba(139, 69, 19, 0.3);
-        z-index: 1000;
-        transition: all 0.3s;
-        left: 0;
-    }
-    
-    .sidebar.collapsed {
-        width: 80px;
-    }
-    
-    .sidebar.collapsed .sidebar-brand h1 span,
-    .sidebar.collapsed .nav-link span {
-        display: none;
-    }
-    
-    .sidebar.collapsed .sidebar-brand i,
-    .sidebar.collapsed .nav-link i {
-        margin-right: 0;
-    }
-    
-    .sidebar-brand {
-        padding: 1.5rem;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-        text-align: center;
-        position: relative;
-        background: var(--dark-bg);
-    }
-    
-    .sidebar-brand h1 {
-        font-weight: 700;
-        font-size: 1.5rem;
-        margin: 0;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        transition: all 0.3s;
-    }
-    
-    .sidebar-brand i {
-        margin-right: 10px;
-        font-size: 1.8rem;
-        transition: all 0.3s;
-        color: var(--cream-light);
-    }
-    
-    .toggle-btn {
-        position: absolute;
-        right: -12px;
-        top: 50%;
-        transform: translateY(-50%);
-        background: var(--accent-color);
-        border: 2px solid white;
-        border-radius: 50%;
-        width: 24px;
-        height: 24px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        color: white;
-        font-size: 0.8rem;
-        transition: all 0.3s;
-    }
-    
-    .toggle-btn:hover {
-        background: var(--secondary-color);
-    }
-    
-    .sidebar.collapsed .toggle-btn {
-        transform: translateY(-50%) rotate(180deg);
-    }
-    
-    .sidebar-nav {
-        padding: 1rem 0;
-    }
-    
-    .nav-item {
-        margin-bottom: 0.5rem;
-        position: relative;
-    }
-    
-    .nav-link {
-        color: rgba(255, 255, 255, 0.85);
-        padding: 0.8rem 1.5rem;
-        display: flex;
-        align-items: center;
-        transition: all 0.3s;
-        border-left: 4px solid transparent;
-        white-space: nowrap;
-        overflow: hidden;
-    }
-    
-    .nav-link:hover, .nav-link.active {
-        background-color: rgba(160, 82, 45, 0.3);
-        color: white;
-        border-left-color: var(--accent-color);
-    }
-    
-    .nav-link i {
-        width: 24px;
-        margin-right: 12px;
-        font-size: 1.1rem;
-        transition: all 0.3s;
-        flex-shrink: 0;
-    }
-
-    /* Main Content */
-    .main-content {
-        margin-left: 280px;
-        padding: 0;
-        min-height: 100vh;
-        transition: all 0.3s;
-    }
-    
-    .main-content.expanded {
-        margin-left: 80px;
-    }
-
-    /* Header */
-    .top-header {
-        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-        color: white;
-        padding: 1rem 2rem;
-        position: sticky;
-        top: 0;
-        z-index: 100;
-        box-shadow: 0 2px 10px rgba(139, 69, 19, 0.2);
-        border-bottom: 1px solid var(--accent-color);
-    }
-    
-    .header-title {
-        font-weight: 600;
-        margin: 0;
-        display: flex;
-        align-items: center;
-        font-size: 1.4rem;
-    }
-    
-    .header-title i {
-        margin-right: 10px;
-        color: white;
-    }
-    
-    .user-info {
-        display: flex;
-        align-items: center;
-        margin-right: 1.5rem;
-    }
-    
-    .user-avatar {
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
-        background: linear-gradient(135deg, var(--accent-color), var(--secondary-color));
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: white;
-        font-weight: bold;
-        margin-right: 10px;
-    }
-    
-    .logout-btn {
-        background-color: var(--accent-color);
-        border: none;
-        color: white;
-        padding: 0.5rem 1.5rem;
-        border-radius: 6px;
-        font-weight: 500;
-        transition: all 0.3s;
-    }
-    
-    .logout-btn:hover {
-        background-color: var(--secondary-color);
-        transform: translateY(-2px);
-    }
-
-    /* Container */
-    .container {
-        max-width: 1200px;
-        margin-top: 2rem;
-        padding: 0 2rem;
-    }
-
-    /* Tombol tambah */
-    .btn-add {
-        background: linear-gradient(135deg, var(--accent-color), var(--secondary-color));
-        border: none;
-        color: white;
-        padding: 12px 24px;
-        border-radius: 8px;
-        transition: 0.3s;
-        font-weight: 500;
-        font-size: 1rem;
-        box-shadow: 0 4px 6px rgba(139, 69, 19, 0.3);
-    }
-
-    .btn-add:hover {
-        background: linear-gradient(135deg, var(--secondary-color), var(--accent-color));
-        transform: translateY(-2px);
-        box-shadow: 0 6px 8px rgba(160, 82, 45, 0.4);
-    }
-
-    /* Laporan Section */
-    .laporan-section {
-        background: var(--card-bg);
-        border-radius: 12px;
-        padding: 0;
-        margin-bottom: 25px;
-        box-shadow: var(--card-shadow);
-        transition: all 0.3s ease;
-        border: 1px solid var(--border-color);
-        overflow: hidden;
-        border-left: 4px solid var(--accent-color);
-    }
-
-    .laporan-section:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 8px 15px rgba(139, 69, 19, 0.15);
-    }
-
-    .laporan-header {
-        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-        color: white;
-        padding: 20px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 0;
-    }
-
-    .laporan-header h4 {
-        margin: 0;
-        font-weight: 600;
-        font-size: 1.3rem;
-    }
-
-    .laporan-header h4 i {
-        margin-right: 10px;
-        color: white;
-    }
-
-    .btn-edit {
-        background: linear-gradient(135deg, var(--warning-color), #B8860B);
-        border: none;
-        color: white;
-        padding: 8px 16px;
-        border-radius: 6px;
-        transition: 0.3s;
-        font-weight: 500;
-    }
-
-    .btn-edit:hover {
-        background: linear-gradient(135deg, #B8860B, var(--warning-color));
-        transform: translateY(-2px);
-    }
-
-    /* Tabel */
-    .table-container {
-        padding: 20px;
-    }
-
-    .table {
-        border-radius: 8px;
-        overflow: hidden;
-        border: 1px solid var(--border-color);
-        margin: 0;
-    }
-
-    thead {
-        background: linear-gradient(135deg, var(--secondary-color), var(--accent-color));
-        color: white;
-    }
-
-    th {
-        font-weight: 600;
-        padding: 15px 12px;
-        border: none;
-        font-size: 0.9rem;
-    }
-
-    td {
-        padding: 12px;
-        vertical-align: middle;
-        border-color: var(--border-color);
-        font-size: 0.9rem;
-    }
-
-    .table-hover tbody tr:hover {
-        background-color: rgba(139, 69, 19, 0.05);
-        transition: 0.2s;
-    }
-
-    /* Status badges */
-    .badge-success {
-        background: linear-gradient(135deg, var(--success-color), #6B8E23);
-        color: white;
-        padding: 6px 12px;
-        border-radius: 20px;
-        font-size: 0.8rem;
-        font-weight: 500;
-    }
-
-    .badge-warning {
-        background: linear-gradient(135deg, var(--warning-color), #CD853F);
-        color: white;
-        padding: 6px 12px;
-        border-radius: 20px;
-        font-size: 0.8rem;
-        font-weight: 500;
-    }
-
-    /* Angka dengan warna tema */
-    .amount-positive {
-        color: var(--success-color);
-        font-weight: 600;
-    }
-
-    .amount-negative {
-        color: #8B0000;
-        font-weight: 600;
-    }
-
-    /* Footer */
-    .footer {
-        background: linear-gradient(135deg, var(--dark-bg), var(--primary-color));
-        color: white;
-        padding: 1.5rem 0;
-        margin-top: 3rem;
-        text-align: center;
-        border-top: 1px solid var(--accent-color);
-    }
-
-    /* Responsive */
-    @media (max-width: 992px) {
-        .sidebar {
-            width: 80px;
-        }
-        
-        .sidebar .sidebar-brand h1 span,
-        .sidebar .nav-link span {
-            display: none;
-        }
-        
-        .sidebar .sidebar-brand i,
-        .sidebar .nav-link i {
-            margin-right: 0;
-        }
-        
-        .main-content {
-            margin-left: 80px;
-        }
-        
-        .toggle-btn {
-            display: none;
-        }
-    }
-    
-    @media (max-width: 768px) {
-        .sidebar {
-            width: 0;
-            transform: translateX(-100%);
-        }
-        
-        .sidebar.show {
-            width: 280px;
-            transform: translateX(0);
-        }
-        
-        .main-content {
-            margin-left: 0;
-        }
-        
-        .mobile-menu-btn {
-            display: block !important;
-        }
-        
-        .user-info {
-            display: none;
+        :root {
+            --primary-color: #8B7355;
+            --secondary-color: #A67B5B;
+            --accent-color: #D7CCC8;
+            --dark-brown: #5D4037;
+            --light-bg: #FAF3E0;
+            --text-dark: #4E342E;
+            --text-light: #8D6E63;
+            --danger-color: #dc3545;
+            --warning-color: #FFB74D;
+            --info-color: #4DB6AC;
+            --card-shadow: 0 4px 6px rgba(139, 115, 85, 0.1);
+            --hover-shadow: 0 8px 15px rgba(139, 115, 85, 0.15);
         }
 
-        .laporan-header {
-            flex-direction: column;
-            gap: 15px;
-            text-align: center;
+        /* Semua style yang sama dengan pemasukan.blade.php */
+        /* ... (gunakan semua style dari pemasukan.blade.php) ... */
+
+        .summary-card.expense {
+            background: linear-gradient(135deg, var(--danger-color), #fd7e14);
         }
 
-        .container {
-            padding: 0 1rem;
+        .summary-card.net {
+            background: linear-gradient(135deg, #007bff, #6610f2);
         }
-    }
-    
-    .mobile-menu-btn {
-        display: none;
-        background: none;
-        border: none;
-        font-size: 1.5rem;
-        color: white;
-        margin-right: 1rem;
-    }
-</style>
+    </style>
+</head>
 <body>
     <!-- Sidebar -->
     <div class="sidebar" id="sidebar">
@@ -453,7 +47,6 @@
                 <i class="fas fa-chevron-left"></i>
             </div>
         </div>
-        
         <div class="sidebar-nav">
             <div class="nav-item">
                 <a href="{{ route('admin.dashboard') }}" class="nav-link">
@@ -475,19 +68,19 @@
             </div>
             <div class="nav-item">
                 <a href="{{ route('laporan.pemasukan') }}" class="nav-link">
-                    <i class="fas fa-chart-line"></i>
+                    <i class="fas fa-money-bill-wave"></i>
                     <span>Laporan Pemasukan</span>
                 </a>
             </div>
             <div class="nav-item">
                 <a href="{{ route('laporan.pengeluaran') }}" class="nav-link active">
-                    <i class="fas fa-chart-bar"></i>
+                    <i class="fas fa-receipt"></i>
                     <span>Laporan Pengeluaran</span>
                 </a>
             </div>
             <div class="nav-item">
                 <a href="#" class="nav-link">
-                    <i class="fas fa-chart-pie"></i>
+                    <i class="fas fa-chart-bar"></i>
                     <span>Grafik Keseluruhan</span>
                 </a>
             </div>
@@ -503,16 +96,16 @@
                     <i class="fas fa-bars"></i>
                 </button>
                 <h1 class="header-title">
-                    <i class="fas fa-chart-bar"></i>Laporan Pengeluaran
+                    <i class="fas fa-receipt"></i>Laporan Pengeluaran
                 </h1>
             </div>
-            
+
             <div class="d-flex align-items-center">
                 <div class="user-info">
                     <div class="user-avatar">A</div>
                     <div>
                         <div class="fw-bold">Admin</div>
-                        <small>Pengelola</small>
+                        <small class="text-muted">Administrator</small>
                     </div>
                 </div>
                 <form method="POST" action="{{ route('logout') }}">
@@ -524,81 +117,259 @@
             </div>
         </div>
 
-        <div class="container">
-            <!-- Tombol tambah laporan -->
-            <div class="d-flex justify-content-end mb-4">
-                <button class="btn btn-add"><i class="fas fa-plus me-2"></i>Buat Laporan Pengeluaran</button>
+        <!-- Content -->
+        <div class="content-container">
+            {{-- Alert sukses --}}
+            @if(session('success'))
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="fas fa-check-circle me-2"></i>{{ session('success') }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            @endif
+
+            {{-- Summary Cards --}}
+            <div class="row mb-4">
+                <div class="col-md-4">
+                    <div class="summary-card expense">
+                        <i class="fas fa-receipt"></i>
+                        <h3>Rp {{ number_format($totalPengeluaran, 0, ',', '.') }}</h3>
+                        <p>Total Pengeluaran</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="summary-card income">
+                        <i class="fas fa-money-bill-wave"></i>
+                        <h3>{{ $pengeluaran->total() }}</h3>
+                        <p>Jumlah Transaksi</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="summary-card net">
+                        <i class="fas fa-chart-line"></i>
+                        <h3>Rp {{ number_format(($pengeluaran->average('jumlah') ?? 0), 0, ',', '.') }}</h3>
+                        <p>Rata-rata per Transaksi</p>
+                    </div>
+                </div>
             </div>
 
-            <!-- Contoh laporan bulanan -->
-            @foreach (['Juni', 'Juli', 'Agustus'] as $bulan)
-            <div class="laporan-section">
-                <div class="laporan-header">
-                    <h4><i class="fas fa-money-bill-wave me-2"></i>Laporan Pengeluaran {{ $bulan }} 2025</h4>
-                    <button class="btn btn-edit"><i class="fas fa-pen me-1"></i>Edit Laporan</button>
-                </div>
+            {{-- Filter --}}
+            <div class="filter-container">
+                <form action="{{ route('laporan.pengeluaran') }}" method="GET" class="row g-3">
+                    <div class="col-md-3">
+                        <label for="dari_tanggal" class="form-label">Dari Tanggal</label>
+                        <input type="date" class="form-control" id="dari_tanggal" name="dari_tanggal" value="{{ request('dari_tanggal') }}">
+                    </div>
+                    <div class="col-md-3">
+                        <label for="sampai_tanggal" class="form-label">Sampai Tanggal</label>
+                        <input type="date" class="form-control" id="sampai_tanggal" name="sampai_tanggal" value="{{ request('sampai_tanggal') }}">
+                    </div>
+                    <div class="col-md-3">
+                        <label for="keterangan" class="form-label">Keterangan</label>
+                        <select class="form-select" id="keterangan" name="keterangan">
+                            <option value="">Semua Kategori</option>
+                            @foreach($pengeluaran->pluck('keterangan')->unique() as $keterangan)
+                                <option value="{{ $keterangan }}" {{ request('keterangan') == $keterangan ? 'selected' : '' }}>{{ $keterangan }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-md-3 d-flex align-items-end">
+                        <div class="d-flex gap-2 w-100">
+                            <button type="submit" class="btn btn-primary flex-grow-1">
+                                <i class="fas fa-filter me-1"></i>Filter
+                            </button>
+                            <a href="{{ route('laporan.pengeluaran') }}" class="btn btn-outline-secondary">
+                                <i class="fas fa-refresh"></i>
+                            </a>
+                        </div>
+                    </div>
+                </form>
+            </div>
 
-                <div class="table-container">
+            {{-- Chart --}}
+            @if($chartData->count() > 0)
+            <div class="chart-container">
+                <h5 class="mb-3"><i class="fas fa-chart-line me-2"></i>Grafik Pengeluaran per Bulan</h5>
+                <canvas id="pengeluaranChart" height="100"></canvas>
+            </div>
+            @endif
+
+            {{-- Action Buttons --}}
+            <div class="d-flex justify-content-between mb-3">
+                <div>
+                    <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#tambahPengeluaranModal">
+                        <i class="fas fa-plus me-1"></i>Tambah Pengeluaran
+                    </button>
+                    <button class="btn btn-outline-primary ms-2">
+                        <i class="fas fa-file-pdf me-1"></i>Export PDF
+                    </button>
+                    <button class="btn btn-outline-success ms-2">
+                        <i class="fas fa-file-excel me-1"></i>Export Excel
+                    </button>
+                </div>
+                <div>
+                    <span class="badge bg-primary">{{ $pengeluaran->total() }} Transaksi</span>
+                </div>
+            </div>
+
+            {{-- Tabel Data --}}
+            <div class="card">
+                <div class="card-body p-0">
                     <div class="table-responsive">
-                        <table class="table table-hover align-middle">
+                        <table class="table table-hover mb-0">
                             <thead>
                                 <tr>
-                                    <th>Keterangan</th>
-                                    <th>Jenis Pengeluaran</th>
-                                    <th>Nominal (Rp)</th>
+                                    <th>No</th>
                                     <th>Tanggal</th>
-                                    <th>Total Sisa (Rp)</th>
+                                    <th>Keterangan</th>
+                                    <th>Jumlah</th>
+                                    <th>Bukti</th>
+                                    <th>Dibuat Oleh</th>
+                                    <th>Aksi</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr>
-                                    <td>Pembelian obat dan vitamin</td>
-                                    <td>Kesehatan</td>
-                                    <td class="amount-negative">1.200.000</td>
-                                    <td>03/{{ $bulan }}/2025</td>
-                                    <td class="amount-positive">5.500.000</td>
-                                </tr>
-                                <tr>
-                                    <td>Perbaikan fasilitas panti</td>
-                                    <td>Pemeliharaan</td>
-                                    <td class="amount-negative">2.000.000</td>
-                                    <td>12/{{ $bulan }}/2025</td>
-                                    <td class="amount-positive">3.500.000</td>
-                                </tr>
-                                <tr>
-                                    <td>Konsumsi harian lansia</td>
-                                    <td>Kebutuhan Pokok</td>
-                                    <td class="amount-negative">1.500.000</td>
-                                    <td>25/{{ $bulan }}/2025</td>
-                                    <td class="amount-positive">2.000.000</td>
-                                </tr>
-                                <tr>
-                                    <td>Gaji perawat</td>
-                                    <td>Operasional</td>
-                                    <td class="amount-negative">3.000.000</td>
-                                    <td>28/{{ $bulan }}/2025</td>
-                                    <td class="amount-negative">-1.000.000</td>
-                                </tr>
+                                @forelse($pengeluaran as $item)
+                                    <tr>
+                                        <td>{{ ($pengeluaran->currentPage() - 1) * $pengeluaran->perPage() + $loop->iteration }}</td>
+                                        <td>
+                                            <span class="text-dark">
+                                                <i class="fas fa-calendar me-1 text-primary"></i>
+                                                {{ \Carbon\Carbon::parse($item->tanggal)->format('d/m/Y') }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-danger">{{ $item->keterangan }}</span>
+                                        </td>
+                                        <td class="fw-bold text-danger">
+                                            Rp {{ number_format($item->jumlah, 0, ',', '.') }}
+                                        </td>
+                                        <td>
+                                            @if($item->bukti)
+                                                <a href="{{ asset('storage/' . $item->bukti) }}" target="_blank" class="btn btn-sm btn-outline-primary">
+                                                    <i class="fas fa-file-invoice"></i> Lihat
+                                                </a>
+                                            @else
+                                                <span class="text-muted">-</span>
+                                            @endif
+                                        </td>
+                                        <td>
+                                            @if($item->user)
+                                                <span class="badge bg-light text-dark">{{ $item->user->name }}</span>
+                                            @else
+                                                <span class="text-muted">-</span>
+                                            @endif
+                                        </td>
+                                        <td>
+                                            <div class="action-buttons">
+                                                <button class="btn btn-warning btn-sm" title="Edit" data-bs-toggle="modal" data-bs-target="#editPengeluaranModal{{ $item->id }}">
+                                                    <i class="fas fa-edit"></i>
+                                                </button>
+                                                <form action="{{ route('laporan.pengeluaran.destroy', $item->id) }}" method="POST" class="d-inline">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" class="btn btn-danger btn-sm" title="Hapus" onclick="return confirm('Yakin ingin menghapus data ini?')">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="7" class="text-center py-4">
+                                            <div class="empty-state">
+                                                <i class="fas fa-inbox fa-2x mb-3 text-muted"></i>
+                                                <h5 class="text-muted">Tidak ada data pengeluaran</h5>
+                                                <p class="text-muted">Silakan tambah data pengeluaran terlebih dahulu</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                @endforelse
                             </tbody>
                         </table>
                     </div>
                 </div>
             </div>
-            @endforeach
+
+            {{-- Pagination --}}
+            @if($pengeluaran->hasPages())
+            <div class="d-flex justify-content-between align-items-center mt-3">
+                <div>
+                    Menampilkan {{ $pengeluaran->firstItem() }} - {{ $pengeluaran->lastItem() }} dari {{ $pengeluaran->total() }} data
+                </div>
+                <div>
+                    {{ $pengeluaran->links() }}
+                </div>
+            </div>
+            @endif
         </div>
 
+        <!-- Footer -->
         <footer class="footer">
-            <p class="mb-0">&copy; 2025 Sahabat Senja — Sistem Informasi Panti Jompo Berbasis Website & Mobile.</p>
+            <div class="container text-center">
+                <p class="mb-0">&copy; 2023 Sahabat Senja. Sistem Informasi Layanan Panti Jompo Berbasis Website & Mobile.</p>
+            </div>
         </footer>
     </div>
 
+    <!-- Modal Tambah Pengeluaran -->
+    <div class="modal fade" id="tambahPengeluaranModal" tabindex="-1" aria-labelledby="tambahPengeluaranModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="tambahPengeluaranModalLabel">
+                        <i class="fas fa-plus me-2"></i>Tambah Pengeluaran Baru
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form action="{{ route('laporan.pengeluaran.store') }}" method="POST" enctype="multipart/form-data">
+                    @csrf
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="tanggal" class="form-label">Tanggal</label>
+                            <input type="date" class="form-control" id="tanggal" name="tanggal" value="{{ date('Y-m-d') }}" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="keterangan" class="form-label">Keterangan Pengeluaran</label>
+                            <select class="form-control" id="keterangan" name="keterangan" required>
+                                <option value="">Pilih Kategori</option>
+                                <option value="Gaji Perawat">Gaji Perawat</option>
+                                <option value="Obat-obatan">Obat-obatan</option>
+                                <option value="Makanan">Makanan</option>
+                                <option value="Listrik">Listrik</option>
+                                <option value="Air">Air</option>
+                                <option value="Pemeliharaan">Pemeliharaan</option>
+                                <option value="Lainnya">Lainnya</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="jumlah" class="form-label">Jumlah (Rp)</label>
+                            <input type="number" class="form-control" id="jumlah" name="jumlah" min="0" step="1000" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="bukti" class="form-label">Bukti Pengeluaran (Opsional)</label>
+                            <input type="file" class="form-control" id="bukti" name="bukti" accept="image/*,.pdf">
+                            <small class="text-muted">Format: JPG, PNG, PDF (Max: 2MB)</small>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Batal</button>
+                        <button type="submit" class="btn btn-success">Simpan</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script>
         // Toggle Sidebar
         document.getElementById('toggleSidebar').addEventListener('click', function() {
             const sidebar = document.getElementById('sidebar');
             const mainContent = document.getElementById('mainContent');
-            
+
             sidebar.classList.toggle('collapsed');
             mainContent.classList.toggle('expanded');
         });
@@ -613,9 +384,9 @@
         document.addEventListener('click', function(event) {
             const sidebar = document.getElementById('sidebar');
             const mobileMenuBtn = document.getElementById('mobileMenuBtn');
-            
-            if (window.innerWidth <= 768 && 
-                !sidebar.contains(event.target) && 
+
+            if (window.innerWidth <= 768 &&
+                !sidebar.contains(event.target) &&
                 !mobileMenuBtn.contains(event.target) &&
                 sidebar.classList.contains('show')) {
                 sidebar.classList.remove('show');
@@ -629,6 +400,64 @@
                 sidebar.classList.remove('show');
             }
         });
+
+        // Initialize Select2
+        $(document).ready(function() {
+            $('#keterangan').select2({
+                placeholder: 'Pilih kategori pengeluaran',
+                allowClear: true
+            });
+        });
+
+        // Chart.js
+        @if($chartData->count() > 0)
+        const ctx = document.getElementById('pengeluaranChart').getContext('2d');
+        const labels = {!! $chartData->map(function($item) {
+            return \Carbon\Carbon::createFromDate($item->tahun, $item->bulan, 1)->format('M Y');
+        }) !!};
+        const data = {!! $chartData->pluck('total') !!};
+
+        const pengeluaranChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Pengeluaran',
+                    data: data,
+                    borderColor: '#dc3545',
+                    backgroundColor: 'rgba(220, 53, 69, 0.1)',
+                    borderWidth: 2,
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return 'Rp ' + context.parsed.y.toLocaleString('id-ID');
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return 'Rp ' + value.toLocaleString('id-ID');
+                            }
+                        }
+                    }
+                }
+            }
+        });
+        @endif
     </script>
 </body>
 </html>

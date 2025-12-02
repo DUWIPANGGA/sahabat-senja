@@ -1,12 +1,11 @@
 <?php
 
-use App\Http\Controllers\Admin\LaporanController;
+use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DatalansiaController;
 use App\Http\Controllers\DataperawatController;
-use App\Http\Controllers\Middleware\LaporanController as MiddlewareLaporanController;
-use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\LaporanController;
 
 Route::get('/', function () {
     return view('auth.login');
@@ -22,10 +21,6 @@ Route::controller(AuthController::class)->group(function () {
 // login dan dashboard admin
 Route::middleware(['auth'])->group(function () {
 Route::get('/admin/dashboard', [DashboardController::class, 'dashboard'])->name('admin.dashboard');
-
-// Laporan
-Route::get('/laporan/pemasukan', [MiddlewareLaporanController::class, 'pemasukan'])->name('laporan.pemasukan');
-Route::get('/laporan/pengeluaran', [MiddlewareLaporanController::class, 'pengeluaran'])->name('laporan.pengeluaran');
 
 // data lansia (admin)
 Route::get('/datalansia', [DatalansiaController::class, 'index'])->name('admin.datalansia.index');
@@ -44,5 +39,13 @@ Route::get('/dataperawat/edit/{id}', [DataperawatController::class, 'edit'])->na
 Route::post('/dataperawat/update/{id}', [DataperawatController::class, 'update'])->name('admin.dataperawat.update');
 Route::get('/dataperawat/hapus/{id}', [DataperawatController::class, 'destroy'])->name('admin.dataperawat.destroy');
 
+Route::get('/laporan/pemasukan', [LaporanController::class, 'pemasukan'])->name('laporan.pemasukan');
+    Route::post('/laporan/pemasukan/store', [LaporanController::class, 'storePemasukan'])->name('laporan.pemasukan.store');
+    Route::delete('/laporan/pemasukan/{id}', [LaporanController::class, 'destroyPemasukan'])->name('laporan.pemasukan.destroy');
+
+    // Laporan Pengeluaran
+    Route::get('/laporan/pengeluaran', [LaporanController::class, 'pengeluaran'])->name('laporan.pengeluaran');
+    Route::post('/laporan/pengeluaran/store', [LaporanController::class, 'storePengeluaran'])->name('laporan.pengeluaran.store');
+    Route::delete('/laporan/pengeluaran/{id}', [LaporanController::class, 'destroyPengeluaran'])->name('laporan.pengeluaran.destroy');
 
 
