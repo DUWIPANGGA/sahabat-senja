@@ -4,14 +4,29 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use App\Models\Datalansia;
+use App\Models\User;
+use App\Models\Kamar;
 use Carbon\Carbon;
 
 class DatalansiaSeeder extends Seeder
 {
     public function run(): void
     {
+        // Ambil user keluarga pertama
+        $user = User::first();
+        if (!$user) {
+            $this->command->warn("⚠ Tidak ada user ditemukan. Buat dulu user sebelum seeding datalansia.");
+            return;
+        }
+
+        // Ambil kamar pertama (opsional)
+        $kamar = Kamar::first();
+
         $lansia = [
             [
+                'user_id' => $user->id,
+                'kamar_id' => $kamar->id ?? null,
+
                 'nama_lansia' => 'Siti Rahayu',
                 'umur_lansia' => 75,
                 'tempat_lahir_lansia' => 'Jakarta',
@@ -24,9 +39,12 @@ class DatalansiaSeeder extends Seeder
                 'nama_anak' => 'Ahmad Wijaya',
                 'alamat_lengkap' => 'Jl. Melati No. 123, Jakarta Selatan',
                 'no_hp_anak' => '081234567893',
-                'email_anak' => 'ahmad.keluarga.user@carelansia.com' // SESUAIKAN DENGAN USER
+                'email_anak' => 'ahmad.keluarga.user@carelansia.com'
             ],
             [
+                'user_id' => $user->id,
+                'kamar_id' => $kamar->id ?? null,
+
                 'nama_lansia' => 'Bambang Sutrisno',
                 'umur_lansia' => 82,
                 'tempat_lahir_lansia' => 'Bandung',
@@ -39,9 +57,12 @@ class DatalansiaSeeder extends Seeder
                 'nama_anak' => 'Sari Dewi',
                 'alamat_lengkap' => 'Jl. Mawar No. 45, Jakarta Timur',
                 'no_hp_anak' => '081234567894',
-                'email_anak' => 'sari.keluarga.user@carelansia.com' // SESUAIKAN DENGAN USER
+                'email_anak' => 'sari.keluarga.user@carelansia.com'
             ],
             [
+                'user_id' => $user->id,
+                'kamar_id' => $kamar->id ?? null,
+
                 'nama_lansia' => 'Marta Sari',
                 'umur_lansia' => 68,
                 'tempat_lahir_lansia' => 'Surabaya',
@@ -54,12 +75,14 @@ class DatalansiaSeeder extends Seeder
                 'nama_anak' => 'Rina Handayani',
                 'alamat_lengkap' => 'Jl. Kenanga No. 78, Jakarta Barat',
                 'no_hp_anak' => '081234567895',
-                'email_anak' => 'rina.handayani@carelansia.com' // SESUAIKAN DENGAN USER
-            ]
+                'email_anak' => 'rina.handayani@carelansia.com'
+            ],
         ];
 
         foreach ($lansia as $data) {
             Datalansia::create($data);
         }
+
+        $this->command->info("🎉 Seeder datalansia berhasil dimasukkan!");
     }
 }

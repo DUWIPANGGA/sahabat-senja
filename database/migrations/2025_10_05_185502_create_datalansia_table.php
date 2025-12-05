@@ -11,47 +11,49 @@ return new class extends Migration
         Schema::create('datalansia', function (Blueprint $table) {
             $table->id();
 
-            // Relasi ke user keluarga / pemilik akun
+            // Relasi akun keluarga (wajib)
             $table->foreignId('user_id')
                 ->constrained('users')
                 ->cascadeOnDelete();
 
-            // Foreign key kamar
+            // Kamar lansia
             $table->foreignId('kamar_id')
                 ->nullable()
                 ->constrained('kamar')
                 ->nullOnDelete();
 
-            // Foreign key perawat utama
-            $table->foreignId('perawat_utama_id')
-                ->nullable()
-                ->constrained('users')
-                ->nullOnDelete();
-
             // Data lansia
-            $table->string('nama', 100);
-            $table->string('nik', 50)->nullable();
-            $table->date('tanggal_lahir')->nullable();
-            $table->enum('jenis_kelamin', ['L', 'P'])->nullable();
+            $table->string('nama_lansia', 100);
+            $table->integer('umur_lansia')->nullable();
+            $table->string('tempat_lahir_lansia', 100)->nullable();
+            $table->date('tanggal_lahir_lansia')->nullable();
+            $table->enum('jenis_kelamin_lansia', ['Laki-laki', 'Perempuan'])->nullable();
+            $table->string('gol_darah_lansia', 5)->nullable();
+            $table->string('riwayat_penyakit_lansia', 255)->nullable();
+            $table->string('alergi_lansia', 255)->nullable();
+            $table->string('obat_rutin_lansia', 255)->nullable();
+            $table->text('catatan_khusus')->nullable();
 
-            // 🔥 Nomor HP Anak (yang kamu minta)
+            // Data keluarga & emergency contact
+            $table->string('nama_anak', 100)->nullable();
+            $table->string('alamat_lengkap', 255)->nullable();
             $table->string('no_hp_anak', 15)->nullable();
+            $table->string('email_anak', 100)->nullable();
 
-            // Tanggal masuk / keluar
-            $table->date('tanggal_masuk')->nullable();
-            $table->date('tanggal_keluar')->nullable();
-
-            // Status lansia
-            $table->enum('status', ['aktif', 'keluar', 'meninggal'])->default('aktif');
-
-            // Kontak darurat
             $table->string('kontak_darurat_nama', 100)->nullable();
             $table->string('kontak_darurat_hp', 15)->nullable();
             $table->string('kontak_darurat_hubungan', 50)->nullable();
 
-            // Index untuk optimasi query
-            $table->index(['kamar_id', 'status']);
-            $table->index(['perawat_utama_id', 'status']);
+            // Status lansia
+            $table->enum('status_lansia', ['aktif', 'pulang', 'meninggal'])
+                ->default('aktif');
+
+            // Jadwal (json, array)
+            $table->json('jadwal_obat_rutin')->nullable();
+            $table->json('jadwal_kegiatan_rutin')->nullable();
+
+            // Index untuk optimasi
+            $table->index(['status_lansia', 'kamar_id']);
 
             $table->timestamps();
         });
