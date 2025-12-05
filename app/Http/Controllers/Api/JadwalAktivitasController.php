@@ -67,6 +67,15 @@ class JadwalAktivitasController extends Controller
         }
     }
 
+
+    /**
+     * ALIAS untuk hariIni - untuk kompatibilitas dengan Flutter
+     */
+    public function getToday()
+    {
+        return $this->hariIni();
+    }
+
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
