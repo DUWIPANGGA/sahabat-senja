@@ -26,6 +26,9 @@ class JadwalObat extends Model
         'catatan',
         'user_id',
         'perawat_id',
+        'jenis_obat', 
+        'auto_generate', 
+        'hari',
     ];
 
     protected $casts = [

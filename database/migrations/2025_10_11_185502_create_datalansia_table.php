@@ -1,3 +1,4 @@
+// 2024_XX_XX_XXXXXX_add_kamar_to_datalansia_table.php
 <?php
 
 use Illuminate\Database\Migrations\Migration;
@@ -6,43 +7,56 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Jalankan migration.
-     */
     public function up(): void
     {
-        Schema::create('datalansia', function (Blueprint $table) {
-            $table->id();
+        Schema::table('datalansia', function (Blueprint $table) {
+            // Tambah kolom kamar
+            $table->foreignId('kamar_id')
+                ->nullable()
+                ->after('user_id')
+                ->constrained('kamar')
+                ->onDelete('set null');
             
-            // Data lansia
-            $table->string('nama_lansia', 100);
-            $table->integer('umur_lansia');
-            $table->string('tempat_lahir_lansia', 100)->nullable();
-            $table->date('tanggal_lahir_lansia')->nullable();
-            $table->enum('jenis_kelamin_lansia', ['Laki-laki', 'Perempuan'])->nullable();
-            $table->string('gol_darah_lansia', 5)->nullable();
-            $table->string('riwayat_penyakit_lansia', 255)->nullable();
-            $table->string('alergi_lansia', 255)->nullable();
-            $table->string('obat_rutin_lansia', 255)->nullable();
+            // Tambah kolom perawat utama
+            $table->foreignId('perawat_utama_id')
+                ->nullable()
+                ->after('kamar_id')
+                ->constrained('users')
+                ->where('role', 'perawat')
+                ->onDelete('set null');
             
-            // Data keluarga (relasi ke users)
-            $table->string('nama_anak', 100);
-            $table->string('alamat_lengkap', 255);
-            $table->string('no_hp_anak', 15);
-            $table->string('email_anak', 100);
+            // Informasi tambahan
+            $table->date('tanggal_masuk')->nullable();
+            $table->date('tanggal_keluar')->nullable();
+            $table->enum('status', ['aktif', 'keluar', 'meninggal'])->default('aktif');
             
-            // Foreign key ke users (keluarga yang menangani)
-            $table->foreignId('user_id')->nullable()->constrained('users')->onDelete('set null');
+            // Emergency contact
+            $table->string('kontak_darurat_nama', 100)->nullable();
+            $table->string('kontak_darurat_hp', 15)->nullable();
+            $table->string('kontak_darurat_hubungan', 50)->nullable();
             
-            $table->timestamps();
+            // Indexes
+            $table->index(['kamar_id', 'status']);
+            $table->index(['perawat_utama_id', 'status']);
         });
     }
 
-    /**
-     * Rollback migration.
-     */
     public function down(): void
     {
-        Schema::dropIfExists('datalansia');
+        Schema::table('datalansia', function (Blueprint $table) {
+            $table->dropForeign(['kamar_id']);
+            $table->dropForeign(['perawat_utama_id']);
+            
+            $table->dropColumn([
+                'kamar_id',
+                'perawat_utama_id',
+                'tanggal_masuk',
+                'tanggal_keluar',
+                'status',
+                'kontak_darurat_nama',
+                'kontak_darurat_hp',
+                'kontak_darurat_hubungan'
+            ]);
+        });
     }
 };

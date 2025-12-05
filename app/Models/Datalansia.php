@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Models\User;
+use App\Models\Kamar;
 use App\Models\JadwalObat;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -31,6 +33,10 @@ class Datalansia extends Model
         'no_hp_anak',
         'email_anak',
         'user_id',
+        'kamar_id',
+        'perawat_id', // perawat utama
+        'obat_rutin_json', 
+        'jadwal_kegiatan_json',
     ];
 
     protected $casts = [
@@ -78,5 +84,14 @@ public function jadwalObat()
     public function scopeByKeluarga($query, $userId)
     {
         return $query->where('user_id', $userId);
+    }
+     public function kamar()
+    {
+        return $this->belongsTo(Kamar::class, 'kamar_id');
+    }
+    
+    public function perawat()
+    {
+        return $this->belongsTo(User::class, 'perawat_id')->where('role', 'perawat');
     }
 }
