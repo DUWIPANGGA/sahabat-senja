@@ -6,21 +6,29 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    public function up()
+    public function up(): void
     {
-        
         Schema::create('pengeluarans', function (Blueprint $table) {
             $table->id();
             $table->date('tanggal');
             $table->string('keterangan');
             $table->decimal('jumlah', 15, 2);
-            $table->foreignId('user_id')->nullable()->constrained('users')->onDelete('set null'); // user yang input
+            $table->string('bukti')->nullable();
+            $table->foreignId('user_id')
+                    ->nullable()
+                    ->constrained('users')
+                    ->onDelete('set null');
             $table->timestamps();
+            
+            // Tambah index untuk performa query
+            $table->index('tanggal');
+            $table->index('keterangan');
+            $table->index(['tanggal', 'user_id']);
         });
     }
 
-    public function down()
+    public function down(): void
     {
-        Schema::dropIfExists('pengeluaran');
+        Schema::dropIfExists('pengeluarans');
     }
 };

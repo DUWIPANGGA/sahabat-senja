@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Admin;
+namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Models\Pemasukan;
@@ -11,6 +11,11 @@ use Carbon\Carbon;
 
 class LaporanController extends Controller
 {
+    public function __construct()
+    {
+        // $this->middleware('auth');
+    }
+    
     /**
      * Menampilkan laporan pemasukan
      */
@@ -43,7 +48,7 @@ class LaporanController extends Controller
         // Data untuk chart
         $chartData = $this->getChartDataPemasukan($request);
         
-        return view('admin.laporan.pemasukan', compact('pemasukan', 'totalPemasukan', 'chartData'));
+        return view('admin.laporan.laporan_pemasukan', compact('pemasukan', 'totalPemasukan', 'chartData'));
     }
 
     /**
@@ -78,7 +83,58 @@ class LaporanController extends Controller
         // Data untuk chart
         $chartData = $this->getChartDataPengeluaran($request);
         
-        return view('admin.laporan.pengeluaran', compact('pengeluaran', 'totalPengeluaran', 'chartData'));
+        return view('admin.laporan.laporan_pengeluaran', compact('pengeluaran', 'totalPengeluaran', 'chartData'));
+    }
+
+    /**
+     * Menampilkan dashboard laporan (total pemasukan dan pengeluaran)
+     */
+    public function dashboard(Request $request)
+    {
+        $periode = $request->periode ?? 'bulan_ini';
+        
+        // Query untuk pemasukan
+        $queryPemasukan = Pemasukan::query();
+        $queryPengeluaran = Pengeluaran::query();
+        
+        // Filter berdasarkan periode
+        switch ($periode) {
+            case 'hari_ini':
+                $queryPemasukan->whereDate('tanggal', Carbon::today());
+                $queryPengeluaran->whereDate('tanggal', Carbon::today());
+                break;
+            case 'minggu_ini':
+                $queryPemasukan->whereBetween('tanggal', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()]);
+                $queryPengeluaran->whereBetween('tanggal', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()]);
+                break;
+            case 'bulan_ini':
+                $queryPemasukan->whereMonth('tanggal', Carbon::now()->month)
+                              ->whereYear('tanggal', Carbon::now()->year);
+                $queryPengeluaran->whereMonth('tanggal', Carbon::now()->month)
+                                ->whereYear('tanggal', Carbon::now()->year);
+                break;
+            case 'tahun_ini':
+                $queryPemasukan->whereYear('tanggal', Carbon::now()->year);
+                $queryPengeluaran->whereYear('tanggal', Carbon::now()->year);
+                break;
+        }
+        
+        $totalPemasukan = $queryPemasukan->sum('jumlah');
+        $totalPengeluaran = $queryPengeluaran->sum('jumlah');
+        $saldo = $totalPemasukan - $totalPengeluaran;
+        
+        // Data untuk chart
+        $chartPemasukan = $this->getChartDataDashboard('pemasukan', $periode);
+        $chartPengeluaran = $this->getChartDataDashboard('pengeluaran', $periode);
+        
+        return view('admin.laporan.dashboard', compact(
+            'totalPemasukan', 
+            'totalPengeluaran', 
+            'saldo',
+            'chartPemasukan',
+            'chartPengeluaran',
+            'periode'
+        ));
     }
 
     /**
@@ -130,6 +186,72 @@ class LaporanController extends Controller
     }
 
     /**
+     * Menampilkan form edit pemasukan
+     */
+    public function editPemasukan($id)
+    {
+        $pemasukan = Pemasukan::findOrFail($id);
+        return view('admin.laporan.edit_pemasukan', compact('pemasukan'));
+    }
+
+    /**
+     * Update data pemasukan
+     */
+    public function updatePemasukan(Request $request, $id)
+    {
+        $request->validate([
+            'tanggal' => 'required|date',
+            'sumber' => 'required|string|max:255',
+            'jumlah' => 'required|numeric|min:0',
+            'keterangan' => 'nullable|string'
+        ]);
+
+        $pemasukan = Pemasukan::findOrFail($id);
+        $pemasukan->update([
+            'tanggal' => $request->tanggal,
+            'sumber' => $request->sumber,
+            'jumlah' => $request->jumlah,
+            'keterangan' => $request->keterangan
+        ]);
+
+        return redirect()->route('laporan.pemasukan')
+            ->with('success', 'Data pemasukan berhasil diperbarui.');
+    }
+
+    /**
+     * Menampilkan form edit pengeluaran
+     */
+    public function editPengeluaran($id)
+    {
+        $pengeluaran = Pengeluaran::findOrFail($id);
+        return view('admin.laporan.edit_pengeluaran', compact('pengeluaran'));
+    }
+
+    /**
+     * Update data pengeluaran
+     */
+    public function updatePengeluaran(Request $request, $id)
+    {
+        $request->validate([
+            'tanggal' => 'required|date',
+            'keterangan' => 'required|string|max:255',
+            'jumlah' => 'required|numeric|min:0',
+            'bukti' => 'nullable|string'
+        ]);
+
+        $pengeluaran = Pengeluaran::findOrFail($id);
+        $pengeluaran->update([
+            'tanggal' => $request->tanggal,
+            'keterangan' => $request->keterangan,
+            'jumlah' => $request->jumlah,
+            'bukti' => $request->bukti
+        ]);
+
+        return redirect()->route('laporan.pengeluaran')
+            ->with('success', 'Data pengeluaran berhasil diperbarui.');
+    }
+
+    /**
      * Menghapus data pemasukan
      */
     public function destroyPemasukan($id)
@@ -159,13 +281,11 @@ class LaporanController extends Controller
     private function getChartDataPemasukan(Request $request)
     {
         $query = Pemasukan::select(
-            DB::raw('MONTH(tanggal) as bulan'),
-            DB::raw('YEAR(tanggal) as tahun'),
+            DB::raw('DATE_FORMAT(tanggal, "%Y-%m") as bulan_tahun'),
             DB::raw('SUM(jumlah) as total')
         )
-        ->groupBy(DB::raw('YEAR(tanggal), MONTH(tanggal)'))
-        ->orderBy('tahun', 'asc')
-        ->orderBy('bulan', 'asc')
+        ->groupBy('bulan_tahun')
+        ->orderBy('bulan_tahun', 'asc')
         ->limit(12);
 
         if ($request->filled('dari_tanggal')) {
@@ -185,13 +305,11 @@ class LaporanController extends Controller
     private function getChartDataPengeluaran(Request $request)
     {
         $query = Pengeluaran::select(
-            DB::raw('MONTH(tanggal) as bulan'),
-            DB::raw('YEAR(tanggal) as tahun'),
+            DB::raw('DATE_FORMAT(tanggal, "%Y-%m") as bulan_tahun'),
             DB::raw('SUM(jumlah) as total')
         )
-        ->groupBy(DB::raw('YEAR(tanggal), MONTH(tanggal)'))
-        ->orderBy('tahun', 'asc')
-        ->orderBy('bulan', 'asc')
+        ->groupBy('bulan_tahun')
+        ->orderBy('bulan_tahun', 'asc')
         ->limit(12);
 
         if ($request->filled('dari_tanggal')) {
@@ -206,11 +324,45 @@ class LaporanController extends Controller
     }
 
     /**
+     * Get chart data for dashboard
+     */
+    private function getChartDataDashboard($type, $periode)
+    {
+        $model = $type === 'pemasukan' ? new Pemasukan() : new Pengeluaran();
+        $query = $model->select(
+            DB::raw('DATE_FORMAT(tanggal, "%Y-%m") as bulan_tahun'),
+            DB::raw('SUM(jumlah) as total')
+        )
+        ->groupBy('bulan_tahun')
+        ->orderBy('bulan_tahun', 'desc')
+        ->limit(6);
+
+        // Filter berdasarkan periode
+        $now = Carbon::now();
+        switch ($periode) {
+            case 'tahun_ini':
+                $query->whereYear('tanggal', $now->year);
+                break;
+            case 'bulan_ini':
+                $query->whereMonth('tanggal', $now->month)
+                      ->whereYear('tanggal', $now->year);
+                break;
+            case 'minggu_ini':
+                $query->whereBetween('tanggal', [$now->startOfWeek(), $now->endOfWeek()]);
+                break;
+        }
+
+        return $query->get()->reverse();
+    }
+
+    /**
      * Export laporan pemasukan ke PDF
      */
     public function exportPemasukanPdf(Request $request)
     {
         // Implementasi export PDF
+        $data = $this->getExportData($request, 'pemasukan');
+        // Gunakan library seperti DomPDF atau Barryvdh/Laravel-DomPDF
     }
 
     /**
@@ -219,21 +371,26 @@ class LaporanController extends Controller
     public function exportPengeluaranPdf(Request $request)
     {
         // Implementasi export PDF
+        $data = $this->getExportData($request, 'pengeluaran');
+        // Gunakan library seperti DomPDF atau Barryvdh/Laravel-DomPDF
     }
 
     /**
-     * Export laporan pemasukan ke Excel
+     * Get data for export
      */
-    public function exportPemasukanExcel(Request $request)
+    private function getExportData(Request $request, $type)
     {
-        // Implementasi export Excel
-    }
-
-    /**
-     * Export laporan pengeluaran ke Excel
-     */
-    public function exportPengeluaranExcel(Request $request)
-    {
-        // Implementasi export Excel
+        $model = $type === 'pemasukan' ? new Pemasukan() : new Pengeluaran();
+        $query = $model->query();
+        
+        if ($request->filled('dari_tanggal')) {
+            $query->whereDate('tanggal', '>=', $request->dari_tanggal);
+        }
+        
+        if ($request->filled('sampai_tanggal')) {
+            $query->whereDate('tanggal', '<=', $request->sampai_tanggal);
+        }
+        
+        return $query->orderBy('tanggal', 'desc')->get();
     }
 }

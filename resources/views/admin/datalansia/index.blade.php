@@ -602,19 +602,19 @@
                 </a>
             </div>
             <div class="nav-item">
-                <a href="#" class="nav-link">
+                <a href="{{ route('laporan.pemasukan') }}" class="nav-link">
                     <i class="fas fa-money-bill-wave"></i>
                     <span>Laporan Pemasukkan</span>
                 </a>
             </div>
             <div class="nav-item">
-                <a href="#" class="nav-link">
+                <a href="{{ route('laporan.pengeluaran') }}" class="nav-link">
                     <i class="fas fa-receipt"></i>
                     <span>Laporan Pengeluaran</span>
                 </a>
             </div>
             <div class="nav-item">
-                <a href="#" class="nav-link">
+                <a href="{{ route('admin.grafik.index') }}" class="nav-link">
                     <i class="fas fa-chart-bar"></i>
                     <span>Grafik Keseluruhan</span>
                 </a>

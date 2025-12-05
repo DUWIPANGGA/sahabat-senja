@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Admin - Sahabat Senja</title>
+    <title>Grafik Keuangan - Sahabat Senja</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -318,8 +318,8 @@
             margin-bottom: 2rem;
         }
         
-        /* Recent Activity */
-        .activity-card {
+        /* Filter Card */
+        .filter-card {
             background-color: white;
             border-radius: 12px;
             box-shadow: var(--card-shadow);
@@ -327,16 +327,25 @@
             margin-bottom: 2rem;
         }
         
-        .card-header {
+        /* Charts Section */
+        .chart-container {
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: var(--card-shadow);
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .chart-header {
             border-bottom: 1px solid var(--accent-color);
             padding-bottom: 1rem;
-            margin-bottom: 1rem;
+            margin-bottom: 1.5rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
         
-        .card-header h3 {
+        .chart-header h3 {
             font-weight: 600;
             color: var(--text-dark);
             margin: 0;
@@ -344,9 +353,40 @@
             align-items: center;
         }
         
-        .card-header h3 i {
+        .chart-header h3 i {
             margin-right: 10px;
             color: var(--primary-color);
+        }
+        
+        .chart-wrapper {
+            position: relative;
+            height: 400px;
+            width: 100%;
+        }
+        
+        /* Donut Charts Container */
+        .donut-chart-container {
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: var(--card-shadow);
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            height: 100%;
+        }
+        
+        .donut-chart-wrapper {
+            position: relative;
+            height: 300px;
+            width: 100%;
+        }
+        
+        /* Recent Transactions */
+        .activity-card {
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: var(--card-shadow);
+            padding: 1.5rem;
+            margin-bottom: 2rem;
         }
         
         .activity-list {
@@ -392,8 +432,8 @@
             color: var(--text-light);
         }
         
-        /* Charts Section */
-        .chart-container {
+        /* Table Styling */
+        .table-container {
             background-color: white;
             border-radius: 12px;
             box-shadow: var(--card-shadow);
@@ -401,16 +441,16 @@
             margin-bottom: 2rem;
         }
         
-        .chart-header {
+        .table-header {
             border-bottom: 1px solid var(--accent-color);
             padding-bottom: 1rem;
-            margin-bottom: 1.5rem;
+            margin-bottom: 1rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
         
-        .chart-header h3 {
+        .table-header h3 {
             font-weight: 600;
             color: var(--text-dark);
             margin: 0;
@@ -418,15 +458,43 @@
             align-items: center;
         }
         
-        .chart-header h3 i {
+        .table-header h3 i {
             margin-right: 10px;
             color: var(--primary-color);
         }
         
-        .chart-wrapper {
-            position: relative;
-            height: 400px;
+        .custom-table {
             width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .custom-table thead {
+            background-color: rgba(139, 115, 85, 0.05);
+        }
+        
+        .custom-table th {
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+            color: var(--text-dark);
+            border-bottom: 2px solid var(--accent-color);
+        }
+        
+        .custom-table td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--accent-color);
+        }
+        
+        .custom-table tbody tr:hover {
+            background-color: rgba(139, 115, 85, 0.05);
+        }
+        
+        /* Footer */
+        .footer {
+            background-color: var(--dark-brown);
+            color: white;
+            padding: 1.5rem 0;
+            margin-top: 3rem;
         }
         
         /* Chart Type Toggle */
@@ -456,63 +524,6 @@
         .chart-type-btn.active {
             background-color: var(--primary-color);
             color: white;
-        }
-        
-        /* Filter Card */
-        .filter-card {
-            background-color: white;
-            border-radius: 12px;
-            box-shadow: var(--card-shadow);
-            padding: 1.5rem;
-            margin-bottom: 2rem;
-        }
-        
-        /* Quick Actions */
-        .quick-actions {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 1rem;
-            margin-bottom: 2rem;
-        }
-        
-        .action-btn {
-            background-color: white;
-            border: none;
-            border-radius: 12px;
-            padding: 1.5rem;
-            text-align: center;
-            box-shadow: var(--card-shadow);
-            transition: all 0.3s;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .action-btn:hover {
-            transform: translateY(-5px);
-            box-shadow: var(--hover-shadow);
-        }
-        
-        .action-icon {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.5rem;
-            margin-bottom: 0.8rem;
-            background-color: rgba(139, 115, 85, 0.1);
-            color: var(--primary-color);
-        }
-        
-        /* Footer */
-        .footer {
-            background-color: var(--dark-brown);
-            color: white;
-            padding: 1.5rem 0;
-            margin-top: 3rem;
         }
         
         /* Responsive */
@@ -604,7 +615,7 @@
         
         <div class="sidebar-nav">
             <div class="nav-item" style="margin-bottom: 0;">
-                <a href="{{ route('admin.dashboard') }}" class="nav-link active">
+                <a href="{{ route('admin.dashboard') }}" class="nav-link">
                     <i class="fas fa-tachometer-alt"></i>
                     <span>Dashboard</span>
                 </a>
@@ -637,7 +648,7 @@
             </div>
 
             <div class="nav-item" style="margin-bottom: 0;">
-                <a href="{{ route('admin.grafik.index') }}" class="nav-link">
+                <a href="{{ route('admin.grafik.index') }}" class="nav-link active">
                     <i class="fas fa-chart-pie"></i>
                     <span>Grafik Keseluruhan</span>
                 </a>
@@ -654,7 +665,7 @@
                     <i class="fas fa-bars"></i>
                 </button>
                 <h1 class="header-title">
-                    <i class="fas fa-tachometer-alt"></i>Dashboard Admin
+                    <i class="fas fa-chart-pie"></i>Grafik Keuangan
                 </h1>
             </div>
             
@@ -676,198 +687,217 @@
         </div>
 
         <div class="container-fluid p-4">
-            <!-- Stats Cards -->
+            <!-- Filter Card -->
+            <div class="filter-card">
+                <h3 class="mb-4"><i class="fas fa-filter"></i>Filter Data</h3>
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label fw-bold">Pilih Tahun</label>
+                        <select id="tahunFilter" class="form-select">
+                            @foreach($tahunList as $tahunItem)
+                                <option value="{{ $tahunItem }}" {{ $tahun == $tahunItem ? 'selected' : '' }}>
+                                    Tahun {{ $tahunItem }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label fw-bold">Pilih Bulan</label>
+                        <select id="bulanFilter" class="form-select">
+                            @foreach(['1'=>'Januari','2'=>'Februari','3'=>'Maret','4'=>'April','5'=>'Mei','6'=>'Juni','7'=>'Juli','8'=>'Agustus','9'=>'September','10'=>'Oktober','11'=>'November','12'=>'Desember'] as $key => $value)
+                                <option value="{{ $key }}" {{ request('bulan', date('m')) == $key ? 'selected' : '' }}>
+                                    {{ $value }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-md-4 mb-3 d-flex align-items-end">
+                        <button id="filterBtn" class="btn w-100" style="background-color: var(--primary-color); color: white; padding: 0.6rem;">
+                            <i class="fas fa-filter me-2"></i>Terapkan Filter
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Summary Cards -->
             <div class="stats-grid">
                 <div class="dashboard-card">
-                    <div class="card-icon primary">
-                        <i class="fas fa-user-md"></i>
-                    </div>
-                    <div class="card-title">Total Perawat</div>
-                    <div class="card-value">{{ $stats['total_perawat'] ?? 0 }}</div>
-                    <div class="card-change positive">
-                        <i class="fas fa-arrow-up me-1"></i> 12% dari bulan lalu
-                    </div>
-                </div>
-                
-                <div class="dashboard-card">
-                    <div class="card-icon success">
-                        <i class="fas fa-user-friends"></i>
-                    </div>
-                    <div class="card-title">Total Lansia</div>
-                    <div class="card-value">{{ $stats['total_lansia'] ?? 0 }}</div>
-                    <div class="card-change positive">
-                        <i class="fas fa-arrow-up me-1"></i> 8% dari bulan lalu
-                    </div>
-                </div>
-                
-                <div class="dashboard-card">
-                    <div class="card-icon warning">
-                        <i class="fas fa-hand-holding-heart"></i>
-                    </div>
-                    <div class="card-title">Donasi Untuk Lansia</div>
-                    <div class="card-value">{{ $stats['jadwal_hari_ini'] ?? 0 }}</div>
-                    <div class="card-change negative">
-                        <i class="fas fa-arrow-down me-1"></i> 2 dari kemarin
-                    </div>
-                </div>
-                
-                <div class="dashboard-card">
-                    <div class="card-icon info">
-                        <i class="fas fa-piggy-bank"></i>
-                    </div>
-                    <div class="card-title">Saldo Bersih</div>
-                    <div class="card-value">Rp {{ number_format($saldoBersih ?? 0, 0, ',', '.') }}</div>
-                    <div class="card-change {{ ($saldoBersih ?? 0) >= 0 ? 'positive' : 'negative' }}">
-                        <i class="fas fa-arrow-{{ ($saldoBersih ?? 0) >= 0 ? 'up' : 'down' }} me-1"></i> 
-                        {{ ($saldoBersih ?? 0) >= 0 ? 'Positif' : 'Negatif' }}
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Filter Section -->
-            <div class="filter-card">
-                <h3 class="mb-4"><i class="fas fa-filter"></i>Filter Grafik Keuangan</h3>
-                <form id="filterForm" method="GET" action="{{ route('admin.dashboard') }}">
-                    <div class="row">
-                        <div class="col-md-4 mb-3">
-                            <label class="form-label fw-bold">Pilih Tahun</label>
-                            <select id="tahunFilter" name="tahun" class="form-select">
-                                @php
-                                    $currentYear = date('Y');
-                                    $selectedYear = request('tahun', $currentYear);
-                                @endphp
-                                @for($year = $currentYear - 2; $year <= $currentYear + 1; $year++)
-                                    <option value="{{ $year }}" {{ $selectedYear == $year ? 'selected' : '' }}>
-                                        {{ $year }}
-                                    </option>
-                                @endfor
-                            </select>
+                    <div class="d-flex align-items-center">
+                        <div class="card-icon primary">
+                            <i class="fas fa-money-bill-wave"></i>
                         </div>
-                        <div class="col-md-4 mb-3">
-                            <label class="form-label fw-bold">Pilih Rentang Waktu</label>
-                            <select id="rentangFilter" name="rentang" class="form-select">
-                                <option value="bulan" {{ request('rentang', 'bulan') == 'bulan' ? 'selected' : '' }}>Per Bulan</option>
-                                <option value="minggu" {{ request('rentang') == 'minggu' ? 'selected' : '' }}>Per Minggu</option>
-                                <option value="hari" {{ request('rentang') == 'hari' ? 'selected' : '' }}>Per Hari (30 hari terakhir)</option>
-                            </select>
-                        </div>
-                        <div class="col-md-4 mb-3 d-flex align-items-end">
-                            <button type="submit" id="filterBtn" class="btn w-100" style="background-color: var(--primary-color); color: white; padding: 0.6rem;">
-                                <i class="fas fa-filter me-2"></i>Terapkan Filter
-                            </button>
-                        </div>
-                    </div>
-                </form>
-            </div>
-            
-            <!-- Charts and Recent Activity -->
-            <div class="row">
-                <div class="col-lg-8">
-                    <div class="chart-container">
-                        <div class="chart-header">
-                            <h3><i class="fas fa-chart-line"></i>Grafik Pemasukan vs Pengeluaran 
-                                @if(request('rentang', 'bulan') == 'bulan')
-                                    Tahun {{ request('tahun', date('Y')) }}
-                                @elseif(request('rentang') == 'minggu')
-                                    Mingguan
+                        <div>
+                            <div class="card-title">Total Pemasukan</div>
+                            <div class="card-value">Rp {{ number_format($totalPemasukan, 0, ',', '.') }}</div>
+                            <div class="card-change positive">
+                                <i class="fas fa-arrow-up me-1"></i> 
+                                @if($totalPemasukanBulanLalu > 0)
+                                    {{ number_format(($totalPemasukan - $totalPemasukanBulanLalu) / $totalPemasukanBulanLalu * 100, 1) }}%
                                 @else
-                                    30 Hari Terakhir
+                                    0%
                                 @endif
-                            </h3>
-                            <div class="chart-type-toggle">
-                                <button class="chart-type-btn active" data-chart-type="bar">
-                                    <i class="fas fa-chart-bar"></i> Batang
-                                </button>
-                                <button class="chart-type-btn" data-chart-type="line">
-                                    <i class="fas fa-chart-line"></i> Garis
-                                </button>
                             </div>
                         </div>
-                        <div class="chart-wrapper">
-                            <canvas id="keuanganChart"></canvas>
+                    </div>
+                </div>
+                
+                <div class="dashboard-card">
+                    <div class="d-flex align-items-center">
+                        <div class="card-icon warning">
+                            <i class="fas fa-hand-holding-usd"></i>
+                        </div>
+                        <div>
+                            <div class="card-title">Total Pengeluaran</div>
+                            <div class="card-value">Rp {{ number_format($totalPengeluaran, 0, ',', '.') }}</div>
+                            <div class="card-change {{ ($totalPengeluaran - $totalPengeluaranBulanLalu) >= 0 ? 'negative' : 'positive' }}">
+                                <i class="fas fa-arrow-{{ ($totalPengeluaran - $totalPengeluaranBulanLalu) >= 0 ? 'up' : 'down' }} me-1"></i> 
+                                @if($totalPengeluaranBulanLalu > 0)
+                                    {{ number_format(abs(($totalPengeluaran - $totalPengeluaranBulanLalu) / $totalPengeluaranBulanLalu * 100), 1) }}%
+                                @else
+                                    0%
+                                @endif
+                            </div>
                         </div>
                     </div>
                 </div>
                 
-                <div class="col-lg-4">
-                    <div class="activity-card">
-                        <div class="card-header">
-                            <h3><i class="fas fa-clock"></i>Transaksi Terbaru</h3>
-                            <a href="{{ route('admin.grafik.index') }}" class="btn btn-sm btn-outline-primary">Detail</a>
+                <div class="dashboard-card">
+                    <div class="d-flex align-items-center">
+                        <div class="card-icon {{ $saldo >= 0 ? 'success' : 'danger' }}">
+                            <i class="fas fa-piggy-bank"></i>
                         </div>
-                        <ul class="activity-list">
-                            @if(isset($transaksiTerbaru) && count($transaksiTerbaru) > 0)
-                                @foreach($transaksiTerbaru as $transaksi)
-                                    <li class="activity-item">
-                                        <div class="activity-icon">
-                                            @if($transaksi->type == 'pemasukan')
-                                                <i class="fas fa-money-bill-wave"></i>
-                                            @else
-                                                <i class="fas fa-hand-holding-usd"></i>
-                                            @endif
-                                        </div>
-                                        <div class="activity-content">
-                                            <div class="activity-title">
-                                                {{ $transaksi->description ?? $transaksi->sumber ?? $transaksi->keterangan }}
-                                            </div>
-                                            <div class="activity-time">
-                                                {{ \Carbon\Carbon::parse($transaksi->tanggal)->format('d/m/Y H:i') }}
-                                                <span class="badge ms-2 {{ $transaksi->type == 'pemasukan' ? 'bg-success' : 'bg-danger' }}">
-                                                    Rp {{ number_format($transaksi->jumlah, 0, ',', '.') }}
-                                                </span>
-                                            </div>
-                                        </div>
-                                    </li>
-                                @endforeach
-                            @else
-                                <li class="activity-item">
-                                    <div class="activity-icon">
-                                        <i class="fas fa-info-circle"></i>
-                                    </div>
-                                    <div class="activity-content">
-                                        <div class="activity-title">Tidak ada transaksi terbaru</div>
-                                        <div class="activity-time">Belum ada data transaksi</div>
-                                    </div>
-                                </li>
-                            @endif
-                        </ul>
+                        <div>
+                            <div class="card-title">Saldo Bersih</div>
+                            <div class="card-value">Rp {{ number_format($saldo, 0, ',', '.') }}</div>
+                            <div class="card-change {{ $saldoBulanLalu <= $saldo ? 'positive' : 'negative' }}">
+                                <i class="fas fa-arrow-{{ $saldoBulanLalu <= $saldo ? 'up' : 'down' }} me-1"></i> 
+                                @if($saldoBulanLalu > 0)
+                                    {{ number_format((($saldo - $saldoBulanLalu) / $saldoBulanLalu) * 100, 1) }}%
+                                @else
+                                    0%
+                                @endif
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
-            
-            <!-- Quick Actions -->
-            <div class="quick-actions">
-                <button class="action-btn" onclick="window.location.href='{{ route('laporan.pemasukan') }}'">
-                    <div class="action-icon">
-                        <i class="fas fa-money-bill-wave"></i>
+
+            <!-- Main Chart -->
+            <div class="chart-container">
+                <div class="chart-header">
+                    <h3><i class="fas fa-chart-line"></i>Grafik Pemasukan vs Pengeluaran Tahun {{ $tahun }}</h3>
+                    <div class="chart-type-toggle">
+                        <button class="chart-type-btn active" data-chart-type="bar">
+                            <i class="fas fa-chart-bar"></i> Batang
+                        </button>
+                        <button class="chart-type-btn" data-chart-type="line">
+                            <i class="fas fa-chart-line"></i> Garis
+                        </button>
                     </div>
-                    <span class="fw-bold">Tambah Pemasukan</span>
-                    <small class="text-muted">Catat pemasukan baru</small>
-                </button>
+                </div>
+                <div class="chart-wrapper">
+                    <canvas id="mainChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Donut Charts -->
+            <div class="row mb-4">
+                <div class="col-lg-6">
+                    <div class="donut-chart-container">
+                        <div class="chart-header">
+                            <h3><i class="fas fa-chart-pie"></i>Pemasukan per Sumber</h3>
+                            <small class="text-muted">Bulan {{ $namaBulan }} {{ $tahun }}</small>
+                        </div>
+                        <div class="donut-chart-wrapper">
+                            <canvas id="pemasukanChart"></canvas>
+                        </div>
+                    </div>
+                </div>
                 
-                <button class="action-btn" onclick="window.location.href='{{ route('laporan.pengeluaran') }}'">
-                    <div class="action-icon">
-                        <i class="fas fa-hand-holding-usd"></i>
+                <div class="col-lg-6">
+                    <div class="donut-chart-container">
+                        <div class="chart-header">
+                            <h3><i class="fas fa-chart-pie"></i>Pengeluaran per Kategori</h3>
+                            <small class="text-muted">Bulan {{ $namaBulan }} {{ $tahun }}</small>
+                        </div>
+                        <div class="donut-chart-wrapper">
+                            <canvas id="pengeluaranChart"></canvas>
+                        </div>
                     </div>
-                    <span class="fw-bold">Tambah Pengeluaran</span>
-                    <small class="text-muted">Catat pengeluaran baru</small>
-                </button>
+                </div>
+            </div>
+
+            <!-- Recent Transactions -->
+            <div class="row">
+                <div class="col-lg-6">
+                    <div class="table-container">
+                        <div class="table-header">
+                            <h3><i class="fas fa-money-bill-wave"></i>Pemasukan Terbaru</h3>
+                            <a href="{{ route('laporan.pemasukan') }}" class="btn btn-sm" style="background-color: var(--primary-color); color: white;">
+                                <i class="fas fa-eye me-1"></i> Lihat Semua
+                            </a>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="custom-table">
+                                <thead>
+                                    <tr>
+                                        <th>Tanggal</th>
+                                        <th>Sumber</th>
+                                        <th class="text-end">Jumlah</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @forelse($recentPemasukan as $item)
+                                        <tr>
+                                            <td>{{ \Carbon\Carbon::parse($item->tanggal)->format('d/m/Y') }}</td>
+                                            <td>{{ $item->sumber }}</td>
+                                            <td class="text-end text-success fw-bold">+ Rp {{ number_format($item->jumlah, 0, ',', '.') }}</td>
+                                        </tr>
+                                    @empty
+                                        <tr>
+                                            <td colspan="3" class="text-center py-4">Tidak ada data pemasukan</td>
+                                        </tr>
+                                    @endforelse
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
                 
-                <button class="action-btn" onclick="window.location.href='{{ route('admin.grafik.index') }}'">
-                    <div class="action-icon">
-                        <i class="fas fa-chart-pie"></i>
+                <div class="col-lg-6">
+                    <div class="table-container">
+                        <div class="table-header">
+                            <h3><i class="fas fa-hand-holding-usd"></i>Pengeluaran Terbaru</h3>
+                            <a href="{{ route('laporan.pengeluaran') }}" class="btn btn-sm" style="background-color: var(--primary-color); color: white;">
+                                <i class="fas fa-eye me-1"></i> Lihat Semua
+                            </a>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="custom-table">
+                                <thead>
+                                    <tr>
+                                        <th>Tanggal</th>
+                                        <th>Keterangan</th>
+                                        <th class="text-end">Jumlah</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @forelse($recentPengeluaran as $item)
+                                        <tr>
+                                            <td>{{ \Carbon\Carbon::parse($item->tanggal)->format('d/m/Y') }}</td>
+                                            <td>{{ $item->keterangan }}</td>
+                                            <td class="text-end text-danger fw-bold">- Rp {{ number_format($item->jumlah, 0, ',', '.') }}</td>
+                                        </tr>
+                                    @empty
+                                        <tr>
+                                            <td colspan="3" class="text-center py-4">Tidak ada data pengeluaran</td>
+                                        </tr>
+                                    @endforelse
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
-                    <span class="fw-bold">Detail Grafik</span>
-                    <small class="text-muted">Analisis lengkap keuangan</small>
-                </button>
-                
-                <button class="action-btn" onclick="generateLaporan()">
-                    <div class="action-icon">
-                        <i class="fas fa-file-pdf"></i>
-                    </div>
-                    <span class="fw-bold">Export Laporan</span>
-                    <small class="text-muted">Download PDF laporan</small>
-                </button>
+                </div>
             </div>
         </div>
         
@@ -919,6 +949,13 @@
                 }
             });
 
+            // Filter Button
+            document.getElementById('filterBtn').addEventListener('click', function() {
+                const tahun = document.getElementById('tahunFilter').value;
+                const bulan = document.getElementById('bulanFilter').value;
+                window.location.href = `{{ route('admin.grafik.index') }}?tahun=${tahun}&bulan=${bulan}`;
+            });
+
             // Chart Type Toggle
             document.querySelectorAll('.chart-type-btn').forEach(button => {
                 button.addEventListener('click', function() {
@@ -930,19 +967,16 @@
                 });
             });
 
-            // Get data from PHP variables passed to JavaScript
-            const chartData = @json($chartData);
-            
-            // Initialize Chart with real data
-            const ctx = document.getElementById('keuanganChart').getContext('2d');
-            let keuanganChart = new Chart(ctx, {
+            // Initialize Main Chart
+            const mainChartCtx = document.getElementById('mainChart').getContext('2d');
+            let mainChart = new Chart(mainChartCtx, {
                 type: 'bar',
                 data: {
-                    labels: chartData.labels,
+                    labels: @json($labels),
                     datasets: [
                         {
                             label: 'Pemasukan',
-                            data: chartData.pemasukan,
+                            data: @json($pemasukanData),
                             backgroundColor: 'rgba(139, 115, 85, 0.8)',
                             borderColor: 'rgba(139, 115, 85, 1)',
                             borderWidth: 2,
@@ -951,7 +985,7 @@
                         },
                         {
                             label: 'Pengeluaran',
-                            data: chartData.pengeluaran,
+                            data: @json($pengeluaranData),
                             backgroundColor: 'rgba(255, 183, 77, 0.8)',
                             borderColor: 'rgba(255, 183, 77, 1)',
                             borderWidth: 2,
@@ -1029,37 +1063,137 @@
 
             // Function to update chart type
             function updateChartType(type) {
-                keuanganChart.config.type = type;
-                keuanganChart.update();
+                mainChart.config.type = type;
+                mainChart.update();
             }
 
-            // Function to show notification
-            function showNotification(message, type) {
-                const notification = document.createElement('div');
-                notification.className = `position-fixed top-0 end-0 m-4 p-3 rounded shadow-lg ${type === 'success' ? 'bg-success' : 'bg-danger'} text-white`;
-                notification.style.zIndex = '9999';
-                notification.innerHTML = `
-                    <div class="d-flex align-items-center">
-                        <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'} me-2"></i>
-                        <span>${message}</span>
-                    </div>
-                `;
-                
-                document.body.appendChild(notification);
-                
-                setTimeout(() => {
-                    notification.remove();
-                }, 3000);
-            }
+            // Pemasukan Chart (Donut)
+            const pemasukanCtx = document.getElementById('pemasukanChart').getContext('2d');
+            new Chart(pemasukanCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: @json($pemasukanLabels),
+                    datasets: [{
+                        data: @json($pemasukanValues),
+                        backgroundColor: [
+                            'rgba(139, 115, 85, 0.8)',
+                            'rgba(93, 64, 55, 0.8)',
+                            'rgba(165, 123, 91, 0.8)',
+                            'rgba(215, 204, 200, 0.8)',
+                            'rgba(124, 179, 66, 0.8)',
+                            'rgba(77, 182, 172, 0.8)',
+                        ],
+                        borderColor: [
+                            'rgba(139, 115, 85, 1)',
+                            'rgba(93, 64, 55, 1)',
+                            'rgba(165, 123, 91, 1)',
+                            'rgba(215, 204, 200, 1)',
+                            'rgba(124, 179, 66, 1)',
+                            'rgba(77, 182, 172, 1)',
+                        ],
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'right',
+                            labels: {
+                                font: {
+                                    size: 12,
+                                    family: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif"
+                                },
+                                padding: 15,
+                                usePointStyle: true,
+                                pointStyle: 'circle',
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                            titleColor: 'var(--text-dark)',
+                            bodyColor: 'var(--text-dark)',
+                            borderColor: 'var(--accent-color)',
+                            borderWidth: 1,
+                            padding: 12,
+                            callbacks: {
+                                label: function(context) {
+                                    const label = context.label || '';
+                                    const value = context.raw;
+                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                    const percentage = total > 0 ? Math.round((value / total) * 100) : 0;
+                                    return `${label}: Rp ${value.toLocaleString('id-ID')} (${percentage}%)`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
 
-            // Function to generate report
-            function generateLaporan() {
-                showNotification('Membuat laporan PDF...', 'success');
-                // Simulate PDF generation
-                setTimeout(() => {
-                    showNotification('Laporan berhasil dibuat!', 'success');
-                }, 2000);
-            }
+            // Pengeluaran Chart (Donut)
+            const pengeluaranCtx = document.getElementById('pengeluaranChart').getContext('2d');
+            new Chart(pengeluaranCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: @json($pengeluaranLabels),
+                    datasets: [{
+                        data: @json($pengeluaranValues),
+                        backgroundColor: [
+                            'rgba(255, 183, 77, 0.8)',
+                            'rgba(255, 152, 0, 0.8)',
+                            'rgba(255, 193, 7, 0.8)',
+                            'rgba(255, 224, 130, 0.8)',
+                            'rgba(255, 167, 38, 0.8)',
+                            'rgba(251, 192, 45, 0.8)',
+                        ],
+                        borderColor: [
+                            'rgba(255, 183, 77, 1)',
+                            'rgba(255, 152, 0, 1)',
+                            'rgba(255, 193, 7, 1)',
+                            'rgba(255, 224, 130, 1)',
+                            'rgba(255, 167, 38, 1)',
+                            'rgba(251, 192, 45, 1)',
+                        ],
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'right',
+                            labels: {
+                                font: {
+                                    size: 12,
+                                    family: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif"
+                                },
+                                padding: 15,
+                                usePointStyle: true,
+                                pointStyle: 'circle',
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                            titleColor: 'var(--text-dark)',
+                            bodyColor: 'var(--text-dark)',
+                            borderColor: 'var(--accent-color)',
+                            borderWidth: 1,
+                            padding: 12,
+                            callbacks: {
+                                label: function(context) {
+                                    const label = context.label || '';
+                                    const value = context.raw;
+                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                    const percentage = total > 0 ? Math.round((value / total) * 100) : 0;
+                                    return `${label}: Rp ${value.toLocaleString('id-ID')} (${percentage}%)`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
         });
     </script>
 </body>

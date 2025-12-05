@@ -33,7 +33,7 @@
             flex-direction: column;
         }
 
-        /* Sidebar - sama seperti sebelumnya */
+        /* Sidebar */
         .sidebar {
             background: linear-gradient(180deg, var(--primary-color) 0%, var(--dark-brown) 100%);
             color: white;
@@ -442,6 +442,26 @@
             margin-right: 1rem;
         }
 
+        /* Currency Input */
+        .currency-input-group {
+            position: relative;
+        }
+        
+        .currency-input-group::before {
+            content: "Rp";
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-light);
+            font-weight: 500;
+            z-index: 10;
+        }
+        
+        .currency-input-group input {
+            padding-left: 45px !important;
+        }
+
         /* Responsive */
         @media (max-width: 992px) {
             .sidebar {
@@ -562,7 +582,7 @@
                 </a>
             </div>
             <div class="nav-item">
-                <a href="#" class="nav-link">
+                <a href="{{ route('admin.grafik.index') }}" class="nav-link">
                     <i class="fas fa-chart-bar"></i>
                     <span>Grafik Keseluruhan</span>
                 </a>
@@ -606,6 +626,14 @@
             @if(session('success'))
                 <div class="alert alert-success alert-dismissible fade show" role="alert">
                     <i class="fas fa-check-circle me-2"></i>{{ session('success') }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            @endif
+
+            {{-- Alert error --}}
+            @if(session('error'))
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="fas fa-exclamation-circle me-2"></i>{{ session('error') }}
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
             @endif
@@ -736,7 +764,7 @@
                                         </td>
                                         <td>
                                             <div class="action-buttons">
-                                                <button class="btn btn-warning btn-sm" title="Edit" data-bs-toggle="modal" data-bs-target="#editPemasukanModal{{ $item->id }}">
+                                                <button class="btn btn-warning btn-sm" title="Edit" onclick="editPemasukan({{ $item->id }})">
                                                     <i class="fas fa-edit"></i>
                                                 </button>
                                                 <form action="{{ route('laporan.pemasukan.destroy', $item->id) }}" method="POST" class="d-inline">
@@ -782,7 +810,7 @@
         <!-- Footer -->
         <footer class="footer">
             <div class="container text-center">
-                <p class="mb-0">&copy; 2023 Sahabat Senja. Sistem Informasi Layanan Panti Jompo Berbasis Website & Mobile.</p>
+                <p class="mb-0">&copy; {{ date('Y') }} Sahabat Senja. Sistem Informasi Layanan Panti Jompo Berbasis Website & Mobile.</p>
             </div>
         </footer>
     </div>
@@ -797,7 +825,7 @@
                     </h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <form action="{{ route('laporan.pemasukan.store') }}" method="POST">
+                <form action="{{ route('laporan.pemasukan.store') }}" method="POST" id="tambahPemasukanForm">
                     @csrf
                     <div class="modal-body">
                         <div class="mb-3">
@@ -816,7 +844,10 @@
                         </div>
                         <div class="mb-3">
                             <label for="jumlah" class="form-label">Jumlah (Rp)</label>
-                            <input type="number" class="form-control" id="jumlah" name="jumlah" min="0" step="1000" required>
+                            <div class="currency-input-group">
+                                <input type="text" class="form-control" id="jumlah" name="jumlah" placeholder="0" required>
+                            </div>
+                            <small class="text-muted">Contoh: 1.000.000</small>
                         </div>
                         <div class="mb-3">
                             <label for="keterangan" class="form-label">Keterangan (Opsional)</label>
@@ -832,8 +863,58 @@
         </div>
     </div>
 
+    <!-- Modal Edit Pemasukan -->
+    <div class="modal fade" id="editPemasukanModal" tabindex="-1" aria-labelledby="editPemasukanModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editPemasukanModalLabel">
+                        <i class="fas fa-edit me-2"></i>Edit Pemasukan
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form id="editPemasukanForm" method="POST">
+                    @csrf
+                    @method('PUT')
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="edit_tanggal" class="form-label">Tanggal</label>
+                            <input type="date" class="form-control" id="edit_tanggal" name="tanggal" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="edit_sumber" class="form-label">Sumber Pemasukan</label>
+                            <select class="form-control" id="edit_sumber" name="sumber" required>
+                                <option value="">Pilih Sumber</option>
+                                <option value="Iuran Bulanan">Iuran Bulanan</option>
+                                <option value="Donasi">Donasi</option>
+                                <option value="Bantuan Pemerintah">Bantuan Pemerintah</option>
+                                <option value="Lainnya">Lainnya</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="edit_jumlah" class="form-label">Jumlah (Rp)</label>
+                            <div class="currency-input-group">
+                                <input type="text" class="form-control" id="edit_jumlah" name="jumlah" placeholder="0" required>
+                            </div>
+                            <small class="text-muted">Contoh: 1.000.000</small>
+                        </div>
+                        <div class="mb-3">
+                            <label for="edit_keterangan" class="form-label">Keterangan (Opsional)</label>
+                            <textarea class="form-control" id="edit_keterangan" name="keterangan" rows="3"></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Batal</button>
+                        <button type="submit" class="btn btn-success">Update</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script>
         // Toggle Sidebar
@@ -878,6 +959,64 @@
                 placeholder: 'Pilih sumber pemasukan',
                 allowClear: true
             });
+        });
+
+        // Format currency untuk input
+        function formatCurrency(input) {
+            // Hapus semua karakter non-digit
+            let value = input.value.replace(/[^\d]/g, '');
+            
+            // Format dengan titik sebagai pemisah ribuan
+            if (value) {
+                const numericValue = parseInt(value);
+                if (!isNaN(numericValue)) {
+                    input.value = numericValue.toLocaleString('id-ID');
+                }
+            }
+        }
+
+        // Format currency untuk input tambah
+        document.getElementById('jumlah')?.addEventListener('input', function(e) {
+            formatCurrency(e.target);
+        });
+
+        // Format currency untuk input edit
+        document.getElementById('edit_jumlah')?.addEventListener('input', function(e) {
+            formatCurrency(e.target);
+        });
+
+        // Fungsi untuk mengubah format currency ke angka sebelum submit
+        function formatCurrencyToNumber(value) {
+            return value.toString().replace(/\./g, '');
+        }
+
+        // Tambahkan event listener untuk form submission
+        document.addEventListener('DOMContentLoaded', function() {
+            // Form tambah pemasukan
+            const formTambah = document.getElementById('tambahPemasukanForm');
+            if (formTambah) {
+                formTambah.addEventListener('submit', function(e) {
+                    const jumlahInput = document.getElementById('jumlah');
+                    if (jumlahInput) {
+                        // Konversi format currency ke angka murni
+                        const rawValue = formatCurrencyToNumber(jumlahInput.value);
+                        jumlahInput.value = rawValue;
+                    }
+                });
+            }
+
+            // Form edit pemasukan
+            const formEdit = document.getElementById('editPemasukanForm');
+            if (formEdit) {
+                formEdit.addEventListener('submit', function(e) {
+                    const jumlahInput = document.getElementById('edit_jumlah');
+                    if (jumlahInput) {
+                        // Konversi format currency ke angka murni
+                        const rawValue = formatCurrencyToNumber(jumlahInput.value);
+                        jumlahInput.value = rawValue;
+                    }
+                });
+            }
         });
 
         // Chart.js
@@ -929,6 +1068,79 @@
             }
         });
         @endif
+
+        // Edit Pemasukan
+        function editPemasukan(id) {
+            fetch(`/laporan/pemasukan/edit/${id}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        document.getElementById('edit_tanggal').value = data.pemasukan.tanggal;
+                        document.getElementById('edit_sumber').value = data.pemasukan.sumber;
+                        document.getElementById('edit_keterangan').value = data.pemasukan.keterangan || '';
+                        
+                        // Format jumlah dengan pemisah ribuan
+                        const jumlah = data.pemasukan.jumlah;
+                        if (jumlah) {
+                            document.getElementById('edit_jumlah').value = 
+                                parseInt(jumlah).toLocaleString('id-ID');
+                        }
+                        
+                        // Set form action
+                        document.getElementById('editPemasukanForm').action = `/laporan/pemasukan/update/${id}`;
+                        
+                        // Show modal
+                        const editModal = new bootstrap.Modal(document.getElementById('editPemasukanModal'));
+                        editModal.show();
+                    } else {
+                        alert(data.message || 'Terjadi kesalahan saat mengambil data');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Terjadi kesalahan saat mengambil data');
+                });
+        }
+
+        // Validasi input hanya angka
+        function validateNumberInput(event) {
+            const key = event.key;
+            // Izinkan: angka, backspace, delete, tab, escape, enter
+            const allowedKeys = ['Backspace', 'Delete', 'Tab', 'Escape', 'Enter'];
+            // Izinkan: Ctrl+A, Ctrl+C, Ctrl+V, Ctrl+X
+            const ctrlKeys = ['a', 'c', 'v', 'x'];
+            
+            if (allowedKeys.includes(key) ||
+                (event.ctrlKey && ctrlKeys.includes(key.toLowerCase()))) {
+                return;
+            }
+            
+            // Izinkan hanya angka
+            if (!/^\d$/.test(key)) {
+                event.preventDefault();
+            }
+        }
+
+        // Tambahkan event listener untuk validasi angka
+        document.getElementById('jumlah')?.addEventListener('keydown', validateNumberInput);
+        document.getElementById('edit_jumlah')?.addEventListener('keydown', validateNumberInput);
+
+        // Reset form tambah pemasukan saat modal ditutup
+        document.getElementById('tambahPemasukanModal')?.addEventListener('hidden.bs.modal', function () {
+            const form = document.getElementById('tambahPemasukanForm');
+            if (form) {
+                form.reset();
+                document.getElementById('tanggal').value = new Date().toISOString().split('T')[0];
+            }
+        });
+
+        // Reset form edit pemasukan saat modal ditutup
+        document.getElementById('editPemasukanModal')?.addEventListener('hidden.bs.modal', function () {
+            const form = document.getElementById('editPemasukanForm');
+            if (form) {
+                form.reset();
+            }
+        });
     </script>
 </body>
 </html>

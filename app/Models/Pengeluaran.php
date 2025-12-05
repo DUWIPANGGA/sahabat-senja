@@ -9,17 +9,24 @@ class Pengeluaran extends Model
 {
     use HasFactory;
 
-    protected $table = 'pengeluaran';
+    protected $table = 'pengeluarans'; // Sesuaikan dengan nama tabel
     
     protected $fillable = [
         'tanggal',
         'keterangan',
-        'jumlah'
+        'jumlah',
+        'bukti',
+        'user_id'
     ];
 
     protected $casts = [
         'tanggal' => 'date',
         'jumlah' => 'decimal:2'
     ];
-    
+
+    // Relasi dengan user
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 }
