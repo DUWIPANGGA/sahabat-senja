@@ -2,7 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
+use App\Models\Kamar;
 use App\Models\Datalansia;
+use App\Models\JadwalObat;
 use App\Models\Dataperawat;
 use App\Models\Pemasukan;
 use App\Models\Pengeluaran;
