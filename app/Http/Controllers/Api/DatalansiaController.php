@@ -212,4 +212,46 @@ class DatalansiaController extends Controller
             ], 500);
         }
     }
+    public function getAktifMonitoring()
+{
+    try {
+        $lansia = Datalansia::whereHas('kondisi', function($query) {
+            $query->whereDate('tanggal', '>=', now()->subDays(7));
+        })->get();
+        
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Data lansia aktif monitoring berhasil diambil',
+            'data' => $lansia
+        ], 200);
+    } catch (\Exception $e) {
+        return response()->json([
+            'status' => 'error',
+            'message' => 'Gagal mengambil data lansia',
+            'error' => $e->getMessage()
+        ], 500);
+    }
+}
+
+public function search($keyword)
+{
+    try {
+        $lansia = Datalansia::where('nama_lansia', 'like', "%{$keyword}%")
+            ->orWhere('alamat_lengkap', 'like', "%{$keyword}%")
+            ->orWhere('email_anak', 'like', "%{$keyword}%")
+            ->get();
+        
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Hasil pencarian berhasil diambil',
+            'data' => $lansia
+        ], 200);
+    } catch (\Exception $e) {
+        return response()->json([
+            'status' => 'error',
+            'message' => 'Gagal melakukan pencarian',
+            'error' => $e->getMessage()
+        ], 500);
+    }
+}
 }
