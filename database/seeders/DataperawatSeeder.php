@@ -8,9 +8,13 @@ class DataPerawatSeeder extends Seeder
 {
     public function run(): void
     {
+
+
+
+
         $perawat = [
             [
-                'nama' => 'Sri Handayani, S.Kep',
+                'nama' => 'Sri Handayani, S.Keep',
                 'email' => 'sri.perawat@carelansia.com',
                 'alamat' => 'Jl. Perawat No. 10, Jakarta Pusat',
                 'no_hp' => '081234567891',
