@@ -1,10 +1,10 @@
 <?php
 
 namespace Database\Seeders;
-use App\Models\Dataperawat;
+use App\Models\DataPerawat;
 use Illuminate\Database\Seeder;
 
-class DataperawatSeeder extends Seeder
+class DataPerawatSeeder extends Seeder
 {
     public function run(): void
     {
@@ -40,7 +40,7 @@ class DataperawatSeeder extends Seeder
         ];
 
         foreach ($perawat as $data) {
-            Dataperawat::create($data);
+            DataPerawat::create($data);
         }
     }
 }

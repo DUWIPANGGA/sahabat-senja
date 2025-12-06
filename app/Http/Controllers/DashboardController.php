@@ -6,7 +6,7 @@ use App\Models\User;
 use App\Models\Kamar;
 use App\Models\Datalansia;
 use App\Models\JadwalObat;
-use App\Models\Dataperawat;
+use App\Models\DataPerawat;
 use App\Models\Pemasukan;
 use App\Models\Pengeluaran;
 use Illuminate\Support\Facades\DB;
@@ -23,7 +23,7 @@ class DashboardController extends Controller
         
         // Total counts
         $total_lansia = Datalansia::count();
-        $total_perawat = Dataperawat::count();
+        $total_perawat = DataPerawat::count();
         
         // Data per bulan untuk grafik lansia dan perawat
         $perawat_monthly = $this->getPerawatMonthlyData();
@@ -38,7 +38,7 @@ class DashboardController extends Controller
         
         // Cek apakah perawat punya kolom status
         try {
-            $perawat_aktif = Dataperawat::where('status', 'Aktif')->count();
+            $perawat_aktif = DataPerawat::where('status', 'Aktif')->count();
         } catch (\Exception $e) {
             // Jika tidak ada kolom status, anggap semua perawat aktif
             $perawat_aktif = $total_perawat;
@@ -209,7 +209,7 @@ class DashboardController extends Controller
         $monthlyData = array_fill(0, 12, 0);
         
         // Ambil data perawat yang dibuat per bulan
-        $data = Dataperawat::select(
+        $data = DataPerawat::select(
                 DB::raw('MONTH(created_at) as bulan'),
                 DB::raw('COUNT(*) as total')
             )
@@ -275,7 +275,7 @@ class DashboardController extends Controller
             ->whereMonth('created_at', $lastMonth->month)
             ->count();
             
-        $perawat_last_month = Dataperawat::whereYear('created_at', $lastMonth->year)
+        $perawat_last_month = DataPerawat::whereYear('created_at', $lastMonth->year)
             ->whereMonth('created_at', $lastMonth->month)
             ->count();
         
@@ -379,7 +379,7 @@ class DashboardController extends Controller
         }
         
         // Data perawat terbaru (2 terbaru)
-        $perawat_terbaru = Dataperawat::latest()->take(2)->get();
+        $perawat_terbaru = DataPerawat::latest()->take(2)->get();
         foreach ($perawat_terbaru as $perawat) {
             $recent_activities[] = [
                 'title' => 'Perawat baru bergabung: ' . $perawat->nama,
@@ -423,7 +423,7 @@ class DashboardController extends Controller
             ];
         }
         
-        $perawat_terbaru = Dataperawat::latest()->take(2)->get();
+        $perawat_terbaru = DataPerawat::latest()->take(2)->get();
         foreach ($perawat_terbaru as $perawat) {
             $general_activities[] = [
                 'title' => 'Perawat baru bergabung: ' . $perawat->nama,

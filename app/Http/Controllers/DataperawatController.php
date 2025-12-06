@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Dataperawat;
+use App\Models\DataPerawat;
 use Illuminate\Http\Request;
 
-class DataperawatController extends Controller
+class DataPerawatController extends Controller
 {
     public function index(Request $request)
     {
@@ -13,42 +13,42 @@ class DataperawatController extends Controller
         $keyword = $request->get('search');
 
         // Query pencarian
-        $dataperawat = Dataperawat::when($keyword, function ($query, $keyword) {
+        $DataPerawat = DataPerawat::when($keyword, function ($query, $keyword) {
             return $query->where('nama', 'like', "%{$keyword}%");
         })->paginate(10);
 
         // Kirim data ke view
-        return view('admin.dataperawat.index', compact('dataperawat', 'keyword'));
+        return view('admin.DataPerawat.index', compact('DataPerawat', 'keyword'));
     }
 
     public function create()
     {
-        return view('admin.dataperawat.tambah');
+        return view('admin.DataPerawat.tambah');
     }
 
     public function store(Request $request)
     {
-        Dataperawat::create($request->all());
-        return redirect()->route('admin.dataperawat.index')->with('success', 'Data perawat berhasil ditambahkan!');
+        DataPerawat::create($request->all());
+        return redirect()->route('admin.DataPerawat.index')->with('success', 'Data perawat berhasil ditambahkan!');
     }
 
     public function edit($id)
     {
-        $dataperawat = Dataperawat::findOrFail($id);
-        return view('admin.dataperawat.edit', compact('dataperawat'));
+        $DataPerawat = DataPerawat::findOrFail($id);
+        return view('admin.DataPerawat.edit', compact('DataPerawat'));
     }
 
     public function update(Request $request, $id)
     {
-        $dataperawat = Dataperawat::findOrFail($id);
-        $dataperawat->update($request->all());
-        return redirect()->route('admin.dataperawat.index')->with('success', 'Data perawat berhasil diperbarui!');
+        $DataPerawat = DataPerawat::findOrFail($id);
+        $DataPerawat->update($request->all());
+        return redirect()->route('admin.DataPerawat.index')->with('success', 'Data perawat berhasil diperbarui!');
     }
 
     public function destroy($id)
     {
-        $dataperawat = Dataperawat::findOrFail($id);
-        $dataperawat->delete();
-        return redirect()->route('admin.dataperawat.index')->with('success', 'Data perawat berhasil dihapus!');
+        $DataPerawat = DataPerawat::findOrFail($id);
+        $DataPerawat->delete();
+        return redirect()->route('admin.DataPerawat.index')->with('success', 'Data perawat berhasil dihapus!');
     }
 }

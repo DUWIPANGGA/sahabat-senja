@@ -5,7 +5,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\LaporanController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DatalansiaController;
-use App\Http\Controllers\DataperawatController;
+use App\Http\Controllers\DataPerawatController;
 use App\Http\Controllers\GrafikController;
 
 Route::get('/', function () {
@@ -54,12 +54,12 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/datalansia/hapus/{id}', [DatalansiaController::class, 'destroy'])->name('admin.datalansia.destroy');
     
     // Data Perawat (admin)
-    Route::get('/dataperawat', [DataperawatController::class, 'index'])->name('admin.dataperawat.index');
-    Route::get('/dataperawat/tambah', [DataperawatController::class, 'create'])->name('admin.dataperawat.create');
-    Route::post('/dataperawat/store', [DataperawatController::class, 'store'])->name('admin.dataperawat.store');
-    Route::get('/dataperawat/edit/{id}', [DataperawatController::class, 'edit'])->name('admin.dataperawat.edit');
-    Route::post('/dataperawat/update/{id}', [DataperawatController::class, 'update'])->name('admin.dataperawat.update');
-    Route::get('/dataperawat/hapus/{id}', [DataperawatController::class, 'destroy'])->name('admin.dataperawat.destroy');
+    Route::get('/DataPerawat', [DataPerawatController::class, 'index'])->name('admin.DataPerawat.index');
+    Route::get('/DataPerawat/tambah', [DataPerawatController::class, 'create'])->name('admin.DataPerawat.create');
+    Route::post('/DataPerawat/store', [DataPerawatController::class, 'store'])->name('admin.DataPerawat.store');
+    Route::get('/DataPerawat/edit/{id}', [DataPerawatController::class, 'edit'])->name('admin.DataPerawat.edit');
+    Route::post('/DataPerawat/update/{id}', [DataPerawatController::class, 'update'])->name('admin.DataPerawat.update');
+    Route::get('/DataPerawat/hapus/{id}', [DataPerawatController::class, 'destroy'])->name('admin.DataPerawat.destroy');
 
     // Grafik
     Route::get('/grafik', [GrafikController::class, 'index'])->name('admin.grafik.index');

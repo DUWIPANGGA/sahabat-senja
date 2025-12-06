@@ -564,7 +564,7 @@
                 </a>
             </div>
             <div class="nav-item">
-                <a href="{{ route('admin.dataperawat.index') }}" class="nav-link">
+                <a href="{{ route('admin.DataPerawat.index') }}" class="nav-link">
                     <i class="fas fa-user-md"></i>
                     <span>Data Perawat</span>
                 </a>

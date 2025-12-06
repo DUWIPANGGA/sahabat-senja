@@ -5,7 +5,7 @@ namespace Database\Seeders;
 use Illuminate\Database\Seeder;
 use Database\Seeders\UserSeeder;
 use Database\Seeders\DataLansiaSeeder;
-use Database\Seeders\DataperawatSeeder;
+use Database\Seeders\DataPerawatSeeder;
 
 class DatabaseSeeder extends Seeder
 {
@@ -13,7 +13,7 @@ class DatabaseSeeder extends Seeder
     {
         $this->call([
             UserSeeder::class,
-            DataperawatSeeder::class,
+            DataPerawatSeeder::class,
             DatalansiaSeeder::class,
         ]);
     }

@@ -555,7 +555,7 @@
                 </a>
             </div>
             <div class="nav-item" style="margin-bottom: 0;">
-                <a href="{{ route('admin.dataperawat.index') }}" class="nav-link">
+                <a href="{{ route('admin.DataPerawat.index') }}" class="nav-link">
                     <i class="fas fa-user-md"></i>
                     <span>Data Perawat</span>
                 </a>
@@ -640,7 +640,7 @@
                     Tambah Data Perawat
                 </div>
                 <div class="card-body">
-                    <form action="{{ route('admin.dataperawat.store') }}" method="POST">
+                    <form action="{{ route('admin.DataPerawat.store') }}" method="POST">
                         @csrf
 
                         <div class="row mb-3">
@@ -693,7 +693,7 @@
                             <button type="submit" class="btn btn-success">
                                 <i class="fas fa-save me-1"></i>Simpan Data
                             </button>
-                            <a href="{{ route('admin.dataperawat.index') }}" class="btn btn-outline-secondary">
+                            <a href="{{ route('admin.DataPerawat.index') }}" class="btn btn-outline-secondary">
                                 <i class="fas fa-arrow-left me-1"></i>Kembali
                             </a>
                         </div>
