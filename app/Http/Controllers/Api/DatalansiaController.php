@@ -12,6 +12,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
 
 class DatalansiaController extends Controller
 {
@@ -61,12 +62,20 @@ class DatalansiaController extends Controller
             
             $datalansia = $query->orderBy('nama_lansia')->get();
             
+            // Parse JSON fields for response
+            $datalansia->transform(function ($item) {
+                $item->jadwal_obat_rutin = json_decode($item->obat_rutin_json ?? '[]', true);
+                $item->jadwal_kegiatan_rutin = json_decode($item->jadwal_kegiatan_json ?? '[]', true);
+                return $item;
+            });
+            
             return response()->json([
                 'status' => 'success',
                 'message' => 'Data lansia berhasil diambil',
                 'data' => $datalansia
             ], 200);
         } catch (\Exception $e) {
+            Log::error('Error in index: ' . $e->getMessage());
             return response()->json([
                 'status' => 'error',
                 'message' => 'Gagal mengambil data lansia',
@@ -99,6 +108,7 @@ class DatalansiaController extends Controller
             'kontak_darurat_hp' => 'nullable|string|max:15',
             'kontak_darurat_hubungan' => 'nullable|string|max:50',
             'kamar_id' => 'nullable|exists:kamar,id',
+            'perawat_id' => 'nullable|exists:users,id',
             'jadwal_obat_rutin' => 'nullable|array',
             'jadwal_obat_rutin.*.nama_obat' => 'required_with:jadwal_obat_rutin|string',
             'jadwal_obat_rutin.*.waktu' => 'required_with:jadwal_obat_rutin|string',
@@ -120,28 +130,56 @@ class DatalansiaController extends Controller
         try {
             $user = Auth::user();
             
-            // Jika keluarga yang input, set user_id
+            // Prepare data
             $data = $request->all();
-            if ($user->role === 'keluarga') {
-                $data['user_id'] = $user->id;
+            
+            // Remove no_kamar_lansia if exists (not in model)
+            if (isset($data['no_kamar_lansia'])) {
+                unset($data['no_kamar_lansia']);
             }
             
-            // Set tanggal masuk
+            // Set user_id based on role
+            if ($user->role === 'keluarga') {
+                $data['user_id'] = $user->id;
+            } elseif ($user->role === 'admin') {
+                // If admin, check if user exists for the email
+                $keluargaUser = User::where('email', $request->email_anak)->first();
+                if ($keluargaUser) {
+                    $data['user_id'] = $keluargaUser->id;
+                } else {
+                    // If no user exists with this email, create a basic user
+                    $keluargaUser = User::create([
+                        'name' => $request->nama_anak,
+                        'email' => $request->email_anak,
+                        'password' => bcrypt('password123'), // Default password
+                        'role' => 'keluarga',
+                        'no_hp' => $request->no_hp_anak,
+                    ]);
+                    $data['user_id'] = $keluargaUser->id;
+                }
+            }
+            
+            // Set default values
             $data['tanggal_masuk'] = now()->toDateString();
             $data['status_lansia'] = 'aktif';
             
-            // Konversi array ke JSON
+            // Handle JSON fields - map from request names to model field names
             if ($request->has('jadwal_obat_rutin')) {
-                $data['jadwal_obat_rutin'] = json_encode($request->jadwal_obat_rutin);
+                $data['obat_rutin_json'] = json_encode($request->jadwal_obat_rutin);
+                unset($data['jadwal_obat_rutin']);
             }
             
             if ($request->has('jadwal_kegiatan_rutin')) {
-                $data['jadwal_kegiatan_rutin'] = json_encode($request->jadwal_kegiatan_rutin);
+                $data['jadwal_kegiatan_json'] = json_encode($request->jadwal_kegiatan_rutin);
+                unset($data['jadwal_kegiatan_rutin']);
             }
             
+            Log::info('Creating datalansia with data:', $data);
+            
+            // Create the data lansia
             $datalansia = Datalansia::create($data);
             
-            // Jika ada kamar_id, update status kamar
+            // If kamar_id is provided, update kamar status
             if ($request->kamar_id) {
                 $this->updateStatusKamar($request->kamar_id);
                 
@@ -149,8 +187,12 @@ class DatalansiaController extends Controller
                 $this->generateJadwalRutin($datalansia);
             }
             
-            // Load relasi
+            // Load relations
             $datalansia->load(['kamar', 'user', 'kamar.perawat']);
+            
+            // Parse JSON fields for response
+            $datalansia->jadwal_obat_rutin = json_decode($datalansia->obat_rutin_json ?? '[]', true);
+            $datalansia->jadwal_kegiatan_rutin = json_decode($datalansia->jadwal_kegiatan_json ?? '[]', true);
             
             return response()->json([
                 'status' => 'success',
@@ -158,6 +200,9 @@ class DatalansiaController extends Controller
                 'data' => $datalansia
             ], 201);
         } catch (\Exception $e) {
+            Log::error('Error creating datalansia: ' . $e->getMessage());
+            Log::error('Stack trace: ' . $e->getTraceAsString());
+            
             return response()->json([
                 'status' => 'error',
                 'message' => 'Gagal menambahkan data lansia',
@@ -200,9 +245,9 @@ class DatalansiaController extends Controller
                 }
             }
             
-            // Parse JSON fields
-            $datalansia->jadwal_obat_rutin = json_decode($datalansia->jadwal_obat_rutin ?? '[]', true);
-            $datalansia->jadwal_kegiatan_rutin = json_decode($datalansia->jadwal_kegiatan_rutin ?? '[]', true);
+            // Parse JSON fields - map from model field names to response names
+            $datalansia->jadwal_obat_rutin = json_decode($datalansia->obat_rutin_json ?? '[]', true);
+            $datalansia->jadwal_kegiatan_rutin = json_decode($datalansia->jadwal_kegiatan_json ?? '[]', true);
             
             return response()->json([
                 'status' => 'success',
@@ -210,6 +255,7 @@ class DatalansiaController extends Controller
                 'data' => $datalansia
             ], 200);
         } catch (\Exception $e) {
+            Log::error('Error in show: ' . $e->getMessage());
             return response()->json([
                 'status' => 'error',
                 'message' => 'Gagal mengambil data lansia',
@@ -242,6 +288,7 @@ class DatalansiaController extends Controller
             'kontak_darurat_hp' => 'nullable|string|max:15',
             'kontak_darurat_hubungan' => 'nullable|string|max:50',
             'kamar_id' => 'nullable|exists:kamar,id',
+            'perawat_id' => 'nullable|exists:users,id',
             'status_lansia' => 'nullable|in:aktif,pulang,meninggal',
             'jadwal_obat_rutin' => 'nullable|array',
             'jadwal_kegiatan_rutin' => 'nullable|array',
@@ -268,13 +315,20 @@ class DatalansiaController extends Controller
             $oldKamarId = $datalansia->kamar_id;
             $data = $request->all();
             
-            // Konversi array ke JSON
+            // Remove no_kamar_lansia if exists
+            if (isset($data['no_kamar_lansia'])) {
+                unset($data['no_kamar_lansia']);
+            }
+            
+            // Handle JSON fields
             if ($request->has('jadwal_obat_rutin')) {
-                $data['jadwal_obat_rutin'] = json_encode($request->jadwal_obat_rutin);
+                $data['obat_rutin_json'] = json_encode($request->jadwal_obat_rutin);
+                unset($data['jadwal_obat_rutin']);
             }
             
             if ($request->has('jadwal_kegiatan_rutin')) {
-                $data['jadwal_kegiatan_rutin'] = json_encode($request->jadwal_kegiatan_rutin);
+                $data['jadwal_kegiatan_json'] = json_encode($request->jadwal_kegiatan_rutin);
+                unset($data['jadwal_kegiatan_rutin']);
             }
             
             $datalansia->update($data);
@@ -302,9 +356,9 @@ class DatalansiaController extends Controller
             // Load relasi terbaru
             $datalansia->load(['kamar', 'user', 'kamar.perawat']);
             
-            // Parse JSON fields
-            $datalansia->jadwal_obat_rutin = json_decode($datalansia->jadwal_obat_rutin ?? '[]', true);
-            $datalansia->jadwal_kegiatan_rutin = json_decode($datalansia->jadwal_kegiatan_rutin ?? '[]', true);
+            // Parse JSON fields for response
+            $datalansia->jadwal_obat_rutin = json_decode($datalansia->obat_rutin_json ?? '[]', true);
+            $datalansia->jadwal_kegiatan_rutin = json_decode($datalansia->jadwal_kegiatan_json ?? '[]', true);
             
             return response()->json([
                 'status' => 'success',
@@ -312,6 +366,7 @@ class DatalansiaController extends Controller
                 'data' => $datalansia
             ], 200);
         } catch (\Exception $e) {
+            Log::error('Error in update: ' . $e->getMessage());
             return response()->json([
                 'status' => 'error',
                 'message' => 'Gagal memperbarui data lansia',
@@ -350,6 +405,7 @@ class DatalansiaController extends Controller
                 'message' => 'Data lansia berhasil dihapus'
             ], 200);
         } catch (\Exception $e) {
+            Log::error('Error in destroy: ' . $e->getMessage());
             return response()->json([
                 'status' => 'error',
                 'message' => 'Gagal menghapus data lansia',
@@ -370,8 +426,8 @@ class DatalansiaController extends Controller
             
             // Parse JSON fields
             $datalansia->transform(function ($item) {
-                $item->jadwal_obat_rutin = json_decode($item->jadwal_obat_rutin ?? '[]', true);
-                $item->jadwal_kegiatan_rutin = json_decode($item->jadwal_kegiatan_rutin ?? '[]', true);
+                $item->jadwal_obat_rutin = json_decode($item->obat_rutin_json ?? '[]', true);
+                $item->jadwal_kegiatan_rutin = json_decode($item->jadwal_kegiatan_json ?? '[]', true);
                 return $item;
             });
             
@@ -381,6 +437,7 @@ class DatalansiaController extends Controller
                 'data' => $datalansia
             ], 200);
         } catch (\Exception $e) {
+            Log::error('Error in getByKeluarga: ' . $e->getMessage());
             return response()->json([
                 'status' => 'error',
                 'message' => 'Gagal mengambil data lansia',
@@ -431,7 +488,7 @@ class DatalansiaController extends Controller
             // Update kamar lansia
             $datalansia->update([
                 'kamar_id' => $kamarBaru->id,
-                'catatan_khusus' => $datalansia->catatan_khusus . "\n[Pindah Kamar] " . 
+                'catatan_khusus' => ($datalansia->catatan_khusus ?? '') . "\n[Pindah Kamar] " . 
                     date('Y-m-d H:i') . " - Dari: " . 
                     ($kamarLama ? $kamarLama->nomor_kamar : 'Tidak ada') . 
                     " ke: " . $kamarBaru->nomor_kamar . 
@@ -444,8 +501,9 @@ class DatalansiaController extends Controller
             }
             $this->updateStatusKamar($kamarBaru->id);
             
-            // Log aktivitas pindah kamar
-            // Anda bisa menambahkan tabel log/audit trail di sini
+            // Parse JSON fields for response
+            $datalansia->jadwal_obat_rutin = json_decode($datalansia->obat_rutin_json ?? '[]', true);
+            $datalansia->jadwal_kegiatan_rutin = json_decode($datalansia->jadwal_kegiatan_json ?? '[]', true);
             
             return response()->json([
                 'status' => 'success',
@@ -453,6 +511,7 @@ class DatalansiaController extends Controller
                 'data' => $datalansia->load(['kamar', 'kamar.perawat'])
             ], 200);
         } catch (\Exception $e) {
+            Log::error('Error in pindahKamar: ' . $e->getMessage());
             return response()->json([
                 'status' => 'error',
                 'message' => 'Gagal memindahkan kamar',
@@ -481,6 +540,13 @@ class DatalansiaController extends Controller
                 ->with(['kamar', 'user'])
                 ->get();
             
+            // Parse JSON fields
+            $datalansia->transform(function ($item) {
+                $item->jadwal_obat_rutin = json_decode($item->obat_rutin_json ?? '[]', true);
+                $item->jadwal_kegiatan_rutin = json_decode($item->jadwal_kegiatan_json ?? '[]', true);
+                return $item;
+            });
+            
             return response()->json([
                 'status' => 'success',
                 'message' => 'Data lansia di kamar ' . $kamar->nomor_kamar . ' berhasil diambil',
@@ -488,6 +554,7 @@ class DatalansiaController extends Controller
                 'kamar' => $kamar
             ], 200);
         } catch (\Exception $e) {
+            Log::error('Error in getByKamar: ' . $e->getMessage());
             return response()->json([
                 'status' => 'error',
                 'message' => 'Gagal mengambil data lansia',
@@ -551,6 +618,7 @@ class DatalansiaController extends Controller
                 'data' => $data
             ], 200);
         } catch (\Exception $e) {
+            Log::error('Error in ringkasan: ' . $e->getMessage());
             return response()->json([
                 'status' => 'error',
                 'message' => 'Gagal mengambil ringkasan',
@@ -564,26 +632,29 @@ class DatalansiaController extends Controller
      */
     private function updateStatusKamar($kamarId)
     {
-        try {
-            $kamar = Kamar::find($kamarId);
-            if (!$kamar) return;
-            
-            $jumlahLansia = Datalansia::where('kamar_id', $kamarId)
-                ->where('status_lansia', 'aktif')
-                ->count();
-            
-            if ($jumlahLansia >= $kamar->kapasitas) {
-                $kamar->status = 'penuh';
-            } elseif ($jumlahLansia > 0) {
-                $kamar->status = 'tersedia';
-            } else {
-                $kamar->status = 'kosong';
-            }
-            
-            $kamar->save();
-        } catch (\Exception $e) {
-            \Log::error('Error updating kamar status: ' . $e->getMessage());
+        if (!$kamarId) return; // biar aman kalau kamar_id NULL
+
+        $kamar = Kamar::find($kamarId);
+
+        if (!$kamar) return;
+
+        // Hitung lansia aktif di kamar ini
+        $jumlahLansia = Datalansia::where('kamar_id', $kamarId)
+                                ->where('status_lansia', 'aktif')
+                                ->count();
+
+        // Update status kamar
+        if ($jumlahLansia <= 0) {
+            $kamar->status = 'tersedia';
+        } elseif ($jumlahLansia >= $kamar->kapasitas) {
+            $kamar->status = 'penuh';
+        } else {
+            $kamar->status = 'terisi';
         }
+
+        $kamar->save();
+        
+        Log::info('Kamar ' . $kamar->nomor_kamar . ' status updated to: ' . $kamar->status);
     }
     
     /**
@@ -592,8 +663,8 @@ class DatalansiaController extends Controller
     private function generateJadwalRutin($datalansia)
     {
         try {
-            // Generate jadwal obat rutin
-            $jadwalObat = json_decode($datalansia->jadwal_obat_rutin ?? '[]', true);
+            // Generate jadwal obat rutin from obat_rutin_json
+            $jadwalObat = json_decode($datalansia->obat_rutin_json ?? '[]', true);
             
             foreach ($jadwalObat as $obat) {
                 JadwalObat::create([
@@ -609,8 +680,8 @@ class DatalansiaController extends Controller
                 ]);
             }
             
-            // Generate jadwal kegiatan rutin
-            $jadwalKegiatan = json_decode($datalansia->jadwal_kegiatan_rutin ?? '[]', true);
+            // Generate jadwal kegiatan rutin from jadwal_kegiatan_json
+            $jadwalKegiatan = json_decode($datalansia->jadwal_kegiatan_json ?? '[]', true);
             
             foreach ($jadwalKegiatan as $kegiatan) {
                 JadwalAktivitas::create([
@@ -623,8 +694,10 @@ class DatalansiaController extends Controller
                     'user_id' => Auth::id()
                 ]);
             }
+            
+            Log::info('Jadwal rutin generated for datalansia ID: ' . $datalansia->id);
         } catch (\Exception $e) {
-            \Log::error('Error generating jadwal rutin: ' . $e->getMessage());
+            Log::error('Error generating jadwal rutin: ' . $e->getMessage());
         }
     }
     
@@ -651,6 +724,13 @@ class DatalansiaController extends Controller
             
             $datalansia = $query->where('status_lansia', 'aktif')->get();
             
+            // Parse JSON fields
+            $datalansia->transform(function ($item) {
+                $item->jadwal_obat_rutin = json_decode($item->obat_rutin_json ?? '[]', true);
+                $item->jadwal_kegiatan_rutin = json_decode($item->jadwal_kegiatan_json ?? '[]', true);
+                return $item;
+            });
+            
             return response()->json([
                 'status' => 'success',
                 'message' => 'Data lansia dengan kondisi hari ini berhasil diambil',
@@ -662,6 +742,7 @@ class DatalansiaController extends Controller
                 ]
             ], 200);
         } catch (\Exception $e) {
+            Log::error('Error in denganKondisiHariIni: ' . $e->getMessage());
             return response()->json([
                 'status' => 'error',
                 'message' => 'Gagal mengambil data',
@@ -669,46 +750,63 @@ class DatalansiaController extends Controller
             ], 500);
         }
     }
+    
     public function getAktifMonitoring()
-{
-    try {
-        $lansia = Datalansia::whereHas('kondisi', function($query) {
-            $query->whereDate('tanggal', '>=', now()->subDays(7));
-        })->get();
-        
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Data lansia aktif monitoring berhasil diambil',
-            'data' => $lansia
-        ], 200);
-    } catch (\Exception $e) {
-        return response()->json([
-            'status' => 'error',
-            'message' => 'Gagal mengambil data lansia',
-            'error' => $e->getMessage()
-        ], 500);
+    {
+        try {
+            $lansia = Datalansia::whereHas('kondisi', function($query) {
+                $query->whereDate('tanggal', '>=', now()->subDays(7));
+            })->get();
+            
+            // Parse JSON fields
+            $lansia->transform(function ($item) {
+                $item->jadwal_obat_rutin = json_decode($item->obat_rutin_json ?? '[]', true);
+                $item->jadwal_kegiatan_rutin = json_decode($item->jadwal_kegiatan_json ?? '[]', true);
+                return $item;
+            });
+            
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Data lansia aktif monitoring berhasil diambil',
+                'data' => $lansia
+            ], 200);
+        } catch (\Exception $e) {
+            Log::error('Error in getAktifMonitoring: ' . $e->getMessage());
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Gagal mengambil data lansia',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
-}
 
-public function search($keyword)
-{
-    try {
-        $lansia = Datalansia::where('nama_lansia', 'like', "%{$keyword}%")
-            ->orWhere('alamat_lengkap', 'like', "%{$keyword}%")
-            ->orWhere('email_anak', 'like', "%{$keyword}%")
-            ->get();
-        
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Hasil pencarian berhasil diambil',
-            'data' => $lansia
-        ], 200);
-    } catch (\Exception $e) {
-        return response()->json([
-            'status' => 'error',
-            'message' => 'Gagal melakukan pencarian',
-            'error' => $e->getMessage()
-        ], 500);
+    public function search($keyword)
+    {
+        try {
+            $lansia = Datalansia::where('nama_lansia', 'like', "%{$keyword}%")
+                ->orWhere('alamat_lengkap', 'like', "%{$keyword}%")
+                ->orWhere('email_anak', 'like', "%{$keyword}%")
+                ->get();
+            
+            // Parse JSON fields
+            $lansia->transform(function ($item) {
+                $item->jadwal_obat_rutin = json_decode($item->obat_rutin_json ?? '[]', true);
+                $item->jadwal_kegiatan_rutin = json_decode($item->jadwal_kegiatan_json ?? '[]', true);
+                return $item;
+            });
+            
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Hasil pencarian berhasil diambil',
+                'data' => $lansia
+            ], 200);
+        } catch (\Exception $e) {
+            Log::error('Error in search: ' . $e->getMessage());
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Gagal melakukan pencarian',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
-}
 }

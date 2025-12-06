@@ -7,7 +7,7 @@ use App\Http\Controllers\Api\KeuanganController;
 use App\Http\Controllers\Api\AuthMobileController;
 use App\Http\Controllers\Api\DatalansiaController;
 use App\Http\Controllers\Api\JadwalObatController;
-use App\Http\Controllers\Api\DataperawatController;
+use App\Http\Controllers\Api\DataPerawatController;
 use App\Http\Controllers\Api\TrackingObatController;
 use App\Http\Controllers\Api\JadwalAktivitasController;
 
@@ -50,15 +50,15 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 
     // Data Perawat routes
-    Route::prefix('dataperawat')->group(function () {
-        Route::get('/', [DataperawatController::class, 'index']);
-        Route::post('/', [DataperawatController::class, 'store']);
-        Route::get('/{id}', [DataperawatController::class, 'show']);
-        Route::put('/{id}', [DataperawatController::class, 'update']);
-        Route::delete('/{id}', [DataperawatController::class, 'destroy']);
+    Route::prefix('DataPerawat')->group(function () {
+        Route::get('/', [DataPerawatController::class, 'index']);
+        Route::post('/', [DataPerawatController::class, 'store']);
+        Route::get('/{id}', [DataPerawatController::class, 'show']);
+        Route::put('/{id}', [DataPerawatController::class, 'update']);
+        Route::delete('/{id}', [DataPerawatController::class, 'destroy']);
         
         // 🔹 Route tambahan
-        Route::get('/active/count', [DataperawatController::class, 'activeCount']);
+        Route::get('/active/count', [DataPerawatController::class, 'activeCount']);
     });
 
     // Keuangan routes

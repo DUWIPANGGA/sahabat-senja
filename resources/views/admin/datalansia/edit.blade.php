@@ -96,7 +96,6 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            cursor: pointer;
             color: white;
             font-size: 0.8rem;
             transition: all 0.3s;
@@ -538,7 +537,7 @@
                 </a>
             </div>
             <div class="nav-item" style="margin-bottom: 0;">
-                <a href="{{ route('admin.dataperawat.index') }}" class="nav-link">
+                <a href="{{ route('admin.DataPerawat.index') }}" class="nav-link">
                     <i class="fas fa-user-md"></i>
                     <span>Data Perawat</span>
                 </a>

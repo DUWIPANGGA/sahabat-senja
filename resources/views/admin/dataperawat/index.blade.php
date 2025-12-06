@@ -516,7 +516,7 @@
                 </a>
             </div>
             <div class="nav-item">
-                <a href="{{ route('admin.dataperawat.index') }}" class="nav-link active">
+                <a href="{{ route('admin.DataPerawat.index') }}" class="nav-link active">
                     <i class="fas fa-user-md"></i>
                     <span>Data Perawat</span>
                 </a>
@@ -590,7 +590,7 @@
 
             {{-- Search --}}
             <div class="search-container">
-                <form action="{{ route('admin.dataperawat.index') }}" method="GET" class="d-flex flex-column flex-md-row gap-3">
+                <form action="{{ route('admin.DataPerawat.index') }}" method="GET" class="d-flex flex-column flex-md-row gap-3">
                     <div class="flex-grow-1 position-relative">
                         <i class="fas fa-search position-absolute top-50 start-0 translate-middle-y ms-3 text-muted"></i>
                         <input type="text" name="search" class="form-control ps-5" placeholder="Cari berdasarkan nama..." value="{{ $search ?? '' }}">
@@ -599,7 +599,7 @@
                         <button class="btn btn-primary">
                             <i class="fas fa-search me-1"></i>Cari
                         </button>
-                        <a href="{{ route('admin.dataperawat.index') }}" class="btn btn-outline-secondary">
+                        <a href="{{ route('admin.DataPerawat.index') }}" class="btn btn-outline-secondary">
                             <i class="fas fa-refresh me-1"></i>Reset
                         </a>
                     </div>
@@ -611,8 +611,8 @@
                 <div class="card-header bg-white d-flex justify-content-between align-items-center">
                     <h5 class="mb-0"><i class="fas fa-list me-2"></i>Daftar Perawat</h5>
                     <div class="d-flex align-items-center">
-                        <span class="badge bg-primary me-3">{{ $dataperawat->total() }} Data</span>
-                        <a href="{{ route('admin.dataperawat.create') }}" class="btn btn-success">
+                        <span class="badge bg-primary me-3">{{ $DataPerawat->total() }} Data</span>
+                        <a href="{{ route('admin.DataPerawat.create') }}" class="btn btn-success">
                             <i class="fas fa-plus me-1"></i>Tambah Perawat
                         </a>
                     </div>
@@ -632,7 +632,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @forelse($dataperawat as $perawat)
+                                @forelse($DataPerawat as $perawat)
                                     <tr>
                                         <td class="fw-bold">{{ $perawat->id }}</td>
                                         <td>{{ $perawat->nama }}</td>
@@ -660,10 +660,10 @@
                                         </td>
                                         <td>
                                             <div class="action-buttons">
-                                                <a href="{{ route('admin.dataperawat.edit', $perawat->id) }}" class="btn btn-warning btn-sm" title="Edit">
+                                                <a href="{{ route('admin.DataPerawat.edit', $perawat->id) }}" class="btn btn-warning btn-sm" title="Edit">
                                                     <i class="fas fa-edit"></i>
                                                 </a>
-                                                <a href="{{ route('admin.dataperawat.destroy', $perawat->id) }}"
+                                                <a href="{{ route('admin.DataPerawat.destroy', $perawat->id) }}"
                                                     class="btn btn-danger btn-sm"
                                                     onclick="return confirm('Yakin mau hapus data ini?')">
                                                     <i class="fas fa-trash"></i>

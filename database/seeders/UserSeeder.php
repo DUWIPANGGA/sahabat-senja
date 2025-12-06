@@ -21,7 +21,7 @@ class UserSeeder extends Seeder
                 'alamat' => 'Jl. Admin No. 1, Jakarta'
             ],
             
-            // Perawat - EMAIL DIUBAH KARENA SUDAH ADA DI DATAPERAWAT
+            // Perawat - EMAIL DIUBAH KARENA SUDAH ADA DI DataPerawat
             [
                 'name' => 'Perawat Sri Handayani',
                 'email' => 'sri.perawat.user@carelansia.com', // EMAIL DIUBAH

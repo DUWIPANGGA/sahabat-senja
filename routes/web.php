@@ -2,11 +2,12 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\GrafikController;
 use App\Http\Controllers\LaporanController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\Api\DonasiController;
 use App\Http\Controllers\DatalansiaController;
-use App\Http\Controllers\DataperawatController;
-use App\Http\Controllers\GrafikController;
+use App\Http\Controllers\DataPerawatController;
 
 Route::get('/', function () {
     return view('auth.login');
@@ -54,16 +55,24 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/datalansia/hapus/{id}', [DatalansiaController::class, 'destroy'])->name('admin.datalansia.destroy');
     
     // Data Perawat (admin)
-    Route::get('/dataperawat', [DataperawatController::class, 'index'])->name('admin.dataperawat.index');
-    Route::get('/dataperawat/tambah', [DataperawatController::class, 'create'])->name('admin.dataperawat.create');
-    Route::post('/dataperawat/store', [DataperawatController::class, 'store'])->name('admin.dataperawat.store');
-    Route::get('/dataperawat/edit/{id}', [DataperawatController::class, 'edit'])->name('admin.dataperawat.edit');
-    Route::post('/dataperawat/update/{id}', [DataperawatController::class, 'update'])->name('admin.dataperawat.update');
-    Route::get('/dataperawat/hapus/{id}', [DataperawatController::class, 'destroy'])->name('admin.dataperawat.destroy');
+    Route::get('/DataPerawat', [DataPerawatController::class, 'index'])->name('admin.DataPerawat.index');
+    Route::get('/DataPerawat/tambah', [DataPerawatController::class, 'create'])->name('admin.DataPerawat.create');
+    Route::post('/DataPerawat/store', [DataPerawatController::class, 'store'])->name('admin.DataPerawat.store');
+    Route::get('/DataPerawat/edit/{id}', [DataPerawatController::class, 'edit'])->name('admin.DataPerawat.edit');
+    Route::post('/DataPerawat/update/{id}', [DataPerawatController::class, 'update'])->name('admin.DataPerawat.update');
+    Route::get('/DataPerawat/hapus/{id}', [DataPerawatController::class, 'destroy'])->name('admin.DataPerawat.destroy');
 
     // Grafik
     Route::get('/grafik', [GrafikController::class, 'index'])->name('admin.grafik.index');
     Route::get('/grafik/kategori', [GrafikController::class, 'byCategory'])->name('admin.grafik.category');
     Route::get('/dashboard', [GrafikController::class, 'dashboard'])->name('admin.dashboard');
     Route::get('/api/grafik-data', [GrafikController::class, 'apiData'])->name('admin.grafik.api');
+    Route::prefix('donasi')->group(function () {
+    Route::get('/', [DonasiController::class, 'index']);
+    Route::post('/', [DonasiController::class, 'store']);
+    Route::get('/{id}', [DonasiController::class, 'show']);
+    Route::get('/user/{userId}', [DonasiController::class, 'getByUser']);
+    Route::put('/{id}/bukti', [DonasiController::class, 'updateBukti']);
+    Route::put('/{id}/status', [DonasiController::class, 'updateStatus']);
+});
 });

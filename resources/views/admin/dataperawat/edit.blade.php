@@ -516,7 +516,7 @@
                 </a>
             </div>
             <div class="nav-item" style="margin-bottom: 0;">
-                <a href="{{ route('admin.dataperawat.index') }}" class="nav-link">
+                <a href="{{ route('admin.DataPerawat.index') }}" class="nav-link">
                     <i class="fas fa-user-md"></i>
                     <span>Data Perawat</span>
                 </a>
@@ -601,20 +601,20 @@
                     Edit Data Perawat
                 </div>
                 <div class="card-body">
-                    <form action="{{ route('admin.dataperawat.update', $dataperawat->id) }}" method="POST">
+                    <form action="{{ route('admin.DataPerawat.update', $DataPerawat->id) }}" method="POST">
                         @csrf
 
                         <div class="row mb-3">
                             <div class="col-md-6">
                                 <label class="form-label">Nama Lengkap</label>
-                                <input type="text" name="nama" class="form-control" value="{{ old('nama', $dataperawat->nama) }}" required placeholder="Masukkan nama lengkap">
+                                <input type="text" name="nama" class="form-control" value="{{ old('nama', $DataPerawat->nama) }}" required placeholder="Masukkan nama lengkap">
                                 @error('nama')
                                     <div class="invalid-feedback d-block">{{ $message }}</div>
                                 @enderror
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label">Email</label>
-                                <input type="email" name="email" class="form-control" value="{{ old('email', $dataperawat->email) }}" required placeholder="Masukkan email">
+                                <input type="email" name="email" class="form-control" value="{{ old('email', $DataPerawat->email) }}" required placeholder="Masukkan email">
                                 @error('email')
                                     <div class="invalid-feedback d-block">{{ $message }}</div>
                                 @enderror
@@ -623,7 +623,7 @@
                         <div class="row mb-3">
                             <div class="col-md-6">
                                 <label class="form-label">No HP</label>
-                                <input type="text" name="no_hp" class="form-control" value="{{ $dataperawat->no_hp }}" maxlength="15" required placeholder="Masukkan nomor HP">
+                                <input type="text" name="no_hp" class="form-control" value="{{ $DataPerawat->no_hp }}" maxlength="15" required placeholder="Masukkan nomor HP">
                                 @error('no_hp')
                                     <div class="invalid-feedback d-block">{{ $message }}</div>
                                 @enderror
@@ -632,8 +632,8 @@
                                 <label class="form-label">Jenis Kelamin</label>
                                 <select name="jenis_kelamin" class="form-control" required>
                                     <option value="">-- Pilih Jenis Kelamin --</option>
-                                    <option value="Laki-laki" {{ old('jenis_kelamin', $dataperawat->jenis_kelamin) == 'Laki-laki' ? 'selected' : '' }}>Laki-laki</option>
-                                    <option value="Perempuan" {{ old('jenis_kelamin', $dataperawat->jenis_kelamin) == 'Perempuan' ? 'selected' : '' }}>Perempuan</option>
+                                    <option value="Laki-laki" {{ old('jenis_kelamin', $DataPerawat->jenis_kelamin) == 'Laki-laki' ? 'selected' : '' }}>Laki-laki</option>
+                                    <option value="Perempuan" {{ old('jenis_kelamin', $DataPerawat->jenis_kelamin) == 'Perempuan' ? 'selected' : '' }}>Perempuan</option>
                                 </select>
                                 @error('jenis_kelamin')
                                     <div class="invalid-feedback d-block">{{ $message }}</div>
@@ -643,7 +643,7 @@
 
                         <div class="mb-3">
                             <label class="form-label">Alamat</label>
-                            <textarea name="alamat" class="form-control" rows="3" required placeholder="Masukkan alamat lengkap">{{ old('alamat', $dataperawat->alamat) }}</textarea>
+                            <textarea name="alamat" class="form-control" rows="3" required placeholder="Masukkan alamat lengkap">{{ old('alamat', $DataPerawat->alamat) }}</textarea>
                             @error('alamat')
                                 <div class="invalid-feedback d-block">{{ $message }}</div>
                             @enderror
@@ -653,7 +653,7 @@
                             <button type="submit" class="btn btn-success">
                                 <i class="fas fa-sync-alt me-1"></i>Update Data
                             </button>
-                            <a href="{{ route('admin.dataperawat.index') }}" class="btn btn-outline-secondary">
+                            <a href="{{ route('admin.DataPerawat.index') }}" class="btn btn-outline-secondary">
                                 <i class="fas fa-times me-1"></i>Batal
                             </a>
                         </div>

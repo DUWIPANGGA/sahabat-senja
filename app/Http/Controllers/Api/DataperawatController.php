@@ -3,11 +3,11 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\Dataperawat;
+use App\Models\DataPerawat;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
-class DataperawatController extends Controller
+class DataPerawatController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -15,12 +15,12 @@ class DataperawatController extends Controller
     public function index()
     {
         try {
-            $dataperawat = Dataperawat::all();
+            $DataPerawat = DataPerawat::all();
             
             return response()->json([
                 'status' => 'success',
                 'message' => 'Data perawat berhasil diambil',
-                'data' => $dataperawat
+                'data' => $DataPerawat
             ], 200);
         } catch (\Exception $e) {
             return response()->json([
@@ -38,7 +38,7 @@ class DataperawatController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'nama' => 'required|string|max:100',
-            'email' => 'required|string|email|max:100|unique:dataperawat',
+            'email' => 'required|string|email|max:100|unique:DataPerawat',
             'alamat' => 'required|string',
             'no_hp' => 'required|string|max:20',
             'jenis_kelamin' => 'required|in:Laki-laki,Perempuan',
@@ -53,12 +53,12 @@ class DataperawatController extends Controller
         }
 
         try {
-            $dataperawat = Dataperawat::create($request->all());
+            $DataPerawat = DataPerawat::create($request->all());
             
             return response()->json([
                 'status' => 'success',
                 'message' => 'Data perawat berhasil ditambahkan',
-                'data' => $dataperawat
+                'data' => $DataPerawat
             ], 201);
         } catch (\Exception $e) {
             return response()->json([
@@ -75,9 +75,9 @@ class DataperawatController extends Controller
     public function show($id)
     {
         try {
-            $dataperawat = Dataperawat::find($id);
+            $DataPerawat = DataPerawat::find($id);
             
-            if (!$dataperawat) {
+            if (!$DataPerawat) {
                 return response()->json([
                     'status' => 'error',
                     'message' => 'Data perawat tidak ditemukan'
@@ -87,7 +87,7 @@ class DataperawatController extends Controller
             return response()->json([
                 'status' => 'success',
                 'message' => 'Data perawat berhasil diambil',
-                'data' => $dataperawat
+                'data' => $DataPerawat
             ], 200);
         } catch (\Exception $e) {
             return response()->json([
@@ -105,7 +105,7 @@ class DataperawatController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'nama' => 'sometimes|string|max:100',
-            'email' => 'sometimes|string|email|max:100|unique:dataperawat,email,' . $id,
+            'email' => 'sometimes|string|email|max:100|unique:DataPerawat,email,' . $id,
             'alamat' => 'sometimes|string',
             'no_hp' => 'sometimes|string|max:20',
             'jenis_kelamin' => 'sometimes|in:Laki-laki,Perempuan',
@@ -120,21 +120,21 @@ class DataperawatController extends Controller
         }
 
         try {
-            $dataperawat = Dataperawat::find($id);
+            $DataPerawat = DataPerawat::find($id);
             
-            if (!$dataperawat) {
+            if (!$DataPerawat) {
                 return response()->json([
                     'status' => 'error',
                     'message' => 'Data perawat tidak ditemukan'
                 ], 404);
             }
             
-            $dataperawat->update($request->all());
+            $DataPerawat->update($request->all());
             
             return response()->json([
                 'status' => 'success',
                 'message' => 'Data perawat berhasil diperbarui',
-                'data' => $dataperawat
+                'data' => $DataPerawat
             ], 200);
         } catch (\Exception $e) {
             return response()->json([
@@ -151,16 +151,16 @@ class DataperawatController extends Controller
     public function destroy($id)
     {
         try {
-            $dataperawat = Dataperawat::find($id);
+            $DataPerawat = DataPerawat::find($id);
             
-            if (!$dataperawat) {
+            if (!$DataPerawat) {
                 return response()->json([
                     'status' => 'error',
                     'message' => 'Data perawat tidak ditemukan'
                 ], 404);
             }
             
-            $dataperawat->delete();
+            $DataPerawat->delete();
             
             return response()->json([
                 'status' => 'success',

@@ -1,14 +1,17 @@
 <?php
 
 namespace Database\Seeders;
-
+use App\Models\DataPerawat;
 use Illuminate\Database\Seeder;
-use App\Models\Dataperawat;
 
-class DataperawatSeeder extends Seeder
+class DataPerawatSeeder extends Seeder
 {
     public function run(): void
     {
+
+
+
+
         $perawat = [
             [
                 'nama' => 'Sri Handayani, S.Kep',
@@ -41,7 +44,7 @@ class DataperawatSeeder extends Seeder
         ];
 
         foreach ($perawat as $data) {
-            Dataperawat::create($data);
+            DataPerawat::create($data);
         }
     }
 }
