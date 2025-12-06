@@ -2,11 +2,12 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\GrafikController;
 use App\Http\Controllers\LaporanController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\Api\DonasiController;
 use App\Http\Controllers\DatalansiaController;
 use App\Http\Controllers\DataPerawatController;
-use App\Http\Controllers\GrafikController;
 
 Route::get('/', function () {
     return view('auth.login');
@@ -66,4 +67,12 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/grafik/kategori', [GrafikController::class, 'byCategory'])->name('admin.grafik.category');
     Route::get('/dashboard', [GrafikController::class, 'dashboard'])->name('admin.dashboard');
     Route::get('/api/grafik-data', [GrafikController::class, 'apiData'])->name('admin.grafik.api');
+    Route::prefix('donasi')->group(function () {
+    Route::get('/', [DonasiController::class, 'index']);
+    Route::post('/', [DonasiController::class, 'store']);
+    Route::get('/{id}', [DonasiController::class, 'show']);
+    Route::get('/user/{userId}', [DonasiController::class, 'getByUser']);
+    Route::put('/{id}/bukti', [DonasiController::class, 'updateBukti']);
+    Route::put('/{id}/status', [DonasiController::class, 'updateStatus']);
+});
 });

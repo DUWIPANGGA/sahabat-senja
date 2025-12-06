@@ -50,7 +50,10 @@ class Datalansia extends Model
     {
         return $this->belongsTo(User::class, 'user_id');
     }
-
+public function user()
+{
+    return $this->keluarga();
+}
     /**
      * Relasi ke kondisi (riwayat kesehatan)
      */
