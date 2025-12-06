@@ -1,9 +1,8 @@
 <?php
 
 namespace Database\Seeders;
-
-use Illuminate\Database\Seeder;
 use App\Models\Dataperawat;
+use Illuminate\Database\Seeder;
 
 class DataperawatSeeder extends Seeder
 {
