@@ -2,6 +2,8 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\ChatController;
+use App\Http\Controllers\Api\IuranController;
+use App\Http\Controllers\Api\DonasiController;
 use App\Http\Controllers\Api\KondisiController;
 use App\Http\Controllers\Api\KeuanganController;
 use App\Http\Controllers\Api\AuthMobileController;
@@ -9,6 +11,7 @@ use App\Http\Controllers\Api\DatalansiaController;
 use App\Http\Controllers\Api\JadwalObatController;
 use App\Http\Controllers\Api\DataPerawatController;
 use App\Http\Controllers\Api\TrackingObatController;
+use App\Http\Controllers\Api\KampanyeDonasiController;
 use App\Http\Controllers\Api\JadwalAktivitasController;
 
 // Public routes
@@ -170,6 +173,105 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/recent', [ChatController::class, 'getRecentChats']);
     });
 
+    // Donasi routes dengan Midtrans
+Route::prefix('donasi')->group(function () {
+    Route::get('/', [DonasiController::class, 'index']);
+    Route::post('/', [DonasiController::class, 'store']);
+    Route::get('/{id}', [DonasiController::class, 'show']);
+    Route::post('/{id}/bukti', [DonasiController::class, 'updateBukti']);
+    Route::post('/{id}/status', [DonasiController::class, 'updateStatus']);
+    
+    // Midtrans specific
+    Route::post('/notification', [DonasiController::class, 'handleMidtransNotification']);
+    Route::get('/{id}/snap-token', [DonasiController::class, 'getSnapToken']);
+    Route::get('/check/{kodeDonasi}', [DonasiController::class, 'checkPaymentStatus']);
+    Route::get('/user/{userId?}', [DonasiController::class, 'getByUser']);
+    Route::get('/payment-methods', [DonasiController::class, 'getPaymentMethods']);
+});
+
+// Callback routes untuk Midtrans
+Route::get('/payment/callback/finish', function () {
+    return response()->json(['message' => 'Payment finished - handle in frontend']);
+})->name('payment.callback.finish');
+
+Route::get('/payment/callback/error', function () {
+    return response()->json(['message' => 'Payment error - handle in frontend']);
+})->name('payment.callback.error');
+
+Route::get('/payment/callback/pending', function () {
+    return response()->json(['message' => 'Payment pending - handle in frontend']);
+})->name('payment.callback.pending');
+// Kampanye Donasi Routes
+Route::prefix('kampanye')->group(function () {
+    // Public routes
+    Route::get('/', [KampanyeDonasiController::class, 'index']);
+    Route::get('/active', [KampanyeDonasiController::class, 'active']);
+    Route::get('/featured', [KampanyeDonasiController::class, 'featured']);
+    Route::get('/trending', [KampanyeDonasiController::class, 'trending']);
+    Route::get('/categories', [KampanyeDonasiController::class, 'categories']);
+    Route::get('/category/{category}', [KampanyeDonasiController::class, 'byCategory']);
+    Route::get('/statistics', [KampanyeDonasiController::class, 'statistics']);
+    Route::get('/elderly/{datalansiaId}', [KampanyeDonasiController::class, 'forElderly']);
+    Route::get('/{slug}', [KampanyeDonasiController::class, 'show']);
+    
+    // Protected routes (admin only)
+    Route::middleware(['auth:sanctum', 'admin'])->group(function () {
+        Route::post('/', [KampanyeDonasiController::class, 'store']);
+        Route::put('/{id}', [KampanyeDonasiController::class, 'update']);
+        Route::delete('/{id}', [KampanyeDonasiController::class, 'destroy']);
+    });
+});
+// Iuran Routes
+Route::prefix('iuran')->group(function () {
+    // User routes (authenticated)
+    Route::middleware('auth:sanctum')->group(function () {
+        Route::get('/', [IuranController::class, 'index']);
+        Route::get('/statistics', [IuranController::class, 'statistics']);
+        Route::get('/pending', [IuranController::class, 'pending']);
+        Route::get('/upcoming', [IuranController::class, 'upcoming']);
+        Route::get('/history', [IuranController::class, 'paymentHistory']);
+        Route::get('/payment-methods', [IuranController::class, 'paymentMethods']);
+        Route::get('/{id}', [IuranController::class, 'show']);
+        
+        // Payment routes
+        Route::post('/{id}/pay', [IuranController::class, 'updatePayment']);
+        Route::post('/{id}/pay/midtrans', [IuranController::class, 'payWithMidtrans']);
+    });
+
+    // Admin only routes
+    Route::middleware(['auth:sanctum', 'admin'])->group(function () {
+        Route::post('/', [IuranController::class, 'store']);
+        Route::post('/{id}/verify', [IuranController::class, 'verifyPayment']);
+    });
+
+    // Midtrans notification (no auth required)
+    Route::post('/notification', [IuranController::class, 'handleMidtransNotification']);
+});// Iuran Routes
+Route::prefix('iuran')->group(function () {
+    // User routes (authenticated)
+    Route::middleware('auth:sanctum')->group(function () {
+        Route::get('/', [IuranController::class, 'index']);
+        Route::get('/statistics', [IuranController::class, 'statistics']);
+        Route::get('/pending', [IuranController::class, 'pending']);
+        Route::get('/upcoming', [IuranController::class, 'upcoming']);
+        Route::get('/history', [IuranController::class, 'paymentHistory']);
+        Route::get('/payment-methods', [IuranController::class, 'paymentMethods']);
+        Route::get('/{id}', [IuranController::class, 'show']);
+        
+        // Payment routes
+        Route::post('/{id}/pay', [IuranController::class, 'updatePayment']);
+        Route::post('/{id}/pay/midtrans', [IuranController::class, 'payWithMidtrans']);
+    });
+
+    // Admin only routes
+    Route::middleware(['auth:sanctum', 'admin'])->group(function () {
+        Route::post('/', [IuranController::class, 'store']);
+        Route::post('/{id}/verify', [IuranController::class, 'verifyPayment']);
+    });
+
+    // Midtrans notification (no auth required)
+    Route::post('/notification', [IuranController::class, 'handleMidtransNotification']);
+});
     // ============ ROLE-BASED ROUTES ============
     
     // Admin only routes

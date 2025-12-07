@@ -5,395 +5,267 @@
 @section('icon', 'fas fa-chart-pie')
 
 @section('content')
-    <!-- Filter Card -->
-    <div class="filter-card">
-        <h3 class="mb-4"><i class="fas fa-filter"></i>Filter Data</h3>
-        <div class="row">
-            <div class="col-md-4 mb-3">
-                <label class="form-label fw-bold">Pilih Tahun</label>
-                <select id="tahunFilter" class="form-select">
-                    @foreach($tahunList as $tahunItem)
-                        <option value="{{ $tahunItem }}" {{ $tahun == $tahunItem ? 'selected' : '' }}>
-                            Tahun {{ $tahunItem }}
-                        </option>
-                    @endforeach
-                </select>
-            </div>
-            <div class="col-md-4 mb-3">
-                <label class="form-label fw-bold">Pilih Bulan</label>
-                <select id="bulanFilter" class="form-select">
-                    @foreach(['1'=>'Januari','2'=>'Februari','3'=>'Maret','4'=>'April','5'=>'Mei','6'=>'Juni','7'=>'Juli','8'=>'Agustus','9'=>'September','10'=>'Oktober','11'=>'November','12'=>'Desember'] as $key => $value)
-                        <option value="{{ $key }}" {{ request('bulan', date('m')) == $key ? 'selected' : '' }}>
-                            {{ $value }}
-                        </option>
-                    @endforeach
-                </select>
-            </div>
-            <div class="col-md-4 mb-3 d-flex align-items-end">
-                <button id="filterBtn" class="btn w-100" style="background-color: var(--primary-color); color: white; padding: 0.6rem;">
-                    <i class="fas fa-filter me-2"></i>Terapkan Filter
-                </button>
-            </div>
-        </div>
-    </div>
 
-    <!-- Summary Cards -->
-    <div class="stats-grid">
-        <div class="dashboard-card">
-            <div class="d-flex align-items-center">
-                <div class="card-icon primary">
-                    <i class="fas fa-money-bill-wave"></i>
-                </div>
-                <div>
-                    <div class="card-title">Total Pemasukan</div>
-                    <div class="card-value">Rp {{ number_format($totalPemasukan, 0, ',', '.') }}</div>
-                    <div class="card-change positive">
-                        <i class="fas fa-arrow-up me-1"></i> 
-                        @if($totalPemasukanBulanLalu > 0)
-                            {{ number_format(($totalPemasukan - $totalPemasukanBulanLalu) / $totalPemasukanBulanLalu * 100, 1) }}%
-                        @else
-                            0%
-                        @endif
+        <div class="container-fluid p-4">
+            <!-- Filter Card -->
+            <div class="filter-card">
+                <h3 class="mb-4"><i class="fas fa-filter"></i>Filter Data</h3>
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label fw-bold">Pilih Tahun</label>
+                        <select id="tahunFilter" class="form-select">
+                            @foreach($tahunList as $tahunItem)
+                                <option value="{{ $tahunItem }}" {{ $tahun == $tahunItem ? 'selected' : '' }}>
+                                    Tahun {{ $tahunItem }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label fw-bold">Pilih Bulan</label>
+                        <select id="bulanFilter" class="form-select">
+                            @foreach(['1'=>'Januari','2'=>'Februari','3'=>'Maret','4'=>'April','5'=>'Mei','6'=>'Juni','7'=>'Juli','8'=>'Agustus','9'=>'September','10'=>'Oktober','11'=>'November','12'=>'Desember'] as $key => $value)
+                                <option value="{{ $key }}" {{ request('bulan', date('m')) == $key ? 'selected' : '' }}>
+                                    {{ $value }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-md-4 mb-3 d-flex align-items-end">
+                        <button id="filterBtn" class="btn w-100" style="background-color: var(--primary-color); color: white; padding: 0.6rem;">
+                            <i class="fas fa-filter me-2"></i>Terapkan Filter
+                        </button>
                     </div>
                 </div>
             </div>
-        </div>
-        
-        <div class="dashboard-card">
-            <div class="d-flex align-items-center">
-                <div class="card-icon warning">
-                    <i class="fas fa-hand-holding-usd"></i>
+
+            <!-- Summary Cards -->
+            <div class="stats-grid">
+                <div class="dashboard-card">
+                    <div class="d-flex align-items-center">
+                        <div class="card-icon primary">
+                            <i class="fas fa-money-bill-wave"></i>
+                        </div>
+                        <div>
+                            <div class="card-title">Total Pemasukan</div>
+                            <div class="card-value">Rp {{ number_format($totalPemasukan, 0, ',', '.') }}</div>
+                            <div class="card-change positive">
+                                <i class="fas fa-arrow-up me-1"></i> 
+                                @if($totalPemasukanBulanLalu > 0)
+                                    {{ number_format(($totalPemasukan - $totalPemasukanBulanLalu) / $totalPemasukanBulanLalu * 100, 1) }}%
+                                @else
+                                    0%
+                                @endif
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div>
-                    <div class="card-title">Total Pengeluaran</div>
-                    <div class="card-value">Rp {{ number_format($totalPengeluaran, 0, ',', '.') }}</div>
-                    <div class="card-change {{ ($totalPengeluaran - $totalPengeluaranBulanLalu) >= 0 ? 'negative' : 'positive' }}">
-                        <i class="fas fa-arrow-{{ ($totalPengeluaran - $totalPengeluaranBulanLalu) >= 0 ? 'up' : 'down' }} me-1"></i> 
-                        @if($totalPengeluaranBulanLalu > 0)
-                            {{ number_format(abs(($totalPengeluaran - $totalPengeluaranBulanLalu) / $totalPengeluaranBulanLalu * 100), 1) }}%
-                        @else
-                            0%
-                        @endif
+                
+                <div class="dashboard-card">
+                    <div class="d-flex align-items-center">
+                        <div class="card-icon warning">
+                            <i class="fas fa-hand-holding-usd"></i>
+                        </div>
+                        <div>
+                            <div class="card-title">Total Pengeluaran</div>
+                            <div class="card-value">Rp {{ number_format($totalPengeluaran, 0, ',', '.') }}</div>
+                            <div class="card-change {{ ($totalPengeluaran - $totalPengeluaranBulanLalu) >= 0 ? 'negative' : 'positive' }}">
+                                <i class="fas fa-arrow-{{ ($totalPengeluaran - $totalPengeluaranBulanLalu) >= 0 ? 'up' : 'down' }} me-1"></i> 
+                                @if($totalPengeluaranBulanLalu > 0)
+                                    {{ number_format(abs(($totalPengeluaran - $totalPengeluaranBulanLalu) / $totalPengeluaranBulanLalu * 100), 1) }}%
+                                @else
+                                    0%
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="dashboard-card">
+                    <div class="d-flex align-items-center">
+                        <div class="card-icon {{ $saldo >= 0 ? 'success' : 'danger' }}">
+                            <i class="fas fa-piggy-bank"></i>
+                        </div>
+                        <div>
+                            <div class="card-title">Saldo Bersih</div>
+                            <div class="card-value">Rp {{ number_format($saldo, 0, ',', '.') }}</div>
+                            <div class="card-change {{ $saldoBulanLalu <= $saldo ? 'positive' : 'negative' }}">
+                                <i class="fas fa-arrow-{{ $saldoBulanLalu <= $saldo ? 'up' : 'down' }} me-1"></i> 
+                                @if($saldoBulanLalu > 0)
+                                    {{ number_format((($saldo - $saldoBulanLalu) / $saldoBulanLalu) * 100, 1) }}%
+                                @else
+                                    0%
+                                @endif
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
-        
-        <div class="dashboard-card">
-            <div class="d-flex align-items-center">
-                <div class="card-icon {{ $saldo >= 0 ? 'success' : 'danger' }}">
-                    <i class="fas fa-piggy-bank"></i>
-                </div>
-                <div>
-                    <div class="card-title">Saldo Bersih</div>
-                    <div class="card-value">Rp {{ number_format($saldo, 0, ',', '.') }}</div>
-                    <div class="card-change {{ $saldoBulanLalu <= $saldo ? 'positive' : 'negative' }}">
-                        <i class="fas fa-arrow-{{ $saldoBulanLalu <= $saldo ? 'up' : 'down' }} me-1"></i> 
-                        @if($saldoBulanLalu > 0)
-                            {{ number_format((($saldo - $saldoBulanLalu) / $saldoBulanLalu) * 100, 1) }}%
-                        @else
-                            0%
-                        @endif
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
 
-    <!-- Main Chart -->
-    <div class="chart-container">
-        <div class="chart-header">
-            <h3><i class="fas fa-chart-line"></i>Grafik Pemasukan vs Pengeluaran Tahun {{ $tahun }}</h3>
-            <div class="chart-type-toggle">
-                <button class="chart-type-btn active" data-chart-type="bar">
-                    <i class="fas fa-chart-bar"></i> Batang
-                </button>
-                <button class="chart-type-btn" data-chart-type="line">
-                    <i class="fas fa-chart-line"></i> Garis
-                </button>
-            </div>
-        </div>
-        <div class="chart-wrapper">
-            <canvas id="mainChart"></canvas>
-        </div>
-    </div>
-
-    <!-- Donut Charts -->
-    <div class="row mb-4">
-        <div class="col-lg-6">
-            <div class="donut-chart-container">
+            <!-- Main Chart -->
+            <div class="chart-container">
                 <div class="chart-header">
-                    <h3><i class="fas fa-chart-pie"></i>Pemasukan per Sumber</h3>
-                    <small class="text-muted">Bulan {{ $namaBulan }} {{ $tahun }}</small>
+                    <h3><i class="fas fa-chart-line"></i>Grafik Pemasukan vs Pengeluaran Tahun {{ $tahun }}</h3>
+                    <div class="chart-type-toggle">
+                        <button class="chart-type-btn active" data-chart-type="bar">
+                            <i class="fas fa-chart-bar"></i> Batang
+                        </button>
+                        <button class="chart-type-btn" data-chart-type="line">
+                            <i class="fas fa-chart-line"></i> Garis
+                        </button>
+                    </div>
                 </div>
-                <div class="donut-chart-wrapper">
-                    <canvas id="pemasukanChart"></canvas>
-                </div>
-            </div>
-        </div>
-        
-        <div class="col-lg-6">
-            <div class="donut-chart-container">
-                <div class="chart-header">
-                    <h3><i class="fas fa-chart-pie"></i>Pengeluaran per Kategori</h3>
-                    <small class="text-muted">Bulan {{ $namaBulan }} {{ $tahun }}</small>
-                </div>
-                <div class="donut-chart-wrapper">
-                    <canvas id="pengeluaranChart"></canvas>
+                <div class="chart-wrapper">
+                    <canvas id="mainChart"></canvas>
                 </div>
             </div>
-        </div>
-    </div>
 
-    <!-- Recent Transactions -->
-    <div class="row">
-        <div class="col-lg-6">
-            <div class="table-container">
-                <div class="table-header">
-                    <h3><i class="fas fa-money-bill-wave"></i>Pemasukan Terbaru</h3>
-                    <a href="{{ route('laporan.pemasukan') }}" class="btn btn-sm" style="background-color: var(--primary-color); color: white;">
-                        <i class="fas fa-eye me-1"></i> Lihat Semua
-                    </a>
+            <!-- Donut Charts -->
+            <div class="row mb-4">
+                <div class="col-lg-6">
+                    <div class="donut-chart-container">
+                        <div class="chart-header">
+                            <h3><i class="fas fa-chart-pie"></i>Pemasukan per Sumber</h3>
+                            <small class="text-muted">Bulan {{ $namaBulan }} {{ $tahun }}</small>
+                        </div>
+                        <div class="donut-chart-wrapper">
+                            <canvas id="pemasukanChart"></canvas>
+                        </div>
+                    </div>
                 </div>
-                <div class="table-responsive">
-                    <table class="custom-table">
-                        <thead>
-                            <tr>
-                                <th>Tanggal</th>
-                                <th>Sumber</th>
-                                <th class="text-end">Jumlah</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @forelse($recentPemasukan as $item)
-                                <tr>
-                                    <td>{{ \Carbon\Carbon::parse($item->tanggal)->format('d/m/Y') }}</td>
-                                    <td>{{ $item->sumber }}</td>
-                                    <td class="text-end text-success fw-bold">+ Rp {{ number_format($item->jumlah, 0, ',', '.') }}</td>
-                                </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="3" class="text-center py-4">Tidak ada data pemasukan</td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
+                
+                <div class="col-lg-6">
+                    <div class="donut-chart-container">
+                        <div class="chart-header">
+                            <h3><i class="fas fa-chart-pie"></i>Pengeluaran per Kategori</h3>
+                            <small class="text-muted">Bulan {{ $namaBulan }} {{ $tahun }}</small>
+                        </div>
+                        <div class="donut-chart-wrapper">
+                            <canvas id="pengeluaranChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Transactions -->
+            <div class="row">
+                <div class="col-lg-6">
+                    <div class="table-container">
+                        <div class="table-header">
+                            <h3><i class="fas fa-money-bill-wave"></i>Pemasukan Terbaru</h3>
+                            <a href="{{ route('laporan.pemasukan') }}" class="btn btn-sm" style="background-color: var(--primary-color); color: white;">
+                                <i class="fas fa-eye me-1"></i> Lihat Semua
+                            </a>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="custom-table">
+                                <thead>
+                                    <tr>
+                                        <th>Tanggal</th>
+                                        <th>Sumber</th>
+                                        <th class="text-end">Jumlah</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @forelse($recentPemasukan as $item)
+                                        <tr>
+                                            <td>{{ \Carbon\Carbon::parse($item->tanggal)->format('d/m/Y') }}</td>
+                                            <td>{{ $item->sumber }}</td>
+                                            <td class="text-end text-success fw-bold">+ Rp {{ number_format($item->jumlah, 0, ',', '.') }}</td>
+                                        </tr>
+                                    @empty
+                                        <tr>
+                                            <td colspan="3" class="text-center py-4">Tidak ada data pemasukan</td>
+                                        </tr>
+                                    @endforelse
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-lg-6">
+                    <div class="table-container">
+                        <div class="table-header">
+                            <h3><i class="fas fa-hand-holding-usd"></i>Pengeluaran Terbaru</h3>
+                            <a href="{{ route('laporan.pengeluaran') }}" class="btn btn-sm" style="background-color: var(--primary-color); color: white;">
+                                <i class="fas fa-eye me-1"></i> Lihat Semua
+                            </a>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="custom-table">
+                                <thead>
+                                    <tr>
+                                        <th>Tanggal</th>
+                                        <th>Keterangan</th>
+                                        <th class="text-end">Jumlah</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @forelse($recentPengeluaran as $item)
+                                        <tr>
+                                            <td>{{ \Carbon\Carbon::parse($item->tanggal)->format('d/m/Y') }}</td>
+                                            <td>{{ $item->keterangan }}</td>
+                                            <td class="text-end text-danger fw-bold">- Rp {{ number_format($item->jumlah, 0, ',', '.') }}</td>
+                                        </tr>
+                                    @empty
+                                        <tr>
+                                            <td colspan="3" class="text-center py-4">Tidak ada data pengeluaran</td>
+                                        </tr>
+                                    @endforelse
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
         
-        <div class="col-lg-6">
-            <div class="table-container">
-                <div class="table-header">
-                    <h3><i class="fas fa-hand-holding-usd"></i>Pengeluaran Terbaru</h3>
-                    <a href="{{ route('laporan.pengeluaran') }}" class="btn btn-sm" style="background-color: var(--primary-color); color: white;">
-                        <i class="fas fa-eye me-1"></i> Lihat Semua
-                    </a>
-                </div>
-                <div class="table-responsive">
-                    <table class="custom-table">
-                        <thead>
-                            <tr>
-                                <th>Tanggal</th>
-                                <th>Keterangan</th>
-                                <th class="text-end">Jumlah</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @forelse($recentPengeluaran as $item)
-                                <tr>
-                                    <td>{{ \Carbon\Carbon::parse($item->tanggal)->format('d/m/Y') }}</td>
-                                    <td>{{ $item->keterangan }}</td>
-                                    <td class="text-end text-danger fw-bold">- Rp {{ number_format($item->jumlah, 0, ',', '.') }}</td>
-                                </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="3" class="text-center py-4">Tidak ada data pengeluaran</td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-    </div>
 @endsection
-
-@push('styles')
-    <style>
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 1.5rem;
-            margin-bottom: 2rem;
-        }
-        
-        .filter-card {
-            background-color: white;
-            border-radius: 12px;
-            box-shadow: var(--card-shadow);
-            padding: 1.5rem;
-            margin-bottom: 2rem;
-        }
-        
-        .chart-container {
-            background-color: white;
-            border-radius: 12px;
-            box-shadow: var(--card-shadow);
-            padding: 1.5rem;
-            margin-bottom: 2rem;
-        }
-        
-        .chart-header {
-            border-bottom: 1px solid var(--accent-color);
-            padding-bottom: 1rem;
-            margin-bottom: 1.5rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .chart-wrapper {
-            position: relative;
-            height: 400px;
-            width: 100%;
-        }
-        
-        .donut-chart-container {
-            background-color: white;
-            border-radius: 12px;
-            box-shadow: var(--card-shadow);
-            padding: 1.5rem;
-            margin-bottom: 2rem;
-            height: 100%;
-        }
-        
-        .donut-chart-wrapper {
-            position: relative;
-            height: 300px;
-            width: 100%;
-        }
-        
-        .table-container {
-            background-color: white;
-            border-radius: 12px;
-            box-shadow: var(--card-shadow);
-            padding: 1.5rem;
-            margin-bottom: 2rem;
-        }
-        
-        .table-header {
-            border-bottom: 1px solid var(--accent-color);
-            padding-bottom: 1rem;
-            margin-bottom: 1rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .custom-table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        
-        .custom-table thead {
-            background-color: rgba(139, 115, 85, 0.05);
-        }
-        
-        .custom-table th {
-            padding: 1rem;
-            text-align: left;
-            font-weight: 600;
-            color: var(--text-dark);
-            border-bottom: 2px solid var(--accent-color);
-        }
-        
-        .custom-table td {
-            padding: 1rem;
-            border-bottom: 1px solid var(--accent-color);
-        }
-        
-        .custom-table tbody tr:hover {
-            background-color: rgba(139, 115, 85, 0.05);
-        }
-        
-        .chart-type-toggle {
-            display: flex;
-            gap: 0.5rem;
-        }
-        
-        .chart-type-btn {
-            background-color: transparent;
-            border: 1px solid var(--primary-color);
-            color: var(--primary-color);
-            padding: 0.5rem 1rem;
-            border-radius: 6px;
-            font-size: 0.9rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            transition: all 0.3s;
-            cursor: pointer;
-        }
-        
-        .chart-type-btn:hover {
-            background-color: rgba(139, 115, 85, 0.1);
-        }
-        
-        .chart-type-btn.active {
-            background-color: var(--primary-color);
-            color: white;
-        }
-        
-        @media (max-width: 768px) {
-            .stats-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .chart-header {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 1rem;
-            }
-            
-            .chart-type-toggle {
-                align-self: flex-end;
-            }
-        }
-        
-        .card-change.positive {
-            color: var(--success-color);
-        }
-        
-        .card-change.negative {
-            color: #e53935;
-        }
-        
-        .card-title {
-            font-size: 0.9rem;
-            color: var(--text-light);
-            font-weight: 500;
-            margin-bottom: 0.5rem;
-        }
-        
-        .card-value {
-            font-size: 2rem;
-            font-weight: 700;
-            color: var(--text-dark);
-            margin-bottom: 0.5rem;
-        }
-        
-        .card-change {
-            font-size: 0.85rem;
-            display: flex;
-            align-items: center;
-        }
-    </style>
-@endpush
-
 @push('scripts')
+    
+
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            // Toggle Sidebar
+            document.getElementById('toggleSidebar').addEventListener('click', function() {
+                const sidebar = document.getElementById('sidebar');
+                const mainContent = document.getElementById('mainContent');
+                
+                sidebar.classList.toggle('collapsed');
+                mainContent.classList.toggle('expanded');
+            });
+
+            // Mobile Menu Toggle
+            document.getElementById('mobileMenuBtn').addEventListener('click', function() {
+                const sidebar = document.getElementById('sidebar');
+                sidebar.classList.toggle('show');
+            });
+
+            // Close sidebar when clicking outside on mobile
+            document.addEventListener('click', function(event) {
+                const sidebar = document.getElementById('sidebar');
+                const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+                
+                if (window.innerWidth <= 768 && 
+                    !sidebar.contains(event.target) && 
+                    !mobileMenuBtn.contains(event.target) &&
+                    sidebar.classList.contains('show')) {
+                    sidebar.classList.remove('show');
+                }
+            });
+
+            // Handle window resize
+            window.addEventListener('resize', function() {
+                const sidebar = document.getElementById('sidebar');
+                if (window.innerWidth > 768) {
+                    sidebar.classList.remove('show');
+                }
+            });
+
             // Filter Button
             document.getElementById('filterBtn').addEventListener('click', function() {
                 const tahun = document.getElementById('tahunFilter').value;

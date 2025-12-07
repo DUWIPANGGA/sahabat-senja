@@ -1,41 +1,11 @@
 @extends('layouts.app')
 
-@section('title', 'Grafik Keuangan')
-@section('page-title', 'Grafik Keuangan')
+@section('title', 'Pemasukan')
+@section('page-title', 'Pemasukan')
 @section('icon', 'fas fa-chart-pie')
 
 @section('content')
-    <!-- Main Content -->
-    <div class="main-content" id="mainContent">
-        <!-- Header -->
-        <div class="top-header d-flex justify-content-between align-items-center">
-            <div class="d-flex align-items-center">
-                <button class="mobile-menu-btn" id="mobileMenuBtn">
-                    <i class="fas fa-bars"></i>
-                </button>
-                <h1 class="header-title">
-                    <i class="fas fa-money-bill-wave"></i>Laporan Pemasukan
-                </h1>
-            </div>
 
-            <div class="d-flex align-items-center">
-                <div class="user-info">
-                    <div class="user-avatar">A</div>
-                    <div>
-                        <div class="fw-bold">Admin</div>
-                        <small class="text-muted">Administrator</small>
-                    </div>
-                </div>
-                <form method="POST" action="{{ route('logout') }}">
-                    @csrf
-                    <button type="submit" class="logout-btn">
-                        <i class="fas fa-sign-out-alt me-2"></i>Logout
-                    </button>
-                </form>
-            </div>
-        </div>
-
-        <!-- Content -->
         <div class="content-container">
             {{-- Alert sukses --}}
             @if(session('success'))
@@ -222,13 +192,6 @@
             @endif
         </div>
 
-        <!-- Footer -->
-        <footer class="footer">
-            <div class="container text-center">
-                <p class="mb-0">&copy; {{ date('Y') }} Sahabat Senja. Sistem Informasi Layanan Panti Jompo Berbasis Website & Mobile.</p>
-            </div>
-        </footer>
-    </div>
 
     <!-- Modal Tambah Pemasukan -->
     <div class="modal fade" id="tambahPemasukanModal" tabindex="-1" aria-labelledby="tambahPemasukanModalLabel" aria-hidden="true">
@@ -327,7 +290,7 @@
         </div>
     </div>
 @endsection
-@section('script')
+@push('script')
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -558,4 +521,4 @@
             }
         });
     </script>
-@endsection
+@endpush
