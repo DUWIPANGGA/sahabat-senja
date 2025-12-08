@@ -2,13 +2,14 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Controllers\Controller;
-use App\Models\KampanyeDonasi;
+use Log;
 use App\Models\Datalansia;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Illuminate\Http\Request;
+use App\Models\KampanyeDonasi;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Validator;
 
 class KampanyeDonasiController extends Controller
 {
@@ -19,7 +20,7 @@ class KampanyeDonasiController extends Controller
     {
         try {
             $query = KampanyeDonasi::with(['datalansia' => function($q) {
-                $q->select('id', 'nama_lansia', 'foto');
+                $q->select('id', 'nama_lansia');
             }]);
 
             // Filter by status
@@ -91,7 +92,7 @@ class KampanyeDonasiController extends Controller
         try {
             $query = KampanyeDonasi::aktif()
                 ->with(['datalansia' => function($q) {
-                    $q->select('id', 'nama_lansia', 'foto');
+                    $q->select('id', 'nama_lansia');
                 }]);
 
             // Filter by kategori
@@ -119,6 +120,8 @@ class KampanyeDonasiController extends Controller
             ]);
 
         } catch (\Exception $e) {
+                            Log::error('Error transforming kampanye: ' . $e->getMessage());
+
             return response()->json([
                 'status' => 'error',
                 'message' => 'Gagal mengambil data kampanye aktif',
@@ -136,7 +139,7 @@ class KampanyeDonasiController extends Controller
             $kampanyes = KampanyeDonasi::aktif()
                 ->featured()
                 ->with(['datalansia' => function($q) {
-                    $q->select('id', 'nama_lansia', 'foto');
+                    $q->select('id', 'nama_lansia');
                 }])
                 ->limit(5)
                 ->get();
@@ -169,7 +172,7 @@ class KampanyeDonasiController extends Controller
             $kampanyes = KampanyeDonasi::aktif()
                 ->where('kategori', $category)
                 ->with(['datalansia' => function($q) {
-                    $q->select('id', 'nama_lansia', 'foto');
+                    $q->select('id', 'nama_lansia');
                 }])
                 ->orderBy('is_featured', 'desc')
                 ->orderBy('created_at', 'desc')
@@ -227,7 +230,7 @@ class KampanyeDonasiController extends Controller
     {
         try {
             $kampanye = KampanyeDonasi::with(['datalansia' => function($q) {
-                    $q->select('id', 'nama_lansia', 'umur_lansia', 'foto', 'alamat_lengkap');
+                    $q->select('id', 'nama_lansia', 'umur_lansia', 'alamat_lengkap');
                 }])
                 ->where('slug', $slug)
                 ->first();
@@ -262,7 +265,7 @@ class KampanyeDonasiController extends Controller
                 ->where('kategori', $kampanye->kategori)
                 ->where('id', '!=', $kampanye->id)
                 ->with(['datalansia' => function($q) {
-                    $q->select('id', 'nama_lansia', 'foto');
+                    $q->select('id', 'nama_lansia');
                 }])
                 ->limit(4)
                 ->get()
@@ -298,6 +301,8 @@ class KampanyeDonasiController extends Controller
             ]);
 
         } catch (\Exception $e) {
+            Log::error('Error show: ' . $e->getMessage());
+
             return response()->json([
                 'status' => 'error',
                 'message' => 'Gagal mengambil data kampanye',
@@ -346,7 +351,7 @@ class KampanyeDonasiController extends Controller
         try {
             $kampanyes = KampanyeDonasi::aktif()
                 ->with(['datalansia' => function($q) {
-                    $q->select('id', 'nama_lansia', 'foto');
+                    $q->select('id', 'nama_lansia');
                 }])
                 ->orderBy('jumlah_dilihat', 'desc')
                 ->orderBy('jumlah_donatur', 'desc')
@@ -381,7 +386,7 @@ class KampanyeDonasiController extends Controller
             $kampanyes = KampanyeDonasi::aktif()
                 ->where('datalansia_id', $datalansiaId)
                 ->with(['datalansia' => function($q) {
-                    $q->select('id', 'nama_lansia', 'foto');
+                    $q->select('id', 'nama_lansia');
                 }])
                 ->orderBy('is_featured', 'desc')
                 ->orderBy('created_at', 'desc')

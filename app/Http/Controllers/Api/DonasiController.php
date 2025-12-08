@@ -535,10 +535,14 @@ class DonasiController extends Controller
     /**
      * Update status donasi
      */
-    public function updateStatus(Request $request, $id)
-    {
+    public function updateStatus(Request $request, $kodeDonasi)
+{
+    try {
+        // Validasi request
         $validator = Validator::make($request->all(), [
-            'status' => 'required|in:pending,menunggu_verifikasi,sukses,gagal',
+            'status' => 'required|in:pending,sukses,failed,gagal,expired,canceled',
+            'transaction_id' => 'nullable|string',
+            'payment_type' => 'nullable|string',
         ]);
 
         if ($validator->fails()) {
@@ -549,48 +553,104 @@ class DonasiController extends Controller
             ], 422);
         }
 
-        try {
-            $donasi = Donasi::find($id);
-            
-            if (!$donasi) {
-                return response()->json([
-                    'status' => 'error',
-                    'message' => 'Data donasi tidak ditemukan'
-                ], 404);
-            }
-            
-            $oldStatus = $donasi->status;
-            $newStatus = $request->status;
-            
-            $donasi->update([
-                'status' => $newStatus
-            ]);
-            
-            // Jika status berubah dari non-sukses ke sukses, update dana terkumpul
-            if ($oldStatus !== 'sukses' && $newStatus === 'sukses' && $donasi->kampanye) {
-                $donasi->kampanye->increment('dana_terkumpul', $donasi->jumlah);
-                $donasi->kampanye->increment('jumlah_donatur');
-            }
-            
-            // Jika status berubah dari sukses ke non-sukses, kurangi dana terkumpul
-            if ($oldStatus === 'sukses' && $newStatus !== 'sukses' && $donasi->kampanye) {
-                $donasi->kampanye->decrement('dana_terkumpul', $donasi->jumlah);
-                $donasi->kampanye->decrement('jumlah_donatur');
-            }
-            
-            return response()->json([
-                'status' => 'success',
-                'message' => 'Status donasi berhasil diupdate',
-                'data' => $donasi
-            ], 200);
-        } catch (\Exception $e) {
+        // Cari donasi berdasarkan kode_donasi
+        $donasi = Donasi::where('kode_donasi', $kodeDonasi)->first();
+
+        if (!$donasi) {
             return response()->json([
                 'status' => 'error',
-                'message' => 'Gagal mengupdate status',
-                'error' => $e->getMessage()
-            ], 500);
+                'message' => 'Donasi tidak ditemukan',
+                'code' => 'DONATION_NOT_FOUND',
+                'kode_donasi' => $kodeDonasi
+            ], 404);
         }
+
+        \Log::info('Mobile Payment Status Update by Kode', [
+            'donasi_id' => $donasi->id,
+            'kode_donasi' => $donasi->kode_donasi,
+            'old_status' => $donasi->status,
+            'new_status' => $request->status,
+            'transaction_id' => $request->transaction_id,
+            'request_data' => $request->all()
+        ]);
+
+        // Map status dari mobile ke status sistem
+        $status = $this->mapMobileStatus($request->status);
+        
+        // Simpan status lama untuk pengecekan
+        $oldStatus = $donasi->status;
+        
+        // Update donasi
+        $updateData = [
+            'status' => $status,
+            'metode_pembayaran' => 'midtrans',
+        ];
+        
+        if ($request->has('transaction_id')) {
+            $updateData['transaction_id'] = $request->transaction_id;
+        }
+        
+        $donasi->update($updateData);
+
+        // Jika status berubah menjadi sukses, update kampanye
+        if ($status === 'sukses' && $oldStatus !== 'sukses' && $donasi->kampanye) {
+            $donasi->kampanye->increment('dana_terkumpul', $donasi->jumlah);
+            $donasi->kampanye->increment('jumlah_donatur');
+            
+            \Log::info('Kampanye Updated After Mobile Payment', [
+                'kampanye_id' => $donasi->kampanye->id,
+                'jumlah_ditambahkan' => $donasi->jumlah,
+                'new_dana_terkumpul' => $donasi->kampanye->dana_terkumpul
+            ]);
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Status donasi berhasil diperbarui',
+            'data' => [
+                'id' => $donasi->id,
+                'kode_donasi' => $donasi->kode_donasi,
+                'status' => $donasi->status,
+                'jumlah' => $donasi->jumlah,
+                'jumlah_formatted' => 'Rp ' . number_format($donasi->jumlah, 0, ',', '.'),
+                'transaction_id' => $donasi->transaction_id,
+                'updated_at' => $donasi->updated_at->format('Y-m-d H:i:s')
+            ]
+        ]);
+
+    } catch (\Exception $e) {
+        \Log::error('Mobile Status Update Error', [
+            'error' => $e->getMessage(),
+            'request' => $request->all(),
+            'kode_donasi' => $kodeDonasi
+        ]);
+
+        return response()->json([
+            'status' => 'error',
+            'message' => 'Gagal memperbarui status: ' . $e->getMessage()
+        ], 500);
     }
+}
+
+/**
+ * Map status dari mobile ke status sistem
+ */
+private function mapMobileStatus($mobileStatus)
+{
+    $statusMap = [
+        'pending' => 'pending',
+        'sukses' => 'sukses',
+        'success' => 'sukses',
+        'failed' => 'gagal',
+        'gagal' => 'gagal',
+        'expired' => 'gagal',
+        'canceled' => 'gagal',
+        'cancel' => 'gagal',
+        'deny' => 'gagal',
+    ];
+
+    return $statusMap[$mobileStatus] ?? 'pending';
+}
 
     /**
      * Get available payment methods

@@ -2,15 +2,17 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Controllers\Controller;
-use App\Models\IuranBulanan;
+use Log;
+use Carbon\Carbon;
 use App\Models\User;
 use App\Models\Datalansia;
+use App\Models\IuranBulanan;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\DB;
+use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
-use Carbon\Carbon;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Validator;
 
 class IuranController extends Controller
 {
@@ -24,24 +26,24 @@ class IuranController extends Controller
             
             $query = IuranBulanan::with(['user', 'datalansia'])
                 ->where('user_id', $user->id);
-
+            
             // Filter by status
-            if ($request->has('status')) {
+            if ($request->has('status') && $request->status !== '') {
                 $query->where('status', $request->status);
             }
-
+            
             // Filter by periode
-            if ($request->has('periode')) {
+            if ($request->has('periode') && $request->periode !== '') {
                 $query->where('periode', $request->periode);
             }
 
             // Filter by lansia
-            if ($request->has('datalansia_id')) {
+            if ($request->has('datalansia_id') && $request->datalansia_id !== '') {
                 $query->where('datalansia_id', $request->datalansia_id);
             }
-
+            
             // Search
-            if ($request->has('search')) {
+            if ($request->has('search') && $request->search !== '') {
                 $search = $request->search;
                 $query->where(function($q) use ($search) {
                     $q->where('nama_iuran', 'like', "%{$search}%")
@@ -52,15 +54,15 @@ class IuranController extends Controller
 
             // Sort
             $sortBy = $request->get('sort_by', 'tanggal_jatuh_tempo');
-            $sortOrder = $request->get('sort_order', 'asc');
+            $sortOrder = $request->get('sort_order', 'desc');
             $query->orderBy($sortBy, $sortOrder);
 
             // Pagination
             $perPage = $request->get('per_page', 10);
             $iuran = $query->paginate($perPage);
-
-            $data = $iuran->map(function ($iuran) {
-                return $this->transformIuran($iuran);
+            
+            $data = $iuran->map(function ($item) {
+                return $this->transformIuran($item);
             });
 
             return response()->json([
@@ -76,10 +78,11 @@ class IuranController extends Controller
             ], 200);
 
         } catch (\Exception $e) {
+            Log::error('Error in IuranController@index: ' . $e->getMessage());
             return response()->json([
                 'status' => 'error',
                 'message' => 'Gagal mengambil data iuran',
-                'error' => $e->getMessage()
+                'error' => env('APP_DEBUG') ? $e->getMessage() : 'Terjadi kesalahan server'
             ], 500);
         }
     }
@@ -128,41 +131,44 @@ class IuranController extends Controller
      * Get pending iuran (tagihan yang harus dibayar)
      */
     public function pending(Request $request)
-    {
-        try {
-            $user = Auth::user();
-            
-            $query = IuranBulanan::with(['datalansia'])
-                ->where('user_id', $user->id)
-                ->where('status', 'pending')
-                ->orderBy('tanggal_jatuh_tempo', 'asc');
+{
+    try {
+        $user = Auth::user();
+        
+        $query = IuranBulanan::with(['datalansia'])
+            ->where('user_id', $user->id)
+            ->where('status', 'pending')
+            ->orderBy('tanggal_jatuh_tempo', 'asc');
 
-            // Filter by lansia
-            if ($request->has('datalansia_id')) {
-                $query->where('datalansia_id', $request->datalansia_id);
-            }
-
-            $iuran = $query->get()->map(function ($iuran) {
-                return $this->transformIuran($iuran);
-            });
-
-            $totalTagihan = $iuran->sum('total_bayar');
-
-            return response()->json([
-                'status' => 'success',
-                'message' => 'Tagihan iuran berhasil diambil',
-                'data' => $iuran,
-                'total_tagihan' => 'Rp ' . number_format($totalTagihan, 0, ',', '.'),
-            ], 200);
-
-        } catch (\Exception $e) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Gagal mengambil tagihan',
-                'error' => $e->getMessage()
-            ], 500);
+        // Filter by lansia
+        if ($request->has('datalansia_id')) {
+            $query->where('datalansia_id', $request->datalansia_id);
         }
+
+        $iuran = $query->get()->map(function ($iuran) {
+            return $this->transformIuran($iuran);
+        });
+
+        // Use total_bayar_numeric instead of total_bayar for calculation
+        $totalTagihan = $iuran->sum(function ($item) {
+            return $item['total_bayar_numeric'] ?? 0;
+        });
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Tagihan iuran berhasil diambil',
+            'data' => $iuran,
+            'total_tagihan' => 'Rp ' . number_format($totalTagihan, 0, ',', '.'),
+        ], 200);
+
+    } catch (\Exception $e) {
+        return response()->json([
+            'status' => 'error',
+            'message' => 'Gagal mengambil tagihan',
+            'error' => $e->getMessage()
+        ], 500);
     }
+}
 
     /**
      * Display the specified iuran
@@ -435,7 +441,215 @@ class IuranController extends Controller
             ], 500);
         }
     }
+/**
+ * Update payment status from mobile app callback
+ * Route: POST /api/iuran/{kodeIuran}/update-status
+ */
+public function updateStatus(Request $request, $kodeIuran)
+{
+    try {
+        // Validasi request
+        $validator = Validator::make($request->all(), [
+            'status' => 'required|in:pending,success,lunas,failed,gagal,expired,canceled,menunggu_verifikasi',
+            'transaction_id' => 'nullable|string',
+            'payment_type' => 'nullable|string',
+            'gross_amount' => 'nullable|numeric',
+            'transaction_time' => 'nullable|date',
+        ]);
 
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Validasi gagal',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        // Cari iuran berdasarkan kode_iuran
+        $iuran = IuranBulanan::where('kode_iuran', $kodeIuran)->first();
+
+        if (!$iuran) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Iuran tidak ditemukan',
+                'code' => 'IURAN_NOT_FOUND',
+                'kode_iuran' => $kodeIuran
+            ], 404);
+        }
+
+        Log::info('Mobile Iuran Status Update by Kode', [
+            'iuran_id' => $iuran->id,
+            'kode_iuran' => $iuran->kode_iuran,
+            'old_status' => $iuran->status,
+            'new_status' => $request->status,
+            'transaction_id' => $request->transaction_id,
+            'user_id' => $iuran->user_id,
+            'request_data' => $request->all()
+        ]);
+
+        // Map status dari mobile ke status sistem
+        $status = $this->mapMobileStatus($request->status);
+        
+        // Simpan status lama untuk pengecekan
+        $oldStatus = $iuran->status;
+        
+        DB::beginTransaction();
+
+        // Update iuran
+        $updateData = [
+            'status' => $status,
+            'metadata' => array_merge($iuran->metadata ?? [], [
+                'mobile_callback' => [
+                    'transaction_id' => $request->transaction_id,
+                    'payment_type' => $request->payment_type,
+                    'gross_amount' => $request->gross_amount,
+                    'transaction_time' => $request->transaction_time,
+                    'callback_time' => now()->toDateTimeString(),
+                ]
+            ])
+        ];
+        
+        // Jika status berubah menjadi lunas, update tanggal bayar dan metode
+        if ($status === 'lunas' && $oldStatus !== 'lunas') {
+            $updateData['tanggal_bayar'] = $request->transaction_time ?? now();
+            $updateData['metode_pembayaran'] = 'midtrans';
+            
+            // Generate iuran berikutnya jika recurring
+            if ($iuran->is_otomatis) {
+                $nextIuran = $iuran->generateNextIuran();
+                if ($nextIuran) {
+                    Log::info('Iuran recurring generated', [
+                        'parent_iuran_id' => $iuran->id,
+                        'next_iuran_id' => $nextIuran->id,
+                        'next_kode_iuran' => $nextIuran->kode_iuran,
+                        'next_tanggal_jatuh_tempo' => $nextIuran->tanggal_jatuh_tempo
+                    ]);
+                }
+            }
+        }
+        
+        $iuran->update($updateData);
+
+        DB::commit();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Status iuran berhasil diperbarui',
+            'data' => [
+                'id' => $iuran->id,
+                'kode_iuran' => $iuran->kode_iuran,
+                'status' => $iuran->status,
+                'status_formatted' => $this->getStatusText($iuran->status),
+                'jumlah' => (float) $iuran->jumlah,
+                'jumlah_formatted' => 'Rp ' . number_format($iuran->jumlah, 0, ',', '.'),
+                'total_bayar' => (float) $iuran->total_bayar,
+                'total_bayar_formatted' => 'Rp ' . number_format($iuran->total_bayar, 0, ',', '.'),
+                'denda' => (float) $iuran->denda,
+                'denda_formatted' => 'Rp ' . number_format($iuran->denda, 0, ',', '.'),
+                'transaction_id' => $request->transaction_id,
+                'tanggal_bayar' => $iuran->tanggal_bayar ? $iuran->tanggal_bayar->format('Y-m-d H:i:s') : null,
+                'updated_at' => $iuran->updated_at->format('Y-m-d H:i:s')
+            ]
+        ], 200);
+
+    } catch (\Exception $e) {
+        DB::rollBack();
+        Log::error('Mobile Iuran Status Update Error', [
+            'error' => $e->getMessage(),
+            'request' => $request->all(),
+            'kode_iuran' => $kodeIuran
+        ]);
+
+        return response()->json([
+            'status' => 'error',
+            'message' => 'Gagal memperbarui status: ' . $e->getMessage()
+        ], 500);
+    }
+}
+
+/**
+ * Map mobile status to system status
+ */
+private function mapMobileStatus($mobileStatus)
+{
+    $statusMap = [
+        'pending' => 'menunggu_verifikasi',
+        'success' => 'lunas',
+        'lunas' => 'lunas',
+        'failed' => 'ditolak',
+        'gagal' => 'ditolak',
+        'expired' => 'ditolak',
+        'canceled' => 'ditolak',
+        'menunggu_verifikasi' => 'menunggu_verifikasi',
+    ];
+    
+    return $statusMap[$mobileStatus] ?? $mobileStatus;
+}
+
+/**
+ * Quick update status tanpa validasi (untuk Midtrans callback)
+ * Route: POST /api/iuran/{kodeIuran}/quick-update
+ */
+public function quickUpdateStatus(Request $request, $kodeIuran)
+{
+    try {
+        // Validasi minimal
+        $validator = Validator::make($request->all(), [
+            'status' => 'required|in:lunas,ditolak,menunggu_verifikasi',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Validasi gagal',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        $iuran = IuranBulanan::where('kode_iuran', $kodeIuran)->first();
+
+        if (!$iuran) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Iuran tidak ditemukan'
+            ], 404);
+        }
+
+        Log::info('Quick Iuran Status Update', [
+            'kode_iuran' => $kodeIuran,
+            'old_status' => $iuran->status,
+            'new_status' => $request->status
+        ]);
+
+        DB::beginTransaction();
+
+        $iuran->update([
+            'status' => $request->status,
+            'tanggal_bayar' => $request->status === 'lunas' ? now() : $iuran->tanggal_bayar,
+        ]);
+
+        DB::commit();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Status iuran berhasil diperbarui',
+            'kode_iuran' => $iuran->kode_iuran,
+            'status' => $iuran->status,
+        ], 200);
+
+    } catch (\Exception $e) {
+        DB::rollBack();
+        Log::error('Quick Iuran Status Update Error', [
+            'error' => $e->getMessage(),
+            'kode_iuran' => $kodeIuran
+        ]);
+
+        return response()->json([
+            'status' => 'error',
+            'message' => 'Gagal memperbarui status'
+        ], 500);
+    }
+}
     /**
      * Handle Midtrans notification for iuran
      */
@@ -712,54 +926,116 @@ class IuranController extends Controller
     /**
      * Transform iuran data for API response
      */
-    private function transformIuran($iuran, $detail = false)
-    {
-        $data = [
-            'id' => $iuran->id,
-            'kode_iuran' => $iuran->kode_iuran,
-            'nama_iuran' => $iuran->nama_iuran,
-            'deskripsi' => $iuran->deskripsi,
-            'jumlah' => 'Rp ' . number_format($iuran->jumlah, 0, ',', '.'),
-            'jumlah_numeric' => (float) $iuran->jumlah,
-            'periode' => $iuran->periode,
-            'periode_formatted' => Carbon::createFromFormat('Y-m', $iuran->periode)->format('F Y'),
-            'tanggal_jatuh_tempo' => $iuran->tanggal_jatuh_tempo->format('d-m-Y'),
-            'tanggal_bayar' => $iuran->tanggal_bayar ? $iuran->tanggal_bayar->format('d-m-Y H:i') : null,
-            'status' => $iuran->status,
-            'status_formatted' => $this->getStatusText($iuran->status),
-            'metode_pembayaran' => $iuran->metode_pembayaran,
-            'bukti_pembayaran' => $iuran->bukti_pembayaran ? url('storage/' . $iuran->bukti_pembayaran) : null,
-            'is_terlambat' => $iuran->is_terlambat,
-            'denda' => 'Rp ' . number_format($iuran->denda, 0, ',', '.'),
-            'denda_numeric' => (float) $iuran->denda,
-            'total_bayar' => 'Rp ' . number_format($iuran->total_bayar, 0, ',', '.'),
-            'total_bayar_numeric' => (float) $iuran->total_bayar,
-            'is_otomatis' => $iuran->is_otomatis,
-            'interval_bulan' => $iuran->interval_bulan,
-            'berlaku_dari' => $iuran->berlaku_dari ? $iuran->berlaku_dari->format('d-m-Y') : null,
-            'berlaku_sampai' => $iuran->berlaku_sampai ? $iuran->berlaku_sampai->format('d-m-Y') : null,
-            'catatan_admin' => $iuran->catatan_admin,
-            'created_at' => $iuran->created_at->format('d-m-Y H:i'),
-            'datalansia' => $iuran->datalansia ? [
-                'id' => $iuran->datalansia->id,
-                'nama' => $iuran->datalansia->nama_lansia,
-                'foto' => $iuran->datalansia->foto ? url('storage/' . $iuran->datalansia->foto) : null,
-            ] : null,
-        ];
-
-        if ($detail) {
-            $data['user'] = $iuran->user ? [
-                'id' => $iuran->user->id,
-                'name' => $iuran->user->name,
-                'email' => $iuran->user->email,
-                'no_telepon' => $iuran->user->no_telepon,
-            ] : null;
-            
-            $data['metadata'] = $iuran->metadata;
+    /**
+ * Transform iuran data for API response
+ */
+private function transformIuran($iuran, $detail = false)
+{
+    // Parse tanggal jatuh tempo dengan format yang benar
+    $tanggalJatuhTempo = null;
+    if ($iuran->tanggal_jatuh_tempo) {
+        try {
+            $tanggalJatuhTempo = Carbon::parse($iuran->tanggal_jatuh_tempo);
+        } catch (\Exception $e) {
+            $tanggalJatuhTempo = null;
         }
-
-        return $data;
     }
+    
+    // Parse periode
+    $periodeFormatted = null;
+    if ($iuran->periode) {
+        try {
+            $periodeFormatted = Carbon::createFromFormat('Y-m', $iuran->periode)->format('F Y');
+        } catch (\Exception $e) {
+            $periodeFormatted = $iuran->periode;
+        }
+    }
+    
+    // Parse tanggal bayar
+    $tanggalBayar = null;
+    if ($iuran->tanggal_bayar) {
+        try {
+            $tanggalBayar = Carbon::parse($iuran->tanggal_bayar);
+        } catch (\Exception $e) {
+            $tanggalBayar = null;
+        }
+    }
+    
+    // Parse tanggal berlaku
+    $berlakuDari = null;
+    if ($iuran->berlaku_dari) {
+        try {
+            $berlakuDari = Carbon::parse($iuran->berlaku_dari);
+        } catch (\Exception $e) {
+            $berlakuDari = null;
+        }
+    }
+    
+    $berlakuSampai = null;
+    if ($iuran->berlaku_sampai) {
+        try {
+            $berlakuSampai = Carbon::parse($iuran->berlaku_sampai);
+        } catch (\Exception $e) {
+            $berlakuSampai = null;
+        }
+    }
+    
+    // Konversi field numerik ke float untuk menghindari string operation
+    $jumlah = (float) $iuran->jumlah;
+    $denda = (float) $iuran->denda;
+    $totalBayar = (float) $iuran->total_bayar;
+    
+    $data = [
+        'id' => $iuran->id,
+        'kode_iuran' => $iuran->kode_iuran,
+        'nama_iuran' => $iuran->nama_iuran,
+        'deskripsi' => $iuran->deskripsi,
+        'jumlah' => 'Rp ' . number_format($jumlah, 0, ',', '.'),
+        'jumlah_numeric' => $jumlah,
+        'periode' => $iuran->periode,
+        'periode_formatted' => $periodeFormatted,
+        'tanggal_jatuh_tempo' => $tanggalJatuhTempo ? $tanggalJatuhTempo->format('Y-m-d') : null,
+        'tanggal_jatuh_tempo_formatted' => $tanggalJatuhTempo ? $tanggalJatuhTempo->format('d-m-Y') : null,
+        'tanggal_bayar' => $tanggalBayar ? $tanggalBayar->format('Y-m-d H:i:s') : null,
+        'tanggal_bayar_formatted' => $tanggalBayar ? $tanggalBayar->format('d-m-Y H:i') : null,
+        'status' => $iuran->status,
+        'status_formatted' => $this->getStatusText($iuran->status),
+        'metode_pembayaran' => $iuran->metode_pembayaran,
+        'bukti_pembayaran' => $iuran->bukti_pembayaran ? url('storage/' . $iuran->bukti_pembayaran) : null,
+        'is_terlambat' => $iuran->is_terlambat ?? false,
+        'denda' => 'Rp ' . number_format($denda, 0, ',', '.'),
+        'denda_numeric' => $denda,
+        'total_bayar' => 'Rp ' . number_format($totalBayar, 0, ',', '.'),
+        'total_bayar_numeric' => $totalBayar,
+        'is_otomatis' => (bool) $iuran->is_otomatis,
+        'interval_bulan' => (int) $iuran->interval_bulan,
+        'berlaku_dari' => $berlakuDari ? $berlakuDari->format('Y-m-d') : null,
+        'berlaku_dari_formatted' => $berlakuDari ? $berlakuDari->format('d-m-Y') : null,
+        'berlaku_sampai' => $berlakuSampai ? $berlakuSampai->format('Y-m-d') : null,
+        'berlaku_sampai_formatted' => $berlakuSampai ? $berlakuSampai->format('d-m-Y') : null,
+        'catatan_admin' => $iuran->catatan_admin,
+        'created_at' => $iuran->created_at ? $iuran->created_at->format('Y-m-d H:i:s') : null,
+        'created_at_formatted' => $iuran->created_at ? $iuran->created_at->format('d-m-Y H:i') : null,
+        'datalansia' => $iuran->datalansia ? [
+            'id' => $iuran->datalansia->id,
+            'nama' => $iuran->datalansia->nama_lansia,
+            'foto' => $iuran->datalansia->foto ? url('storage/' . $iuran->datalansia->foto) : null,
+        ] : null,
+    ];
+
+    if ($detail) {
+        $data['user'] = $iuran->user ? [
+            'id' => $iuran->user->id,
+            'name' => $iuran->user->name,
+            'email' => $iuran->user->email,
+            'no_telepon' => $iuran->user->no_telepon,
+        ] : null;
+        
+        $data['metadata'] = $iuran->metadata;
+    }
+
+    return $data;
+}
 
     /**
      * Map Midtrans status to iuran status

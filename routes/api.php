@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\AuthMobileController;
 use App\Http\Controllers\Api\DatalansiaController;
 use App\Http\Controllers\Api\JadwalObatController;
 use App\Http\Controllers\Api\DataPerawatController;
+use App\Http\Controllers\API\NotificationController;
 use App\Http\Controllers\Api\TrackingObatController;
 use App\Http\Controllers\Api\KampanyeDonasiController;
 use App\Http\Controllers\Api\JadwalAktivitasController;
@@ -179,7 +180,7 @@ Route::prefix('donasi')->group(function () {
     Route::post('/', [DonasiController::class, 'store']);
     Route::get('/{id}', [DonasiController::class, 'show']);
     Route::post('/{id}/bukti', [DonasiController::class, 'updateBukti']);
-    Route::post('/{id}/status', [DonasiController::class, 'updateStatus']);
+    Route::post('/{kodeDonasi}/update-status', [DonasiController::class, 'updateStatus']);
     
     // Midtrans specific
     Route::post('/notification', [DonasiController::class, 'handleMidtransNotification']);
@@ -187,6 +188,7 @@ Route::prefix('donasi')->group(function () {
     Route::get('/check/{kodeDonasi}', [DonasiController::class, 'checkPaymentStatus']);
     Route::get('/user/{userId?}', [DonasiController::class, 'getByUser']);
     Route::get('/payment-methods', [DonasiController::class, 'getPaymentMethods']);
+    // routes/api.php
 });
 
 // Callback routes untuk Midtrans
@@ -221,7 +223,26 @@ Route::prefix('kampanye')->group(function () {
         Route::delete('/{id}', [KampanyeDonasiController::class, 'destroy']);
     });
 });
-// Iuran Routes
+Route::prefix('notifications')->group(function () {
+        // Get notifications
+        Route::get('/', [NotificationController::class, 'index']);
+        Route::get('/unread-count', [NotificationController::class, 'getUnreadCount']);
+        Route::get('/urgent', [NotificationController::class, 'getUrgentNotifications']);
+        Route::get('/statistics', [NotificationController::class, 'getStatistics']);
+        Route::get('/{id}', [NotificationController::class, 'show']);
+        
+        // Actions
+        Route::post('/{id}/read', [NotificationController::class, 'markAsRead']);
+        Route::post('/read-all', [NotificationController::class, 'markAllAsRead']);
+        Route::post('/{id}/archive', [NotificationController::class, 'archive']);
+        Route::post('/{id}/action-taken', [NotificationController::class, 'markAsActionTaken']);
+        Route::delete('/{id}', [NotificationController::class, 'destroy']);
+        Route::delete('/clear/read', [NotificationController::class, 'clearRead']);
+        
+        // Send notifications (admin/perawat only)
+        Route::post('/send', [NotificationController::class, 'store']);
+        Route::post('/send-batch', [NotificationController::class, 'sendBatch']);
+    });
 Route::prefix('iuran')->group(function () {
     // User routes (authenticated)
     Route::middleware('auth:sanctum')->group(function () {
@@ -232,32 +253,9 @@ Route::prefix('iuran')->group(function () {
         Route::get('/history', [IuranController::class, 'paymentHistory']);
         Route::get('/payment-methods', [IuranController::class, 'paymentMethods']);
         Route::get('/{id}', [IuranController::class, 'show']);
-        
-        // Payment routes
-        Route::post('/{id}/pay', [IuranController::class, 'updatePayment']);
-        Route::post('/{id}/pay/midtrans', [IuranController::class, 'payWithMidtrans']);
-    });
-
-    // Admin only routes
-    Route::middleware(['auth:sanctum', 'admin'])->group(function () {
-        Route::post('/', [IuranController::class, 'store']);
-        Route::post('/{id}/verify', [IuranController::class, 'verifyPayment']);
-    });
-
-    // Midtrans notification (no auth required)
-    Route::post('/notification', [IuranController::class, 'handleMidtransNotification']);
-});// Iuran Routes
-Route::prefix('iuran')->group(function () {
-    // User routes (authenticated)
-    Route::middleware('auth:sanctum')->group(function () {
-        Route::get('/', [IuranController::class, 'index']);
-        Route::get('/statistics', [IuranController::class, 'statistics']);
-        Route::get('/pending', [IuranController::class, 'pending']);
-        Route::get('/upcoming', [IuranController::class, 'upcoming']);
-        Route::get('/history', [IuranController::class, 'paymentHistory']);
-        Route::get('/payment-methods', [IuranController::class, 'paymentMethods']);
-        Route::get('/{id}', [IuranController::class, 'show']);
-        
+        Route::post('/{kodeIuran}/update-status', [IuranController::class, 'updateStatus']);
+    Route::post('/{kodeIuran}/quick-update', [IuranController::class, 'quickUpdateStatus']);
+    Route::post('/{kodeIuran}/upload-bukti', [IuranController::class, 'uploadBuktiPembayaran']);
         // Payment routes
         Route::post('/{id}/pay', [IuranController::class, 'updatePayment']);
         Route::post('/{id}/pay/midtrans', [IuranController::class, 'payWithMidtrans']);
