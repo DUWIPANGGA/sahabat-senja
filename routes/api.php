@@ -11,7 +11,7 @@ use App\Http\Controllers\Api\AuthMobileController;
 use App\Http\Controllers\Api\DatalansiaController;
 use App\Http\Controllers\Api\JadwalObatController;
 use App\Http\Controllers\Api\DataPerawatController;
-use App\Http\Controllers\API\NotificationController;
+use App\Http\Controllers\Api\NotificationController;
 use App\Http\Controllers\Api\TrackingObatController;
 use App\Http\Controllers\Api\KampanyeDonasiController;
 use App\Http\Controllers\Api\JadwalAktivitasController;
