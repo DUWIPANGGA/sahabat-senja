@@ -17,11 +17,11 @@ use App\Http\Controllers\Api\KampanyeDonasiController;
 use App\Http\Controllers\Api\JadwalAktivitasController;
 
 // Public routes
+Route::post('/login/google', [AuthMobileController::class, 'googleLogin']);
+Route::post('/login/perawat', [AuthMobileController::class, 'perawatLogin']);
 Route::prefix('auth')->group(function () {
     Route::post('/register', [AuthMobileController::class, 'register']);
     Route::post('/login', [AuthMobileController::class, 'login']);
-    Route::post('/login/google', [AuthMobileController::class, 'googleLogin']);
-    Route::post('/login/perawat', [AuthMobileController::class, 'perawatLogin']);
 });
 
 Route::get('/test', function () {
