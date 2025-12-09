@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
+use Illuminate\Support\Str;
 
 class AuthMobileController extends Controller
 {
@@ -67,7 +68,240 @@ class AuthMobileController extends Controller
             ], 500);
         }
     }
+      public function loginWithGoogle(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'firebase_uid' => 'required|string',
+            'name' => 'nullable|string|max:255',
+            'email' => 'nullable|string|email|max:255',
+            'profile_photo' => 'nullable|url',
+        ]);
 
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Validasi gagal',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        try {
+            // Cari user berdasarkan firebase_uid
+            $user = User::where('firebase_uid', $request->firebase_uid)->first();
+
+            if ($user) {
+                // User sudah ada, lakukan login
+                $token = $user->createToken('mobile-app-token')->plainTextToken;
+
+                return response()->json([
+                    'status' => 'success',
+                    'message' => 'Login Google berhasil',
+                    'data' => [
+                        'user' => [
+                            'id' => $user->id,
+                            'name' => $user->name,
+                            'email' => $user->email,
+                            'role' => $user->role,
+                            'firebase_uid' => $user->firebase_uid,
+                            'profile_photo' => $user->profile_photo,
+                            'no_telepon' => $user->no_telepon,
+                            'alamat' => $user->alamat,
+                        ],
+                        'token' => $token,
+                        'token_type' => 'Bearer'
+                    ]
+                ], 200);
+            }
+
+            // Jika user belum ada, buat user baru
+            // Cek jika email sudah ada di sistem
+            if ($request->filled('email')) {
+                $existingUser = User::where('email', $request->email)->first();
+                
+                if ($existingUser) {
+                    // Update user yang sudah ada dengan firebase_uid
+                    $existingUser->update([
+                        'firebase_uid' => $request->firebase_uid,
+                        'profile_photo' => $request->profile_photo,
+                    ]);
+
+                    $token = $existingUser->createToken('mobile-app-token')->plainTextToken;
+
+                    return response()->json([
+                        'status' => 'success',
+                        'message' => 'Login Google berhasil',
+                        'data' => [
+                            'user' => [
+                                'id' => $existingUser->id,
+                                'name' => $existingUser->name,
+                                'email' => $existingUser->email,
+                                'role' => $existingUser->role,
+                                'firebase_uid' => $existingUser->firebase_uid,
+                                'profile_photo' => $existingUser->profile_photo,
+                                'no_telepon' => $existingUser->no_telepon,
+                                'alamat' => $existingUser->alamat,
+                            ],
+                            'token' => $token,
+                            'token_type' => 'Bearer'
+                        ]
+                    ], 200);
+                }
+            }
+
+            // Buat user baru dengan role 'keluarga'
+            $user = User::create([
+                'firebase_uid' => $request->firebase_uid,
+                'name' => $request->name ?? 'User Google',
+                'email' => $request->email ?? $this->generateTemporaryEmail($request->firebase_uid),
+                'password' => Hash::make(Str::random(16)), // Generate random password
+                'role' => 'keluarga',
+                'profile_photo' => $request->profile_photo,
+            ]);
+
+            $token = $user->createToken('mobile-app-token')->plainTextToken;
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Registrasi dengan Google berhasil',
+                'data' => [
+                    'user' => [
+                        'id' => $user->id,
+                        'name' => $user->name,
+                        'email' => $user->email,
+                        'role' => $user->role,
+                        'firebase_uid' => $user->firebase_uid,
+                        'profile_photo' => $user->profile_photo,
+                    ],
+                    'token' => $token,
+                    'token_type' => 'Bearer'
+                ]
+            ], 201);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Login dengan Google gagal',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Login Google untuk Perawat
+     */
+    public function perawatLoginWithGoogle(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'firebase_uid' => 'required|string',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Validasi gagal',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        try {
+            // Cari user perawat berdasarkan firebase_uid
+            $user = User::where('firebase_uid', $request->firebase_uid)
+                       ->where('role', 'perawat')
+                       ->first();
+
+            if (!$user) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Akun perawat tidak ditemukan. Silakan daftar terlebih dahulu.'
+                ], 404);
+            }
+
+            // Buat token untuk perawat
+            $token = $user->createToken('mobile-app-token')->plainTextToken;
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Login perawat dengan Google berhasil',
+                'data' => [
+                    'user' => [
+                        'id' => $user->id,
+                        'name' => $user->name,
+                        'email' => $user->email,
+                        'role' => $user->role,
+                        'firebase_uid' => $user->firebase_uid,
+                        'profile_photo' => $user->profile_photo,
+                        'no_telepon' => $user->no_telepon,
+                        'alamat' => $user->alamat,
+                    ],
+                    'token' => $token,
+                    'token_type' => 'Bearer'
+                ]
+            ], 200);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Login perawat dengan Google gagal',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+public function perawatLogin(Request $request)
+{
+    $validator = Validator::make($request->all(), [
+        'email' => 'required|string|email',
+        'password' => 'required|string',
+    ]);
+
+    if ($validator->fails()) {
+        return response()->json([
+            'status' => 'error',
+            'message' => 'Validasi gagal',
+            'errors' => $validator->errors()
+        ], 422);
+    }
+
+    try {
+        // Cari user dengan role perawat
+        $user = User::where('email', $request->email)
+                    ->where('role', 'perawat')
+                    ->first();
+
+        // Cek jika user tidak ditemukan atau password salah
+        if (!$user || !Hash::check($request->password, $user->password)) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Email atau password salah'
+            ], 401);
+        }
+
+        // Buat token Sanctum
+        $token = $user->createToken('mobile-app-token')->plainTextToken;
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Login perawat berhasil',
+            'data' => [
+                'user' => [
+                    'id' => $user->id,
+                    'name' => $user->name,
+                    'email' => $user->email,
+                    'role' => $user->role,
+                    'no_telepon' => $user->no_telepon,
+                    'alamat' => $user->alamat,
+                ],
+                'token' => $token,
+                'token_type' => 'Bearer'
+            ]
+        ], 200);
+    } catch (\Exception $e) {
+        return response()->json([
+            'status' => 'error',
+            'message' => 'Login gagal',
+            'error' => $e->getMessage()
+        ], 500);
+    }
+}
     public function login(Request $request)
     {
         $validator = Validator::make($request->all(), [
