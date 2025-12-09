@@ -68,16 +68,19 @@ class AuthMobileController extends Controller
             ], 500);
         }
     }
-      public function loginWithGoogle(Request $request)
+     public function loginWithGoogle(Request $request)
     {
+        Log::info('Google Login Request:', $request->all());
+
         $validator = Validator::make($request->all(), [
             'firebase_uid' => 'required|string',
             'name' => 'nullable|string|max:255',
             'email' => 'nullable|string|email|max:255',
-            'profile_photo' => 'nullable|url',
+            'profile_photo' => 'nullable|string',
         ]);
 
         if ($validator->fails()) {
+            Log::error('Validation failed:', $validator->errors()->toArray());
             return response()->json([
                 'status' => 'error',
                 'message' => 'Validasi gagal',
@@ -88,10 +91,12 @@ class AuthMobileController extends Controller
         try {
             // Cari user berdasarkan firebase_uid
             $user = User::where('firebase_uid', $request->firebase_uid)->first();
+            Log::info('User found by firebase_uid:', ['user' => $user]);
 
             if ($user) {
                 // User sudah ada, lakukan login
                 $token = $user->createToken('mobile-app-token')->plainTextToken;
+                Log::info('Existing user login successful');
 
                 return response()->json([
                     'status' => 'success',
@@ -113,10 +118,10 @@ class AuthMobileController extends Controller
                 ], 200);
             }
 
-            // Jika user belum ada, buat user baru
-            // Cek jika email sudah ada di sistem
+            // Jika user belum ada, cek jika email sudah ada di sistem
             if ($request->filled('email')) {
                 $existingUser = User::where('email', $request->email)->first();
+                Log::info('Existing user by email:', ['user' => $existingUser]);
                 
                 if ($existingUser) {
                     // Update user yang sudah ada dengan firebase_uid
@@ -126,6 +131,7 @@ class AuthMobileController extends Controller
                     ]);
 
                     $token = $existingUser->createToken('mobile-app-token')->plainTextToken;
+                    Log::info('Updated existing user with firebase_uid');
 
                     return response()->json([
                         'status' => 'success',
@@ -149,6 +155,8 @@ class AuthMobileController extends Controller
             }
 
             // Buat user baru dengan role 'keluarga'
+            Log::info('Creating new user with Google login');
+            
             $user = User::create([
                 'firebase_uid' => $request->firebase_uid,
                 'name' => $request->name ?? 'User Google',
@@ -157,6 +165,8 @@ class AuthMobileController extends Controller
                 'role' => 'keluarga',
                 'profile_photo' => $request->profile_photo,
             ]);
+
+            Log::info('New user created:', ['user_id' => $user->id]);
 
             $token = $user->createToken('mobile-app-token')->plainTextToken;
 
@@ -171,6 +181,8 @@ class AuthMobileController extends Controller
                         'role' => $user->role,
                         'firebase_uid' => $user->firebase_uid,
                         'profile_photo' => $user->profile_photo,
+                        'no_telepon' => $user->no_telepon,
+                        'alamat' => $user->alamat,
                     ],
                     'token' => $token,
                     'token_type' => 'Bearer'
@@ -178,12 +190,25 @@ class AuthMobileController extends Controller
             ], 201);
 
         } catch (\Exception $e) {
+            Log::error('Google login error:', [
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            
             return response()->json([
                 'status' => 'error',
                 'message' => 'Login dengan Google gagal',
                 'error' => $e->getMessage()
             ], 500);
         }
+    }
+
+    /**
+     * Generate temporary email untuk user Google
+     */
+    private function generateTemporaryEmail($firebaseUid)
+    {
+        return 'google_' . substr($firebaseUid, 0, 10) . '@temporary.com';
     }
 
     /**
