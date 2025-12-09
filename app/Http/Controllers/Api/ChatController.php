@@ -227,7 +227,7 @@ class ChatController extends Controller
             $receiver = User::find($request->receiver_id);
             
             // Validasi role
-            $validRoles = ['keluarga', 'perawat'];
+            $validRoles = ['keluarga', 'perawat','admin'];
             if (!in_array($sender->role, $validRoles) || !in_array($receiver->role, $validRoles)) {
                 return response()->json([
                     'status' => 'error',

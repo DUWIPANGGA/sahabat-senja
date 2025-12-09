@@ -23,10 +23,11 @@ class NotificationController extends Controller
             
             // Build query
             $query = Notification::where('user_id', $user->id)
-                ->with(['sender:id,name,email,role', 'datalansia:id,nama_lansia'])
                 ->orderBy('created_at', 'desc')
-                ->active(); // Only non-expired notifications
+                ->active();
+$notifications = $query->get();
 
+Log::info('Notification Data: ' . $notifications->toJson(JSON_PRETTY_PRINT));
             // Filter by type
             if ($request->has('type')) {
                 $query->where('type', $request->type);
