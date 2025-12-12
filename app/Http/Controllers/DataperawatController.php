@@ -9,10 +9,8 @@ class DataPerawatController extends Controller
 {
     public function index(Request $request)
     {
-        // Ambil nilai keyword dari input pencarian (GET)
         $keyword = $request->get('search');
 
-        // Query pencarian
         $DataPerawat = DataPerawat::when($keyword, function ($query, $keyword) {
             return $query->where('nama', 'like', "%{$keyword}%");
         })->paginate(10);
