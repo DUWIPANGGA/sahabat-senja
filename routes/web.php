@@ -11,7 +11,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DatalansiaController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\KampanyeDonasiController;
-use App\Http\Controllers\Api\DataPerawatController;
+use App\Http\Controllers\DataPerawatController;
 
 Route::get('/', function () {
     return view('auth.login');
