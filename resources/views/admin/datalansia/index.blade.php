@@ -104,7 +104,7 @@
                                                 <i class="fas fa-mars me-1"></i>Laki-laki
                                             </span>
                                             @elseif($lansia->jenis_kelamin_lansia == 'Perempuan')
-                                            <span class="badge bg-pink p-2">
+                                            <span class="badge bg-secondary p-2">
                                                 <i class="fas fa-venus me-1"></i>Perempuan
                                             </span>
                                             @else
@@ -122,7 +122,7 @@
                                         </td>
                                         <td>
                                             @if($lansia->riwayat_penyakit_lansia)
-                                            <span class="badge bg-light">{{ $lansia->riwayat_penyakit_lansia }}</span>
+                                            <span class="badge bg-secondary">{{ $lansia->riwayat_penyakit_lansia }}</span>
                                             @else
                                             <span class="text-muted">-</span>
                                             @endif

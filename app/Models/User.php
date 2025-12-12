@@ -18,9 +18,11 @@ class User extends Authenticatable
         'password',
         'role',
         'no_telepon',
-        'alamat'
-    ];
+        'alamat',
+                'foto_profil' 
 
+    ];
+protected $appends = ['foto_url'];
     protected $hidden = [
         'password',
         'remember_token',
@@ -33,7 +35,13 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
-
+public function getFotoUrlAttribute()
+    {
+        if ($this->foto_profil) {
+            return Storage::disk('public')->url($this->foto_profil);
+        }
+        return asset('assets/images/default-avatar.png'); // Default avatar
+    }
     // Scope untuk filter role
     public function scopeAdmin($query)
     {

@@ -5,199 +5,204 @@
 @section('icon', 'fas fa-chart-pie')
 
 @section('content')
+    <div class="content-container">
+        {{-- Alert sukses --}}
+        @if(session('success'))
+            <div class="alert alert-success alert-dismissible fade show mb-4" role="alert">
+                <i class="fas fa-check-circle me-2"></i>{{ session('success') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        @endif
 
-        <div class="content-container">
-            {{-- Alert sukses --}}
-            @if(session('success'))
-                <div class="alert alert-success alert-dismissible fade show" role="alert">
-                    <i class="fas fa-check-circle me-2"></i>{{ session('success') }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
-            @endif
+        {{-- Alert error --}}
+        @if(session('error'))
+            <div class="alert alert-danger alert-dismissible fade show mb-4" role="alert">
+                <i class="fas fa-exclamation-circle me-2"></i>{{ session('error') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        @endif
 
-            {{-- Alert error --}}
-            @if(session('error'))
-                <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                    <i class="fas fa-exclamation-circle me-2"></i>{{ session('error') }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
-            @endif
-
-            {{-- Summary Cards --}}
-            <div class="row mb-4">
-                <div class="col-md-4">
-                    <div class="summary-card income">
-                        <i class="fas fa-money-bill-wave"></i>
-                        <h3>Rp {{ number_format($totalPemasukan, 0, ',', '.') }}</h3>
-                        <p>Total Pemasukan</p>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="summary-card expense">
-                        <i class="fas fa-receipt"></i>
-                        <h3>{{ $pemasukan->total() }}</h3>
-                        <p>Jumlah Transaksi</p>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="summary-card net">
-                        <i class="fas fa-chart-line"></i>
-                        <h3>Rp {{ number_format(($pemasukan->average('jumlah') ?? 0), 0, ',', '.') }}</h3>
-                        <p>Rata-rata per Transaksi</p>
-                    </div>
+        {{-- Summary Cards --}}
+        <div class="row mb-5">
+            <div class="col-md-4 mb-3 mb-md-0">
+                <div class="summary-card income p-4">
+                    <i class="fas fa-money-bill-wave mb-3"></i>
+                    <h3 class="mb-2">Rp {{ number_format($totalPemasukan, 0, ',', '.') }}</h3>
+                    <p class="mb-0">Total Pemasukan</p>
                 </div>
             </div>
-
-            {{-- Filter --}}
-            <div class="filter-container">
-                <form action="{{ route('laporan.pemasukan') }}" method="GET" class="row g-3">
-                    <div class="col-md-3">
-                        <label for="dari_tanggal" class="form-label">Dari Tanggal</label>
-                        <input type="date" class="form-control" id="dari_tanggal" name="dari_tanggal" value="{{ request('dari_tanggal') }}">
-                    </div>
-                    <div class="col-md-3">
-                        <label for="sampai_tanggal" class="form-label">Sampai Tanggal</label>
-                        <input type="date" class="form-control" id="sampai_tanggal" name="sampai_tanggal" value="{{ request('sampai_tanggal') }}">
-                    </div>
-                    <div class="col-md-3">
-                        <label for="sumber" class="form-label">Sumber Pemasukan</label>
-                        <select class="form-select" id="sumber" name="sumber">
-                            <option value="">Semua Sumber</option>
-                            @foreach($pemasukan->pluck('sumber')->unique() as $sumber)
-                                <option value="{{ $sumber }}" {{ request('sumber') == $sumber ? 'selected' : '' }}>{{ $sumber }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="col-md-3 d-flex align-items-end">
-                        <div class="d-flex gap-2 w-100">
-                            <button type="submit" class="btn btn-primary flex-grow-1">
-                                <i class="fas fa-filter me-1"></i>Filter
-                            </button>
-                            <a href="{{ route('laporan.pemasukan') }}" class="btn btn-outline-secondary">
-                                <i class="fas fa-refresh"></i>
-                            </a>
-                        </div>
-                    </div>
-                </form>
-            </div>
-
-            {{-- Chart --}}
-            @if($chartData->count() > 0)
-            <div class="chart-container">
-                <h5 class="mb-3"><i class="fas fa-chart-line me-2"></i>Grafik Pemasukan per Bulan</h5>
-                <canvas id="pemasukanChart" height="100"></canvas>
-            </div>
-            @endif
-
-            {{-- Action Buttons --}}
-            <div class="d-flex justify-content-between mb-3">
-                <div>
-                    <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#tambahPemasukanModal">
-                        <i class="fas fa-plus me-1"></i>Tambah Pemasukan
-                    </button>
-                    <button class="btn btn-outline-primary ms-2">
-                        <i class="fas fa-file-pdf me-1"></i>Export PDF
-                    </button>
-                    <button class="btn btn-outline-success ms-2">
-                        <i class="fas fa-file-excel me-1"></i>Export Excel
-                    </button>
-                </div>
-                <div>
-                    <span class="badge bg-primary">{{ $pemasukan->total() }} Transaksi</span>
+            <div class="col-md-4 mb-3 mb-md-0">
+                <div class="summary-card expense p-4">
+                    <i class="fas fa-receipt mb-3"></i>
+                    <h3 class="mb-2">{{ $pemasukan->total() }}</h3>
+                    <p class="mb-0">Jumlah Transaksi</p>
                 </div>
             </div>
-
-            {{-- Tabel Data --}}
-            <div class="card">
-                <div class="card-body p-0">
-                    <div class="table-responsive">
-                        <table class="table table-hover mb-0">
-                            <thead>
-                                <tr>
-                                    <th>No</th>
-                                    <th>Tanggal</th>
-                                    <th>Sumber</th>
-                                    <th>Jumlah</th>
-                                    <th>Keterangan</th>
-                                    <th>Dibuat Oleh</th>
-                                    <th>Aksi</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @forelse($pemasukan as $item)
-                                    <tr>
-                                        <td>{{ ($pemasukan->currentPage() - 1) * $pemasukan->perPage() + $loop->iteration }}</td>
-                                        <td>
-                                            <span class="text-dark">
-                                                <i class="fas fa-calendar me-1 text-primary"></i>
-                                                {{ \Carbon\Carbon::parse($item->tanggal)->format('d/m/Y') }}
-                                            </span>
-                                        </td>
-                                        <td>
-                                            <span class="badge bg-primary">{{ $item->sumber }}</span>
-                                        </td>
-                                        <td class="fw-bold text-success">
-                                            Rp {{ number_format($item->jumlah, 0, ',', '.') }}
-                                        </td>
-                                        <td>{{ $item->keterangan ?? '-' }}</td>
-                                        <td>
-                                            @if($item->user)
-                                                <span class="badge bg-light text-dark">{{ $item->user->name }}</span>
-                                            @else
-                                                <span class="text-muted">-</span>
-                                            @endif
-                                        </td>
-                                        <td>
-                                            <div class="action-buttons">
-                                                <button class="btn btn-warning btn-sm" title="Edit" onclick="editPemasukan({{ $item->id }})">
-                                                    <i class="fas fa-edit"></i>
-                                                </button>
-                                                <form action="{{ route('laporan.pemasukan.destroy', $item->id) }}" method="POST" class="d-inline">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button type="submit" class="btn btn-danger btn-sm" title="Hapus" onclick="return confirm('Yakin ingin menghapus data ini?')">
-                                                        <i class="fas fa-trash"></i>
-                                                    </button>
-                                                </form>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                @empty
-                                    <tr>
-                                        <td colspan="7" class="text-center py-4">
-                                            <div class="empty-state">
-                                                <i class="fas fa-inbox fa-2x mb-3 text-muted"></i>
-                                                <h5 class="text-muted">Tidak ada data pemasukan</h5>
-                                                <p class="text-muted">Silakan tambah data pemasukan terlebih dahulu</p>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                @endforelse
-                            </tbody>
-                        </table>
-                    </div>
+            <div class="col-md-4">
+                <div class="summary-card net p-4">
+                    <i class="fas fa-chart-line mb-3"></i>
+                    <h3 class="mb-2">Rp {{ number_format(($pemasukan->average('jumlah') ?? 0), 0, ',', '.') }}</h3>
+                    <p class="mb-0">Rata-rata per Transaksi</p>
                 </div>
             </div>
-
-            {{-- Pagination --}}
-            @if($pemasukan->hasPages())
-            <div class="d-flex justify-content-between align-items-center mt-3">
-                <div>
-                    Menampilkan {{ $pemasukan->firstItem() }} - {{ $pemasukan->lastItem() }} dari {{ $pemasukan->total() }} data
-                </div>
-                <div>
-                    {{ $pemasukan->links() }}
-                </div>
-            </div>
-            @endif
         </div>
 
+        {{-- Filter --}}
+        <div class="filter-container mb-5">
+            <h5 class="mb-4"><i class="fas fa-filter me-2"></i>Filter Data</h5>
+            <form action="{{ route('laporan.pemasukan') }}" method="GET" class="row g-4">
+                <div class="col-md-3">
+                    <label for="dari_tanggal" class="form-label mb-2">Dari Tanggal</label>
+                    <input type="date" class="form-control py-2" id="dari_tanggal" name="dari_tanggal" value="{{ request('dari_tanggal') }}">
+                </div>
+                <div class="col-md-3">
+                    <label for="sampai_tanggal" class="form-label mb-2">Sampai Tanggal</label>
+                    <input type="date" class="form-control py-2" id="sampai_tanggal" name="sampai_tanggal" value="{{ request('sampai_tanggal') }}">
+                </div>
+                <div class="col-md-3">
+                    <label for="sumber" class="form-label mb-2">Sumber Pemasukan</label>
+                    <select class="form-select py-2" id="sumber" name="sumber">
+                        <option value="">Semua Sumber</option>
+                        @foreach($pemasukan->pluck('sumber')->unique() as $sumber)
+                            <option value="{{ $sumber }}" {{ request('sumber') == $sumber ? 'selected' : '' }}>{{ $sumber }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="col-md-3 d-flex align-items-end">
+                    <div class="d-flex gap-3 w-100">
+                        <button type="submit" class="btn btn-primary flex-grow-1 py-2">
+                            <i class="fas fa-filter me-2"></i>Filter
+                        </button>
+                        <a href="{{ route('laporan.pemasukan') }}" class="btn btn-outline-secondary py-2 px-3">
+                            <i class="fas fa-refresh"></i>
+                        </a>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        {{-- Chart --}}
+        @if($chartData->count() > 0)
+        <div class="chart-container mb-5 p-4 bg-white rounded shadow-sm">
+            <h5 class="mb-4"><i class="fas fa-chart-line me-2"></i>Grafik Pemasukan per Bulan</h5>
+            <canvas id="pemasukanChart" height="120"></canvas>
+        </div>
+        @endif
+
+        {{-- Action Buttons --}}
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div class="d-flex gap-2">
+                <button class="btn btn-success px-4 py-2" data-bs-toggle="modal" data-bs-target="#tambahPemasukanModal">
+                    <i class="fas fa-plus me-2"></i>Tambah Pemasukan
+                </button>
+                <button class="btn btn-outline-primary px-3 py-2">
+                    <i class="fas fa-file-pdf me-2"></i>Export PDF
+                </button>
+                <button class="btn btn-outline-success px-3 py-2">
+                    <i class="fas fa-file-excel me-2"></i>Export Excel
+                </button>
+            </div>
+            <div>
+                <span class="badge bg-primary px-3 py-2 fs-6">{{ $pemasukan->total() }} Transaksi</span>
+            </div>
+        </div>
+
+        {{-- Tabel Data --}}
+        <div class="card border-0 shadow-sm">
+            <div class="card-body p-4">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="py-3 px-4">No</th>
+                                <th class="py-3 px-4">Tanggal</th>
+                                <th class="py-3 px-4">Sumber</th>
+                                <th class="py-3 px-4">Jumlah</th>
+                                <th class="py-3 px-4">Keterangan</th>
+                                <th class="py-3 px-4">Dibuat Oleh</th>
+                                <th class="py-3 px-4">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse($pemasukan as $item)
+                                <tr>
+                                    <td class="py-3 px-4">
+                                        {{ ($pemasukan->currentPage() - 1) * $pemasukan->perPage() + $loop->iteration }}
+                                    </td>
+                                    <td class="py-3 px-4">
+                                        <span class="text-dark">
+                                            <i class="fas fa-calendar me-2 text-primary"></i>
+                                            {{ \Carbon\Carbon::parse($item->tanggal)->format('d/m/Y') }}
+                                        </span>
+                                    </td>
+                                    <td class="py-3 px-4">
+                                        <span class="badge bg-primary px-3 py-2">{{ $item->sumber }}</span>
+                                    </td>
+                                    <td class="py-3 px-4 fw-bold text-success">
+                                        <i class="fas fa-money-bill-wave me-2"></i>
+                                        Rp {{ number_format($item->jumlah, 0, ',', '.') }}
+                                    </td>
+                                    <td class="py-3 px-4">{{ $item->keterangan ?? '-' }}</td>
+                                    <td class="py-3 px-4">
+                                        @if($item->user)
+                                            <span class="badge bg-light text-dark px-3 py-2">{{ $item->user->name }}</span>
+                                        @else
+                                            <span class="text-muted">-</span>
+                                        @endif
+                                    </td>
+                                    <td class="py-3 px-4">
+                                        <div class="d-flex gap-2">
+                                            <button class="btn btn-warning btn-sm px-3 py-2" title="Edit" onclick="editPemasukan({{ $item->id }})">
+                                                <i class="fas fa-edit me-1"></i>Edit
+                                            </button>
+                                            <form action="{{ route('laporan.pemasukan.destroy', $item->id) }}" method="POST" class="d-inline">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="btn btn-danger btn-sm px-3 py-2" title="Hapus" onclick="return confirm('Yakin ingin menghapus data ini?')">
+                                                    <i class="fas fa-trash me-1"></i>Hapus
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="7" class="text-center py-5">
+                                        <div class="empty-state">
+                                            <i class="fas fa-inbox fa-3x mb-4 text-muted"></i>
+                                            <h5 class="text-muted mb-2">Tidak ada data pemasukan</h5>
+                                            <p class="text-muted mb-4">Silakan tambah data pemasukan terlebih dahulu</p>
+                                            <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#tambahPemasukanModal">
+                                                <i class="fas fa-plus me-2"></i>Tambah Pemasukan
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        {{-- Pagination --}}
+        @if($pemasukan->hasPages())
+        <div class="d-flex justify-content-between align-items-center mt-5 pt-3 border-top">
+            <div class="text-muted">
+                Menampilkan {{ $pemasukan->firstItem() }} - {{ $pemasukan->lastItem() }} dari {{ $pemasukan->total() }} data
+            </div>
+            <div>
+                {{ $pemasukan->links() }}
+            </div>
+        </div>
+        @endif
+    </div>
 
     <!-- Modal Tambah Pemasukan -->
     <div class="modal fade" id="tambahPemasukanModal" tabindex="-1" aria-labelledby="tambahPemasukanModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
+        <div class="modal-dialog modal-lg">
             <div class="modal-content">
-                <div class="modal-header">
+                <div class="modal-header bg-success text-white">
                     <h5 class="modal-title" id="tambahPemasukanModalLabel">
                         <i class="fas fa-plus me-2"></i>Tambah Pemasukan Baru
                     </h5>
@@ -205,36 +210,43 @@
                 </div>
                 <form action="{{ route('laporan.pemasukan.store') }}" method="POST" id="tambahPemasukanForm">
                     @csrf
-                    <div class="modal-body">
-                        <div class="mb-3">
-                            <label for="tanggal" class="form-label">Tanggal</label>
-                            <input type="date" class="form-control" id="tanggal" name="tanggal" value="{{ date('Y-m-d') }}" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="sumber" class="form-label">Sumber Pemasukan</label>
-                            <select class="form-control" id="sumber" name="sumber" required>
-                                <option value="">Pilih Sumber</option>
-                                <option value="Iuran Bulanan">Iuran Bulanan</option>
-                                <option value="Donasi">Donasi</option>
-                                <option value="Bantuan Pemerintah">Bantuan Pemerintah</option>
-                                <option value="Lainnya">Lainnya</option>
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <label for="jumlah" class="form-label">Jumlah (Rp)</label>
-                            <div class="currency-input-group">
-                                <input type="text" class="form-control" id="jumlah" name="jumlah" placeholder="0" required>
+                    <div class="modal-body p-4">
+                        <div class="row g-4">
+                            <div class="col-md-6">
+                                <label for="tanggal" class="form-label mb-2">Tanggal</label>
+                                <input type="date" class="form-control py-2 px-3" id="tanggal" name="tanggal" value="{{ date('Y-m-d') }}" required>
                             </div>
-                            <small class="text-muted">Contoh: 1.000.000</small>
-                        </div>
-                        <div class="mb-3">
-                            <label for="keterangan" class="form-label">Keterangan (Opsional)</label>
-                            <textarea class="form-control" id="keterangan" name="keterangan" rows="3"></textarea>
+                            <div class="col-md-6">
+                                <label for="sumber" class="form-label mb-2">Sumber Pemasukan</label>
+                                <select class="form-control py-2 px-3" id="sumber" name="sumber" required>
+                                    <option value="">Pilih Sumber</option>
+                                    <option value="Iuran Bulanan">Iuran Bulanan</option>
+                                    <option value="Donasi">Donasi</option>
+                                    <option value="Bantuan Pemerintah">Bantuan Pemerintah</option>
+                                    <option value="Lainnya">Lainnya</option>
+                                </select>
+                            </div>
+                            <div class="col-12">
+                                <label for="jumlah" class="form-label mb-2">Jumlah (Rp)</label>
+                                <div class="input-group">
+                                    <span class="input-group-text py-2 px-3 bg-light">Rp</span>
+                                    <input type="text" class="form-control py-2 px-3" id="jumlah" name="jumlah" placeholder="0" required>
+                                </div>
+                                <div class="form-text mt-2">
+                                    <i class="fas fa-info-circle me-1"></i>Contoh: 1.000.000
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <label for="keterangan" class="form-label mb-2">Keterangan (Opsional)</label>
+                                <textarea class="form-control py-2 px-3" id="keterangan" name="keterangan" rows="4" placeholder="Masukkan keterangan tambahan jika diperlukan"></textarea>
+                            </div>
                         </div>
                     </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Batal</button>
-                        <button type="submit" class="btn btn-success">Simpan</button>
+                    <div class="modal-footer p-4 pt-0">
+                        <button type="button" class="btn btn-outline-secondary px-4 py-2" data-bs-dismiss="modal">Batal</button>
+                        <button type="submit" class="btn btn-success px-4 py-2">
+                            <i class="fas fa-save me-2"></i>Simpan
+                        </button>
                     </div>
                 </form>
             </div>
@@ -243,9 +255,9 @@
 
     <!-- Modal Edit Pemasukan -->
     <div class="modal fade" id="editPemasukanModal" tabindex="-1" aria-labelledby="editPemasukanModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
+        <div class="modal-dialog modal-lg">
             <div class="modal-content">
-                <div class="modal-header">
+                <div class="modal-header bg-warning text-white">
                     <h5 class="modal-title" id="editPemasukanModalLabel">
                         <i class="fas fa-edit me-2"></i>Edit Pemasukan
                     </h5>
@@ -254,42 +266,50 @@
                 <form id="editPemasukanForm" method="POST">
                     @csrf
                     @method('PUT')
-                    <div class="modal-body">
-                        <div class="mb-3">
-                            <label for="edit_tanggal" class="form-label">Tanggal</label>
-                            <input type="date" class="form-control" id="edit_tanggal" name="tanggal" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="edit_sumber" class="form-label">Sumber Pemasukan</label>
-                            <select class="form-control" id="edit_sumber" name="sumber" required>
-                                <option value="">Pilih Sumber</option>
-                                <option value="Iuran Bulanan">Iuran Bulanan</option>
-                                <option value="Donasi">Donasi</option>
-                                <option value="Bantuan Pemerintah">Bantuan Pemerintah</option>
-                                <option value="Lainnya">Lainnya</option>
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <label for="edit_jumlah" class="form-label">Jumlah (Rp)</label>
-                            <div class="currency-input-group">
-                                <input type="text" class="form-control" id="edit_jumlah" name="jumlah" placeholder="0" required>
+                    <div class="modal-body p-4">
+                        <div class="row g-4">
+                            <div class="col-md-6">
+                                <label for="edit_tanggal" class="form-label mb-2">Tanggal</label>
+                                <input type="date" class="form-control py-2 px-3" id="edit_tanggal" name="tanggal" required>
                             </div>
-                            <small class="text-muted">Contoh: 1.000.000</small>
-                        </div>
-                        <div class="mb-3">
-                            <label for="edit_keterangan" class="form-label">Keterangan (Opsional)</label>
-                            <textarea class="form-control" id="edit_keterangan" name="keterangan" rows="3"></textarea>
+                            <div class="col-md-6">
+                                <label for="edit_sumber" class="form-label mb-2">Sumber Pemasukan</label>
+                                <select class="form-control py-2 px-3" id="edit_sumber" name="sumber" required>
+                                    <option value="">Pilih Sumber</option>
+                                    <option value="Iuran Bulanan">Iuran Bulanan</option>
+                                    <option value="Donasi">Donasi</option>
+                                    <option value="Bantuan Pemerintah">Bantuan Pemerintah</option>
+                                    <option value="Lainnya">Lainnya</option>
+                                </select>
+                            </div>
+                            <div class="col-12">
+                                <label for="edit_jumlah" class="form-label mb-2">Jumlah (Rp)</label>
+                                <div class="input-group">
+                                    <span class="input-group-text py-2 px-3 bg-light">Rp</span>
+                                    <input type="text" class="form-control py-2 px-3" id="edit_jumlah" name="jumlah" placeholder="0" required>
+                                </div>
+                                <div class="form-text mt-2">
+                                    <i class="fas fa-info-circle me-1"></i>Contoh: 1.000.000
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <label for="edit_keterangan" class="form-label mb-2">Keterangan (Opsional)</label>
+                                <textarea class="form-control py-2 px-3" id="edit_keterangan" name="keterangan" rows="4" placeholder="Masukkan keterangan tambahan jika diperlukan"></textarea>
+                            </div>
                         </div>
                     </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Batal</button>
-                        <button type="submit" class="btn btn-success">Update</button>
+                    <div class="modal-footer p-4 pt-0">
+                        <button type="button" class="btn btn-outline-secondary px-4 py-2" data-bs-dismiss="modal">Batal</button>
+                        <button type="submit" class="btn btn-success px-4 py-2">
+                            <i class="fas fa-save me-2"></i>Update
+                        </button>
                     </div>
                 </form>
             </div>
         </div>
     </div>
 @endsection
+
 @push('script')
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -336,7 +356,8 @@
         $(document).ready(function() {
             $('#sumber').select2({
                 placeholder: 'Pilih sumber pemasukan',
-                allowClear: true
+                allowClear: true,
+                width: '100%'
             });
         });
 
@@ -415,18 +436,38 @@
                     data: data,
                     borderColor: '#28a745',
                     backgroundColor: 'rgba(40, 167, 69, 0.1)',
-                    borderWidth: 2,
+                    borderWidth: 3,
                     fill: true,
-                    tension: 0.4
+                    tension: 0.4,
+                    pointBackgroundColor: '#28a745',
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 2,
+                    pointRadius: 5,
+                    pointHoverRadius: 7
                 }]
             },
             options: {
                 responsive: true,
+                maintainAspectRatio: true,
                 plugins: {
                     legend: {
-                        display: false
+                        display: true,
+                        position: 'top',
+                        labels: {
+                            font: {
+                                size: 14
+                            }
+                        }
                     },
                     tooltip: {
+                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                        titleFont: {
+                            size: 14
+                        },
+                        bodyFont: {
+                            size: 14
+                        },
+                        padding: 12,
                         callbacks: {
                             label: function(context) {
                                 return 'Rp ' + context.parsed.y.toLocaleString('id-ID');
@@ -437,9 +478,43 @@
                 scales: {
                     y: {
                         beginAtZero: true,
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.05)'
+                        },
                         ticks: {
+                            font: {
+                                size: 12
+                            },
+                            padding: 10,
                             callback: function(value) {
                                 return 'Rp ' + value.toLocaleString('id-ID');
+                            }
+                        },
+                        title: {
+                            display: true,
+                            text: 'Jumlah (Rp)',
+                            font: {
+                                size: 14,
+                                weight: 'bold'
+                            }
+                        }
+                    },
+                    x: {
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.05)'
+                        },
+                        ticks: {
+                            font: {
+                                size: 12
+                            },
+                            padding: 10
+                        },
+                        title: {
+                            display: true,
+                            text: 'Bulan',
+                            font: {
+                                size: 14,
+                                weight: 'bold'
                             }
                         }
                     }

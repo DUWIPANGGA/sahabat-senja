@@ -6,6 +6,7 @@ use App\Http\Controllers\IuranController;
 use App\Http\Controllers\DonasiController;
 use App\Http\Controllers\GrafikController;
 use App\Http\Controllers\LaporanController;
+use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DatalansiaController;
 use App\Http\Controllers\DataPerawatController;
@@ -26,6 +27,18 @@ Route::controller(AuthController::class)->group(function () {
 // Routes dengan middleware auth
 Route::middleware(['auth'])->group(function () {
     // Dashboard
+    // Profile routes
+    Route::prefix('profile')->name('profile.')->group(function () {
+        Route::get('/', [ProfileController::class, 'index'])->name('index');
+        Route::get('/edit', [ProfileController::class, 'edit'])->name('edit');
+        Route::put('/update', [ProfileController::class, 'update'])->name('update');
+        Route::get('/password/edit', [ProfileController::class, 'editPassword'])->name('edit-password');
+        Route::put('/password/update', [ProfileController::class, 'updatePassword'])->name('update-password');
+        Route::delete('/photo/delete', [ProfileController::class, 'deletePhoto'])->name('delete-photo');
+        Route::post('/photo/upload', [ProfileController::class, 'uploadPhoto'])->name('profile.upload-photo');
+                Route::post('/photo/upload', [ProfileController::class, 'uploadPhoto'])->name('upload-photo'); 
+
+    });
     Route::get('/admin/dashboard', [DashboardController::class, 'dashboard'])->name('admin.dashboard');
     
     // Laporan Dashboard
@@ -57,6 +70,18 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/datalansia/update/{id}', [DatalansiaController::class, 'update'])->name('admin.datalansia.update');
     Route::get('/datalansia/hapus/{id}', [DatalansiaController::class, 'destroy'])->name('admin.datalansia.destroy');
     
+    Route::prefix('donasi')->name('admin.donasi.')->group(function () {
+        Route::get('/donasi/export-test', function() {
+    return 'Donasi export test works!';
+})->name('admin.donasi.export-test');
+        Route::get('/', [DonasiController::class, 'index'])->name('index');
+        Route::get('/{donasi}', [DonasiController::class, 'show'])->name('show');
+        Route::post('/{donasi}/status', [DonasiController::class, 'updateStatus'])->name('updateStatus');
+        Route::get('/export', [DonasiController::class, 'export'])->name('export');
+        Route::post('/export-filtered', [DonasiController::class, 'exportFiltered'])->name('export-filtered');
+        Route::get('/export-summary', [DonasiController::class, 'exportSummary'])->name('export-summary');
+        Route::get('/check-pending', [DonasiController::class, 'checkPending'])->name('check-pending');
+    });
     // Data Perawat (admin)
     Route::get('/DataPerawat', [DataPerawatController::class, 'index'])->name('admin.DataPerawat.index');
     Route::get('/DataPerawat/tambah', [DataPerawatController::class, 'create'])->name('admin.DataPerawat.create');
@@ -79,13 +104,6 @@ Route::middleware(['auth'])->group(function () {
             Route::get('/export/excel', [KampanyeDonasiController::class, 'exportExcel'])->name('export.excel');
             Route::get('/export/pdf', [KampanyeDonasiController::class, 'exportPdf'])->name('export.pdf');
         });
-Route::prefix('donasi')->name('admin.donasi.')->group(function () {
-        Route::get('/', [DonasiController::class, 'index'])->name('index');
-        Route::get('/{donasi}', [DonasiController::class, 'show'])->name('show');
-        Route::post('/{donasi}/status', [DonasiController::class, 'updateStatus'])->name('updateStatus');
-        Route::get('/export', [DonasiController::class, 'export'])->name('export');
-        Route::get('/check-pending', [DonasiController::class, 'checkPending'])->name('check-pending');
-    });
     Route::prefix('iuran')->name('admin.iuran.')->group(function () {
         Route::get('/', [IuranController::class, 'index'])->name('index');
         Route::get('/create', [IuranController::class, 'create'])->name('create');

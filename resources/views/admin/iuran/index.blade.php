@@ -390,10 +390,10 @@
                                         {{ $iuran->user->name }}
                                         @endif
                                     </td>
-                                    <td>
+                                    <td class="text-black">
                                         {{ $iuran->tanggal_jatuh_tempo->format('d M Y') }}
                                         @if($iuran->is_terlambat)
-                                        <br><small class="text-danger">Terlambat {{ \Carbon\Carbon::now()->diffInDays($iuran->tanggal_jatuh_tempo) }} hari</small>
+                                        <br><small class="text-black">Terlambat {{ \Carbon\Carbon::now()->diffInDays($iuran->tanggal_jatuh_tempo) }} hari</small>
                                         @endif
                                     </td>
                                     <td>

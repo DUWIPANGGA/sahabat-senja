@@ -6,6 +6,9 @@ use App\Http\Controllers\Controller;
 use App\Models\Donasi;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use App\Exports\DonasiExport;
+use Maatwebsite\Excel\Facades\Excel;
+use Carbon\Carbon;
 
 class DonasiController extends Controller
 {
@@ -65,25 +68,34 @@ class DonasiController extends Controller
             'failed' => Donasi::where('status', 'failed')->count(),
             'expired' => Donasi::where('status', 'expired')->count(),
             'total_amount' => Donasi::where('status', 'success')->sum('jumlah'),
+            'today_success' => Donasi::where('status', 'success')
+                ->whereDate('created_at', Carbon::today())
+                ->sum('jumlah'),
+            'this_month_success' => Donasi::where('status', 'success')
+                ->whereMonth('created_at', Carbon::now()->month)
+                ->whereYear('created_at', Carbon::now()->year)
+                ->sum('jumlah'),
         ];
         
         return view('admin.donasi.index', compact('donasis', 'stats'));
     }
-        public function checkPending()
-{
-    $pendingCount = Donasi::where('status', 'pending')->count();
     
-    return response()->json([
-        'has_new' => $pendingCount > 0,
-        'count' => $pendingCount
-    ]);
-}
+    public function checkPending()
+    {
+        $pendingCount = Donasi::where('status', 'pending')->count();
+        
+        return response()->json([
+            'has_new' => $pendingCount > 0,
+            'count' => $pendingCount
+        ]);
+    }
+    
     public function show(Donasi $donasi)
     {
         $donasi->load(['kampanye', 'user', 'datalansia']);
         return view('admin.donasi.show', compact('donasi'));
     }
-
+    
     public function updateStatus(Request $request, Donasi $donasi)
     {
         $request->validate([
@@ -112,20 +124,110 @@ class DonasiController extends Controller
         
         return back()->with('success', 'Status donasi berhasil diperbarui.');
     }
-
+    
     public function export(Request $request)
-    {
-        $donasis = Donasi::with(['kampanye', 'user'])
-            ->where('status', 'success')
+{
+    try {
+        // Cek apakah ada data donasi
+        $query = Donasi::query();
+        
+        if ($request->filled('start_date')) {
+            $query->whereDate('created_at', '>=', $request->start_date);
+        }
+        
+        if ($request->filled('end_date')) {
+            $query->whereDate('created_at', '<=', $request->end_date);
+        }
+        
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+        
+        $totalDonasi = $query->count();
+        
+        if ($totalDonasi === 0) {
+            return redirect()->route('admin.donasi.index')
+                ->with('warning', 'Tidak ada data donasi untuk diexport!');
+        }
+        
+        $fileName = 'donasi_' . Carbon::now()->format('Y-m-d_H-i-s') . '.xlsx';
+        
+        return Excel::download(new DonasiExport(
+            $request->start_date,
+            $request->end_date,
+            $request->status
+        ), $fileName);
+        
+    } catch (\Exception $e) {
+        \Log::error('Export error: ' . $e->getMessage());
+        
+        return redirect()->route('admin.donasi.index')
+            ->with('error', 'Gagal melakukan export: ' . $e->getMessage());
+    }
+}
+    /**
+     * Export data donasi dengan filter lengkap
+     */
+    public function exportFiltered(Request $request)
+{
+    try {
+        $request->validate([
+            'export_type' => 'required|in:all,success,pending,failed,expired',
+            'start_date' => 'nullable|date',
+            'end_date' => 'nullable|date|after_or_equal:start_date',
+        ]);
+        
+        $status = $request->export_type == 'all' ? null : $request->export_type;
+        
+        // Cek apakah ada data
+        $query = Donasi::query()
+            ->when($status, function($query) use ($status) {
+                return $query->where('status', $status);
+            })
             ->when($request->start_date, function($query) use ($request) {
                 return $query->whereDate('created_at', '>=', $request->start_date);
             })
             ->when($request->end_date, function($query) use ($request) {
                 return $query->whereDate('created_at', '<=', $request->end_date);
-            })
-            ->get();
-            
-        // Logic untuk export Excel atau PDF
-        // ...
+            });
+        
+        $totalDonasi = $query->count();
+        
+        if ($totalDonasi === 0) {
+            return redirect()->route('admin.donasi.index')
+                ->with('warning', 'Tidak ada data donasi dengan filter yang dipilih!');
+        }
+        
+        $fileName = 'donasi_' . $request->export_type . '_' . Carbon::now()->format('Y-m-d_H-i-s') . '.xlsx';
+        
+        return Excel::download(new DonasiExport(
+            $request->start_date,
+            $request->end_date,
+            $status
+        ), $fileName);
+        
+    } catch (\Exception $e) {
+        \Log::error('Export filtered error: ' . $e->getMessage());
+        
+        return back()->with('error', 'Gagal melakukan export: ' . $e->getMessage());
+    }
+}
+    
+    /**
+     * Export ringkasan donasi (summary)
+     */
+    public function exportSummary(Request $request)
+    {
+        $request->validate([
+            'start_date' => 'nullable|date',
+            'end_date' => 'nullable|date|after_or_equal:start_date',
+        ]);
+        
+        $fileName = 'ringkasan_donasi_' . Carbon::now()->format('Y-m-d_H-i-s') . '.xlsx';
+        
+        return Excel::download(new DonasiSummaryExport(
+            $request->start_date,
+            $request->end_date
+        ), $fileName);
     }
 }

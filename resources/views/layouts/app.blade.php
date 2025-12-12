@@ -18,8 +18,28 @@
     
     <!-- Additional CSS per page -->
     @stack('styles')
-    
+    <script>
+        // tailwind.config.js
+module.exports = {
+  theme: {
+    extend: {
+      colors: {
+        // Warna solid seperti Bootstrap
+        'primary': '#3490ff',
+        'secondary': '#6c757d',
+        'success': '#50b450',
+        'warning': '#ffbe00',
+        'danger': '#ff0000',
+        'info': '#00afff',
+        'light': '#f8f9fa',
+        'dark': '#212529',
+      }
+    }
+  }
+}
+    </script>
 <style>
+    
         :root {
             --primary-color: #8B7355; /* Coklat susu utama */
             --secondary-color: #A67B5B; /* Coklat susu lebih terang */
@@ -394,7 +414,108 @@
         .activity-content {
             flex: 1;
         }
-        
+        /* Profile Styles */
+.profile-container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.profile-card {
+    border-radius: 15px;
+    overflow: hidden;
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.profile-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1) !important;
+}
+
+.profile-photo {
+    width: 150px;
+    height: 150px;
+    object-fit: cover;
+    border: 5px solid #fff;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.profile-action-btn {
+    transition: all 0.3s;
+}
+
+.profile-action-btn:hover {
+    transform: scale(1.05);
+}
+
+.detail-item {
+    padding: 1rem;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.detail-item:last-child {
+    border-bottom: none;
+}
+
+.detail-label {
+    font-weight: 600;
+    color: #495057;
+    min-width: 150px;
+}
+
+.detail-value {
+    color: #212529;
+}
+
+.timeline-vertical {
+    position: relative;
+    padding-left: 2rem;
+}
+
+.timeline-vertical::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: linear-gradient(to bottom, #4e73df, #1cc88a);
+}
+
+.timeline-item {
+    position: relative;
+    margin-bottom: 1.5rem;
+    padding-left: 1.5rem;
+}
+
+.timeline-marker {
+    position: absolute;
+    left: -0.5rem;
+    top: 0;
+    width: 1rem;
+    height: 1rem;
+    border-radius: 50%;
+    background: #4e73df;
+    border: 3px solid #fff;
+    box-shadow: 0 0 0 3px #4e73df;
+}
+
+/* Responsive Profile */
+@media (max-width: 768px) {
+    .profile-photo {
+        width: 120px;
+        height: 120px;
+    }
+    
+    .detail-item {
+        flex-direction: column;
+        align-items: flex-start !important;
+    }
+    
+    .detail-label {
+        min-width: auto;
+        margin-bottom: 0.5rem;
+    }
+}
         .activity-title {
             font-weight: 500;
             margin-bottom: 0.25rem;
@@ -727,6 +848,7 @@
     background-color: var(--primary-color);
     transition: width 0.6s ease;
 }
+
     </style>
     
     <!-- Additional Head Content -->

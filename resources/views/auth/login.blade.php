@@ -36,7 +36,10 @@
         }
         
         .login-left {
-            background: linear-gradient(135deg, var(--primary-color) 0%, var(--dark-brown) 100%);
+            background-image: url('assets/image.jpeg'); /* sesuaikan path */
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
             color: white;
             display: flex;
             align-items: center;
@@ -51,12 +54,15 @@
             max-width: 500px;
             margin: 0 auto;
             padding: 20px;
+            border-radius: 15px;
+            padding: 2rem;
         }
         
         .login-icon {
             font-size: clamp(4rem, 10vw, 8rem);
             margin-bottom: clamp(1rem, 3vw, 2rem);
             opacity: 0.9;
+            color: white;
         }
         
         .login-title {
@@ -64,6 +70,7 @@
             font-weight: 700;
             margin-bottom: 1rem;
             line-height: 1.2;
+            color: white;
         }
         
         .login-subtitle {
@@ -71,6 +78,7 @@
             opacity: 0.9;
             line-height: 1.4;
             padding: 0 10px;
+            color: var(--accent-color);
         }
         
         .login-right {
@@ -96,9 +104,21 @@
         }
         
         .login-logo {
-            font-size: clamp(2rem, 5vw, 2.5rem);
-            color: var(--primary-color);
-            margin-bottom: 1rem;
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            border-radius: 50%;
+            padding: 15px;
+        }
+        
+        .login-logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
         }
         
         .login-header h1 {
@@ -114,18 +134,9 @@
             font-size: clamp(0.9rem, 2vw, 1rem);
         }
         
-        .form-control {
-            border: 2px solid var(--accent-color);
-            border-radius: 8px;
-            padding: 0.75rem;
-            margin-bottom: 1rem;
-            font-size: clamp(0.9rem, 2vw, 1rem);
-            width: 100%;
-        }
-        
-        .form-control:focus {
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 0.25rem rgba(139, 115, 85, 0.25);
+        .form-group {
+            margin-bottom: 1.5rem;
+            position: relative;
         }
         
         .form-label {
@@ -134,6 +145,45 @@
             color: var(--text-dark);
             margin-bottom: 0.5rem;
             display: block;
+        }
+        
+        .input-with-icon {
+            position: relative;
+        }
+        
+        .input-icon {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--primary-color);
+            z-index: 2;
+        }
+        
+        .form-control {
+            border: 2px solid var(--accent-color);
+            border-radius: 8px;
+            padding: 0.75rem 0.75rem 0.75rem 45px;
+            font-size: clamp(0.9rem, 2vw, 1rem);
+            width: 100%;
+            transition: all 0.3s;
+        }
+        
+        .form-control:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.25rem rgba(139, 115, 85, 0.25);
+        }
+        
+        .password-toggle {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: var(--text-light);
+            cursor: pointer;
+            z-index: 2;
         }
         
         .btn-login {
@@ -148,6 +198,9 @@
             transition: all 0.3s;
             font-size: clamp(0.9rem, 2vw, 1rem);
             cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         
         .btn-login:hover {
@@ -171,6 +224,9 @@
             transition: all 0.3s;
             font-size: clamp(0.9rem, 2vw, 1rem);
             cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         
         .btn-google:hover {
@@ -180,13 +236,17 @@
         
         .forgot-password {
             text-align: center;
-            margin-top: 1rem;
+            margin-top: 1.5rem;
         }
         
         .forgot-password a {
             color: var(--primary-color);
             text-decoration: none;
             font-size: clamp(0.85rem, 2vw, 0.95rem);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
         }
         
         .forgot-password a:hover {
@@ -201,6 +261,13 @@
             border-radius: 8px;
             padding: 0.75rem;
             font-size: clamp(0.85rem, 2vw, 0.95rem);
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+        }
+        
+        .alert-danger i {
+            margin-top: 2px;
         }
         
         /* Media Queries untuk berbagai ukuran layar */
@@ -226,7 +293,7 @@
             }
             
             .login-content {
-                padding: 10px;
+                padding: 1.5rem;
             }
             
             .login-card {
@@ -252,8 +319,17 @@
                 padding: 1.5rem;
             }
             
+            .login-logo {
+                width: 60px;
+                height: 60px;
+            }
+            
             .btn-login, .btn-google {
                 padding: 0.65rem;
+            }
+            
+            .form-control {
+                padding-left: 40px;
             }
         }
         
@@ -336,7 +412,6 @@
             <!-- Bagian Kiri dengan Gambar/Ikon -->
             <div class="col-lg-6 login-left">
                 <div class="login-content">
-                    <i class="fas fa-heartbeat login-icon"></i>
                     <h1 class="login-title">Sahabat Senja</h1>
                     <p class="login-subtitle">Sistem Informasi Layanan Panti Jompo Berbasis Website & Mobile</p>
                 </div>
@@ -346,37 +421,54 @@
             <div class="col-lg-6 login-right">
                 <div class="login-card">
                     <div class="login-header">
-                        <i class="fas fa-heartbeat login-logo"></i>
+                        <div class="login-logo">
+                            <img src="assets/logo_login.png" alt="Logo Sahabat Senja">
+                        </div>
                         <h1>Selamat Datang</h1>
                         <p>Silakan masuk ke akun Anda</p>
                     </div>
 
                     @if ($errors->any())
                         <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                            <i class="fas fa-exclamation-triangle me-2"></i>
-                            <strong>Login gagal!</strong>
-                            <ul class="mb-0 mt-1">
-                                @foreach ($errors->all() as $error)
-                                    <li>{{ $error }}</li>
-                                @endforeach
-                            </ul>
+                            <i class="fas fa-exclamation-circle"></i>
+                            <div>
+                                <strong>Login gagal!</strong>
+                                <ul class="mb-0 mt-1 ps-3">
+                                    @foreach ($errors->all() as $error)
+                                        <li>{{ $error }}</li>
+                                    @endforeach
+                                </ul>
+                            </div>
                             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                         </div>
                     @endif
 
                     <form method="POST" action="{{ route('login') }}">
                         @csrf
-                        <div class="mb-3">
-                            <label for="email" class="form-label">Email</label>
-                            <input type="email" name="email" id="email" class="form-control"
-                                value="{{ old('email') }}" required autofocus
-                                placeholder="Masukkan email Anda">
+                        <div class="form-group">
+                            <label for="email" class="form-label">
+                                <i class="fas fa-envelope me-1"></i>Email
+                            </label>
+                            <div class="input-with-icon">
+                                <i class="fas fa-user input-icon"></i>
+                                <input type="email" name="email" id="email" class="form-control"
+                                    value="{{ old('email') }}" required autofocus
+                                    placeholder="Masukkan email Anda">
+                            </div>
                         </div>
 
-                        <div class="mb-3">
-                            <label for="password" class="form-label">Kata Sandi</label>
-                            <input type="password" name="password" id="password" class="form-control"
-                                required placeholder="Masukkan kata sandi">
+                        <div class="form-group">
+                            <label for="password" class="form-label">
+                                <i class="fas fa-key me-1"></i>Kata Sandi
+                            </label>
+                            <div class="input-with-icon">
+                                <i class="fas fa-lock input-icon"></i>
+                                <input type="password" name="password" id="password" class="form-control"
+                                    required placeholder="Masukkan kata sandi">
+                                <button type="button" class="password-toggle" id="togglePassword">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
                         </div>
 
                         <button type="submit" class="btn-login">
@@ -389,7 +481,9 @@
                     </button>
 
                     <div class="forgot-password">
-                        <a href="#">Lupa kata sandi?</a>
+                        <a href="#">
+                            <i class="fas fa-question-circle"></i>Lupa kata sandi?
+                        </a>
                     </div>
                 </div>
             </div>
@@ -398,6 +492,22 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script>
+        // Script untuk toggle password visibility
+        document.getElementById('togglePassword').addEventListener('click', function() {
+            const passwordInput = document.getElementById('password');
+            const icon = this.querySelector('i');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                passwordInput.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        });
+
         // Script untuk mencegah zoom pada input di iOS
         document.addEventListener('DOMContentLoaded', function() {
             let viewport = document.querySelector("meta[name=viewport]");
@@ -422,7 +532,7 @@
                 document.body.classList.add('touch-device');
                 
                 // Menambahkan feedback visual untuk tombol
-                const buttons = document.querySelectorAll('.btn-login, .btn-google');
+                const buttons = document.querySelectorAll('.btn-login, .btn-google, .password-toggle');
                 buttons.forEach(button => {
                     button.addEventListener('touchstart', function() {
                         this.style.opacity = '0.8';

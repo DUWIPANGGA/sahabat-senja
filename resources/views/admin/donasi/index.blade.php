@@ -12,14 +12,27 @@
             <h2 class="fw-bold mb-2" style="color: var(--dark-brown);">Kelola Donasi</h2>
             <p class="text-muted">Kelola semua donasi yang masuk dari kampanye</p>
         </div>
-        <div class="d-flex gap-2">
-            <button class="btn btn-primary" style="background-color: var(--primary-color);" 
-                    onclick="exportToExcel()">
-                <i class="fas fa-download me-2"></i>Export Excel
+        <div class="btn-group">
+            <button type="button" class="btn btn-success dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="fas fa-file-excel me-2"></i>Export Excel
             </button>
-            <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#filterModal">
-                <i class="fas fa-filter me-2"></i>Filter Lanjutan
-            </button>
+            <ul class="dropdown-menu">
+                <li>
+                    <a class="dropdown-item" href="{{ route('admin.donasi.export') }}">
+                        <i class="fas fa-download me-2"></i>Export Semua Data
+                    </a>
+                </li>
+                <li>
+                    <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#exportFilterModal">
+                        <i class="fas fa-filter me-2"></i>Export dengan Filter
+                    </a>
+                </li>
+                <li>
+                    <a class="dropdown-item" href="{{ route('admin.donasi.export-summary') }}">
+                        <i class="fas fa-chart-pie me-2"></i>Export Ringkasan
+                    </a>
+                </li>
+            </ul>
         </div>
     </div>
 
@@ -79,11 +92,67 @@
         </div>
     </div>
 
+    <!-- Additional Stats -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="dashboard-card">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <p class="card-title">Donasi Gagal</p>
+                        <h3 class="card-value" style="color: var(--danger-color);">{{ $stats['failed'] ?? 0 }}</h3>
+                    </div>
+                    <div class="card-icon danger">
+                        <i class="fas fa-times-circle"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="dashboard-card">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <p class="card-title">Kadaluarsa</p>
+                        <h3 class="card-value" style="color: var(--secondary-color);">{{ $stats['expired'] ?? 0 }}</h3>
+                    </div>
+                    <div class="card-icon secondary">
+                        <i class="fas fa-hourglass-end"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="dashboard-card">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <p class="card-title">Hari Ini</p>
+                        <h3 class="card-value">Rp {{ number_format($stats['today_success'] ?? 0, 0, ',', '.') }}</h3>
+                    </div>
+                    <div class="card-icon info">
+                        <i class="fas fa-calendar-day"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="dashboard-card">
+                <div class="d-flex justifycontent-between align-items-center">
+                    <div>
+                        <p class="card-title">Bulan Ini</p>
+                        <h3 class="card-value">Rp {{ number_format($stats['this_month_success'] ?? 0, 0, ',', '.') }}</h3>
+                    </div>
+                    <div class="card-icon primary">
+                        <i class="fas fa-calendar-alt"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Filter Sederhana -->
     <div class="filter-card mb-4">
         <form action="{{ route('admin.donasi.index') }}" method="GET">
             <div class="row g-3">
-                <div class="col-md-3">
+                <div class="col-md-2">
                     <label for="status" class="form-label">Status</label>
                     <select name="status" id="status" class="form-select">
                         <option value="">Semua Status</option>
@@ -93,7 +162,7 @@
                         <option value="expired" {{ request('status') == 'expired' ? 'selected' : '' }}>Expired</option>
                     </select>
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-2">
                     <label for="metode_pembayaran" class="form-label">Metode</label>
                     <select name="metode_pembayaran" id="metode_pembayaran" class="form-select">
                         <option value="">Semua Metode</option>
@@ -102,10 +171,19 @@
                         <option value="qris" {{ request('metode_pembayaran') == 'qris' ? 'selected' : '' }}>QRIS</option>
                     </select>
                 </div>
+                <div class="col-md-2">
+                    <label for="sort" class="form-label">Urutkan</label>
+                    <select name="sort" id="sort" class="form-select">
+                        <option value="latest" {{ request('sort') == 'latest' ? 'selected' : '' }}>Terbaru</option>
+                        <option value="oldest" {{ request('sort') == 'oldest' ? 'selected' : '' }}>Terlama</option>
+                        <option value="amount_asc" {{ request('sort') == 'amount_asc' ? 'selected' : '' }}>Jumlah (Kecil→Besar)</option>
+                        <option value="amount_desc" {{ request('sort') == 'amount_desc' ? 'selected' : '' }}>Jumlah (Besar→Kecil)</option>
+                    </select>
+                </div>
                 <div class="col-md-4">
                     <label for="search" class="form-label">Pencarian</label>
                     <input type="text" name="search" class="form-control" 
-                           placeholder="Cari nama donatur/kode donasi..." 
+                           placeholder="Cari nama donatur, kode donasi, atau email..." 
                            value="{{ request('search') }}">
                 </div>
                 <div class="col-md-2 d-flex align-items-end">
@@ -124,24 +202,10 @@
 
     <!-- Tabel Donasi -->
     <div class="activity-card">
-        <div class="card-header">
+        <div class="card-header d-flex justify-content-between align-items-center">
             <h3><i class="fas fa-list me-2"></i>Daftar Donasi</h3>
             <div class="d-flex align-items-center gap-2">
                 <span class="text-muted">{{ $donasis->total() }} donasi</span>
-                <div class="dropdown">
-                    <button class="btn btn-sm btn-outline-primary dropdown-toggle" type="button" 
-                            data-bs-toggle="dropdown">
-                        <i class="fas fa-cog me-1"></i> Aksi
-                    </button>
-                    <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="#" onclick="exportToExcel()">
-                            <i class="fas fa-file-excel me-2"></i>Export Excel
-                        </a></li>
-                        <li><a class="dropdown-item" href="#" onclick="exportToPDF()">
-                            <i class="fas fa-file-pdf me-2"></i>Export PDF
-                        </a></li>
-                    </ul>
-                </div>
             </div>
         </div>
         
@@ -277,55 +341,45 @@
     </div>
 </div>
 
-<!-- Modal Filter Lanjutan -->
-<div class="modal fade" id="filterModal" tabindex="-1">
+<!-- Modal Export dengan Filter -->
+<div class="modal fade" id="exportFilterModal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
-            <form action="{{ route('admin.donasi.index') }}" method="GET">
-                <div class="modal-header">
-                    <h5 class="modal-title">Filter Lanjutan</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            <form action="{{ route('admin.donasi.export-filtered') }}" method="POST">
+                @csrf
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title">
+                        <i class="fas fa-filter me-2"></i>Export Excel dengan Filter
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="export_type" class="form-label">Tipe Data</label>
+                        <select class="form-select" id="export_type" name="export_type" required>
+                            <option value="all">Semua Data</option>
+                            <option value="success">Sukses Saja</option>
+                            <option value="pending">Pending Saja</option>
+                            <option value="failed">Gagal Saja</option>
+                            <option value="expired">Kadaluarsa Saja</option>
+                        </select>
+                    </div>
                     <div class="row">
                         <div class="col-md-6 mb-3">
-                            <label for="start_date" class="form-label">Dari Tanggal</label>
-                            <input type="date" class="form-control" name="start_date" 
-                                   value="{{ request('start_date') }}">
+                            <label for="export_start_date" class="form-label">Dari Tanggal</label>
+                            <input type="date" class="form-control" id="export_start_date" name="start_date">
                         </div>
                         <div class="col-md-6 mb-3">
-                            <label for="end_date" class="form-label">Sampai Tanggal</label>
-                            <input type="date" class="form-control" name="end_date" 
-                                   value="{{ request('end_date') }}">
-                        </div>
-                    </div>
-                    <div class="mb-3">
-                        <label for="amount_min" class="form-label">Jumlah Minimum</label>
-                        <input type="number" class="form-control" name="amount_min" 
-                               placeholder="Rp" value="{{ request('amount_min') }}">
-                    </div>
-                    <div class="mb-3">
-                        <label for="amount_max" class="form-label">Jumlah Maksimum</label>
-                        <input type="number" class="form-control" name="amount_max" 
-                               placeholder="Rp" value="{{ request('amount_max') }}">
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Tampilkan Kolom</label>
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" name="columns[]" 
-                                   value="doa" id="show_doa" checked>
-                            <label class="form-check-label" for="show_doa">Doa/Harapan</label>
-                        </div>
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" name="columns[]" 
-                                   value="keterangan" id="show_keterangan">
-                            <label class="form-check-label" for="show_keterangan">Keterangan</label>
+                            <label for="export_end_date" class="form-label">Sampai Tanggal</label>
+                            <input type="date" class="form-control" id="export_end_date" name="end_date">
                         </div>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-                    <button type="submit" class="btn btn-primary">Terapkan Filter</button>
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-success">
+                        <i class="fas fa-download me-2"></i>Export Excel
+                    </button>
                 </div>
             </form>
         </div>
@@ -359,7 +413,6 @@
         <div class="modal-content">
             <form id="verifyForm" method="POST">
                 @csrf
-                @method('POST')
                 <div class="modal-header">
                     <h5 class="modal-title">Verifikasi Donasi</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
@@ -388,7 +441,6 @@
         <div class="modal-content">
             <form id="rejectForm" method="POST">
                 @csrf
-                @method('POST')
                 <div class="modal-header">
                     <h5 class="modal-title">Tolak Donasi</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
@@ -420,30 +472,52 @@
     }
     
     function verifyDonation(donationId) {
-        document.getElementById('verifyForm').action = `/admin/donasi/${donationId}/status`;
-        document.getElementById('verifyForm').innerHTML += `
-            <input type="hidden" name="status" value="success">
-        `;
-        new bootstrap.Modal(document.getElementById('verifyModal')).show();
+    // Update form action dengan cara yang benar
+    const form = document.getElementById('verifyForm');
+    form.action = `/admin/donasi/${donationId}/status`;
+    
+    // Pastikan ada input hidden untuk status
+    let statusInput = form.querySelector('input[name="status"]');
+    if (!statusInput) {
+        statusInput = document.createElement('input');
+        statusInput.type = 'hidden';
+        statusInput.name = 'status';
+        form.appendChild(statusInput);
+    }
+    statusInput.value = 'success';
+    
+    // Tampilkan modal
+    new bootstrap.Modal(document.getElementById('verifyModal')).show();
+}
+
+function rejectDonation(donationId) {
+    // Update form action dengan cara yang benar
+    const form = document.getElementById('rejectForm');
+    form.action = `/admin/donasi/${donasi}/status`;
+    
+    // Pastikan ada input hidden untuk status
+    let statusInput = form.querySelector('input[name="status"]');
+    if (!statusInput) {
+        statusInput = document.createElement('input');
+        statusInput.type = 'hidden';
+        statusInput.name = 'status';
+        form.appendChild(statusInput);
+    }
+    statusInput.value = 'failed';
+    
+    // Reset textarea reason
+    const reasonTextarea = document.getElementById('rejection_reason');
+    if (reasonTextarea) {
+        reasonTextarea.value = '';
     }
     
-    function rejectDonation(donationId) {
-        document.getElementById('rejectForm').action = `/admin/donasi/${donationId}/status`;
-        document.getElementById('rejectForm').innerHTML += `
-            <input type="hidden" name="status" value="failed">
-        `;
-        new bootstrap.Modal(document.getElementById('rejectModal')).show();
-    }
+    // Tampilkan modal
+    new bootstrap.Modal(document.getElementById('rejectModal')).show();
+}
     
-    function exportToExcel() {
+    // Export langsung dengan filter yang aktif
+    function exportWithCurrentFilter() {
         const params = new URLSearchParams(window.location.search);
-        params.append('export', 'excel');
-        window.location.href = `{{ route('admin.donasi.export') }}?${params.toString()}`;
-    }
-    
-    function exportToPDF() {
-        const params = new URLSearchParams(window.location.search);
-        params.append('export', 'pdf');
         window.location.href = `{{ route('admin.donasi.export') }}?${params.toString()}`;
     }
     
@@ -454,11 +528,142 @@
             .then(response => response.json())
             .then(data => {
                 if (data.has_new) {
-                    location.reload();
+                    const notification = new bootstrap.Toast(document.createElement('div'));
+                    notification._element.innerHTML = `
+                        <div class="toast align-items-center text-bg-warning border-0" role="alert" aria-live="assertive" aria-atomic="true">
+                            <div class="d-flex">
+                                <div class="toast-body">
+                                    <i class="fas fa-bell me-2"></i>
+                                    Ada ${data.count} donasi baru yang menunggu!
+                                </div>
+                                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+                            </div>
+                        </div>
+                    `;
+                    notification.show();
                 }
             });
-    }, 30000); // Check setiap 30 detik
+    }, 60000); // Check setiap 1 menit
     @endif
+    
+    // Validasi form sebelum submit
+    document.addEventListener('DOMContentLoaded', function() {
+        // Validasi form verifikasi
+        const verifyForm = document.getElementById('verifyForm');
+        if (verifyForm) {
+            verifyForm.addEventListener('submit', function(e) {
+                if (!confirm('Apakah Anda yakin ingin memverifikasi donasi ini?')) {
+                    e.preventDefault();
+                }
+            });
+        }
+        
+        // Validasi form tolak
+        const rejectForm = document.getElementById('rejectForm');
+        if (rejectForm) {
+            rejectForm.addEventListener('submit', function(e) {
+                const reason = document.getElementById('rejection_reason').value;
+                if (!reason.trim()) {
+                    e.preventDefault();
+                    alert('Harap isi alasan penolakan!');
+                    return;
+                }
+                if (!confirm('Apakah Anda yakin ingin menolak donasi ini?')) {
+                    e.preventDefault();
+                }
+            });
+        }
+    });
 </script>
 @endpush
+
+<style>
+    .dashboard-card {
+        background: white;
+        border-radius: 10px;
+        padding: 20px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        transition: transform 0.3s;
+    }
+    
+    .dashboard-card:hover {
+        transform: translateY(-5px);
+    }
+    
+    .card-title {
+        font-size: 14px;
+        color: #6c757d;
+        margin-bottom: 5px;
+    }
+    
+    .card-value {
+        font-size: 24px;
+        font-weight: 700;
+        color: #212529;
+    }
+    
+    .card-icon {
+        width: 50px;
+        height: 50px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+    }
+    
+    .card-icon.primary {
+        background: rgba(77, 171, 247, 0.1);
+        color: #4dabf7;
+    }
+    
+    .card-icon.success {
+        background: rgba(40, 167, 69, 0.1);
+        color: #28a745;
+    }
+    
+    .card-icon.warning {
+        background: rgba(255, 193, 7, 0.1);
+        color: #ffc107;
+    }
+    
+    .card-icon.danger {
+        background: rgba(220, 53, 69, 0.1);
+        color: #dc3545;
+    }
+    
+    .card-icon.info {
+        background: rgba(23, 162, 184, 0.1);
+        color: #17a2b8;
+    }
+    
+    .card-icon.secondary {
+        background: rgba(108, 117, 125, 0.1);
+        color: #6c757d;
+    }
+    
+    .filter-card {
+        background: white;
+        border-radius: 10px;
+        padding: 20px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    
+    .activity-card {
+        background: white;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    
+    .activity-card .card-header {
+        background: #f8f9fa;
+        padding: 15px 20px;
+        border-bottom: 1px solid #dee2e6;
+    }
+    
+    .btn-group .btn {
+        padding: 6px 12px;
+    }
+</style>
 @endsection
