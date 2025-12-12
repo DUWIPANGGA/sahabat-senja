@@ -71,17 +71,23 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/datalansia/hapus/{id}', [DatalansiaController::class, 'destroy'])->name('admin.datalansia.destroy');
     
     Route::prefix('donasi')->name('admin.donasi.')->group(function () {
-        Route::get('/donasi/export-test', function() {
-    return 'Donasi export test works!';
-})->name('admin.donasi.export-test');
-        Route::get('/', [DonasiController::class, 'index'])->name('index');
-        Route::get('/{donasi}', [DonasiController::class, 'show'])->name('show');
-        Route::post('/{donasi}/status', [DonasiController::class, 'updateStatus'])->name('updateStatus');
+
+    Route::get('/', [DonasiController::class, 'index'])->name('index');
+
+        // EXPORT ROUTES (HARUS DI ATAS)
         Route::get('/export', [DonasiController::class, 'export'])->name('export');
         Route::post('/export-filtered', [DonasiController::class, 'exportFiltered'])->name('export-filtered');
         Route::get('/export-summary', [DonasiController::class, 'exportSummary'])->name('export-summary');
         Route::get('/check-pending', [DonasiController::class, 'checkPending'])->name('check-pending');
+
+        // DETAIL ROUTE (tambah constraint biar aman)
+        Route::get('/{donasi}', [DonasiController::class, 'show'])
+            ->where('donasi', '[0-9]+')
+            ->name('show');
+
+        Route::post('/{donasi}/status', [DonasiController::class, 'updateStatus'])->name('updateStatus');
     });
+
     // Data Perawat (admin)
     Route::get('/DataPerawat', [DataPerawatController::class, 'index'])->name('admin.DataPerawat.index');
     Route::get('/DataPerawat/tambah', [DataPerawatController::class, 'create'])->name('admin.DataPerawat.create');

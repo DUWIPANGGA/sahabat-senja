@@ -19,70 +19,18 @@ class DatalansiaController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request)
-    {
-        try {
-            $user = Auth::user();
-            $query = Datalansia::with(['kamar', 'user', 'kamar.perawat']);
-            
-            // Filter berdasarkan role user
-            if ($user->role === 'keluarga') {
-                $query->where('user_id', $user->id);
-            } elseif ($user->role === 'perawat') {
-                // Perawat hanya bisa lihat lansia di kamar yang ditugaskan
-                $kamar = Kamar::where('perawat_id', $user->id)->first();
-                if ($kamar) {
-                    $query->where('kamar_id', $kamar->id);
-                } else {
-                    return response()->json([
-                        'status' => 'success',
-                        'message' => 'Tidak ada kamar yang ditugaskan',
-                        'data' => []
-                    ], 200);
-                }
-            }
-            
-            // Filter berdasarkan kamar (untuk admin)
-            if ($request->has('kamar_id')) {
-                $query->where('kamar_id', $request->kamar_id);
-            }
-            
-            // Filter berdasarkan status
-            if ($request->has('status_lansia')) {
-                $query->where('status_lansia', $request->status_lansia);
-            }
-            
-            // Filter berdasarkan nama
-            if ($request->has('search')) {
-                $search = $request->search;
-                $query->where('nama_lansia', 'like', "%{$search}%")
-                    ->orWhere('nama_anak', 'like', "%{$search}%")
-                    ->orWhere('email_anak', 'like', "%{$search}%");
-            }
-            
-            $datalansia = $query->orderBy('nama_lansia')->get();
-            
-            // Parse JSON fields for response
-            $datalansia->transform(function ($item) {
-                $item->jadwal_obat_rutin = json_decode($item->obat_rutin_json ?? '[]', true);
-                $item->jadwal_kegiatan_rutin = json_decode($item->jadwal_kegiatan_json ?? '[]', true);
-                return $item;
-            });
-            
-            return response()->json([
-                'status' => 'success',
-                'message' => 'Data lansia berhasil diambil',
-                'data' => $datalansia
-            ], 200);
-        } catch (\Exception $e) {
-            Log::error('Error in index: ' . $e->getMessage());
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Gagal mengambil data lansia',
-                'error' => $e->getMessage()
-            ], 500);
-        }
-    }
+public function index()
+{
+    $data = Datalansia::orderBy('nama_lansia')->get();
+
+    return response()->json([
+        'status' => 'success',
+        'message' => 'Data lansia berhasil diambil',
+        'data' => $data
+    ], 200);
+}
+
+
 
     /**
      * Store a newly created resource in storage.
