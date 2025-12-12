@@ -18,37 +18,37 @@ class DataPerawatController extends Controller
         })->paginate(10);
 
         // Kirim data ke view
-        return view('admin.DataPerawat.index', compact('DataPerawat', 'keyword'));
+        return view('admin.dataperawat.index', compact('DataPerawat', 'keyword'));
     }
 
     public function create()
     {
-        return view('admin.DataPerawat.tambah');
+        return view('admin.dataperawat.tambah');
     }
 
     public function store(Request $request)
     {
         DataPerawat::create($request->all());
-        return redirect()->route('admin.DataPerawat.index')->with('success', 'Data perawat berhasil ditambahkan!');
+        return redirect()->route('admin.dataperawat.index')->with('success', 'Data perawat berhasil ditambahkan!');
     }
 
     public function edit($id)
     {
         $DataPerawat = DataPerawat::findOrFail($id);
-        return view('admin.DataPerawat.edit', compact('DataPerawat'));
+        return view('admin.dataperawat.edit', compact('DataPerawat'));
     }
 
     public function update(Request $request, $id)
     {
         $DataPerawat = DataPerawat::findOrFail($id);
         $DataPerawat->update($request->all());
-        return redirect()->route('admin.DataPerawat.index')->with('success', 'Data perawat berhasil diperbarui!');
+        return redirect()->route('admin.dataperawat.index')->with('success', 'Data perawat berhasil diperbarui!');
     }
 
     public function destroy($id)
     {
         $DataPerawat = DataPerawat::findOrFail($id);
         $DataPerawat->delete();
-        return redirect()->route('admin.DataPerawat.index')->with('success', 'Data perawat berhasil dihapus!');
+        return redirect()->route('admin.dataperawat.index')->with('success', 'Data perawat berhasil dihapus!');
     }
 }
