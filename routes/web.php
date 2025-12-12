@@ -9,9 +9,9 @@ use App\Http\Controllers\LaporanController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DatalansiaController;
-use App\Http\Controllers\DataPerawatController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\KampanyeDonasiController;
+use App\Http\Controllers\Api\DataPerawatController;
 
 Route::get('/', function () {
     return view('auth.login');
