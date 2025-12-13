@@ -34,8 +34,8 @@ class Datalansia extends Model
         'email_anak',
         'user_id',
         'kamar_id',
-        'perawat_id', // perawat utama
-        'obat_rutin_json', 
+        'perawat_id',
+        'obat_rutin_json',
         'jadwal_kegiatan_json',
     ];
 

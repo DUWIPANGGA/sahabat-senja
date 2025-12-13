@@ -10,62 +10,28 @@ use Illuminate\Support\Facades\Auth;
 
 class JadwalAktivitasController extends Controller
 {
-    public function index(Request $request)
-    {
-        try {
-            $query = JadwalAktivitas::with(['datalansia', 'user', 'perawat']);
-            
-            // Filter berdasarkan user role
-            $user = Auth::user();
-            
-            if ($user->role === 'keluarga') {
-                $query->where('user_id', $user->id);
-            } elseif ($user->role === 'perawat') {
-                $query->where('perawat_id', $user->id)
-                    ->orWhereNull('perawat_id');
-            }
-            
-            // Filter berdasarkan lansia
-            if ($request->has('datalansia_id')) {
-                $query->where('datalansia_id', $request->datalansia_id);
-            }
-            
-            // Filter berdasarkan hari
-            if ($request->has('hari')) {
-                $query->where('hari', $request->hari);
-            }
-            
-            // Filter berdasarkan status
-            if ($request->has('status')) {
-                $query->where('status', $request->status);
-            }
-            
-            // Filter berdasarkan completed
-            if ($request->has('completed')) {
-                $query->where('completed', $request->boolean('completed'));
-            }
-            
-            // Filter jadwal hari ini
-            if ($request->boolean('hari_ini')) {
-                $hari = now()->locale('id')->dayName;
-                $query->where('hari', $hari);
-            }
-            
-            $jadwal = $query->orderBy('jam')->get();
-            
-            return response()->json([
-                'status' => 'success',
-                'message' => 'Data jadwal berhasil diambil',
-                'data' => $jadwal
-            ], 200);
-        } catch (\Exception $e) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Gagal mengambil data jadwal',
-                'error' => $e->getMessage()
-            ], 500);
-        }
+    public function index()
+{
+    try {
+        $jadwal = JadwalAktivitas::with(['datalansia', 'user', 'perawat'])
+            ->orderBy('jam')
+            ->get();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Semua data aktivitas berhasil diambil',
+            'data' => $jadwal
+        ], 200);
+
+    } catch (\Exception $e) {
+        return response()->json([
+            'status' => 'error',
+            'message' => 'Gagal mengambil data aktivitas',
+            'error' => $e->getMessage()
+        ], 500);
     }
+}
+
 
 
     /**
