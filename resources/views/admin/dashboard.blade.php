@@ -51,6 +51,41 @@
         </div>
     </div>
 
+    <!-- Quick Actions -->
+    <div class="quick-actions">
+        <button class="action-btn" onclick="window.location.href='{{ route('laporan.pemasukan') }}'">
+            <div class="action-icon">
+                <i class="fas fa-money-bill-wave"></i>
+            </div>
+            <span class="fw-bold">Tambah Pemasukan</span>
+            <small class="text-muted">Catat pemasukan baru</small>
+        </button>
+
+        <button class="action-btn" onclick="window.location.href='{{ route('laporan.pengeluaran') }}'">
+            <div class="action-icon">
+                <i class="fas fa-hand-holding-usd"></i>
+            </div>
+            <span class="fw-bold">Tambah Pengeluaran</span>
+            <small class="text-muted">Catat pengeluaran baru</small>
+        </button>
+
+        <button class="action-btn" onclick="window.location.href='{{ route('admin.grafik.index') }}'">
+            <div class="action-icon">
+                <i class="fas fa-chart-pie"></i>
+            </div>
+            <span class="fw-bold">Detail Grafik</span>
+            <small class="text-muted">Analisis lengkap keuangan</small>
+        </button>
+
+        <button class="action-btn" onclick="generateLaporan()">
+            <div class="action-icon">
+                <i class="fas fa-file-pdf"></i>
+            </div>
+            <span class="fw-bold">Export Laporan</span>
+            <small class="text-muted">Download PDF laporan</small>
+        </button>
+    </div>
+
     <!-- Filter Section -->
     <div class="filter-card">
         <h3 class="mb-4"><i class="fas fa-filter"></i>Filter Grafik Keuangan</h3>
@@ -159,41 +194,6 @@
                 </ul>
             </div>
         </div>
-    </div>
-
-    <!-- Quick Actions -->
-    <div class="quick-actions">
-        <button class="action-btn" onclick="window.location.href='{{ route('laporan.pemasukan') }}'">
-            <div class="action-icon">
-                <i class="fas fa-money-bill-wave"></i>
-            </div>
-            <span class="fw-bold">Tambah Pemasukan</span>
-            <small class="text-muted">Catat pemasukan baru</small>
-        </button>
-
-        <button class="action-btn" onclick="window.location.href='{{ route('laporan.pengeluaran') }}'">
-            <div class="action-icon">
-                <i class="fas fa-hand-holding-usd"></i>
-            </div>
-            <span class="fw-bold">Tambah Pengeluaran</span>
-            <small class="text-muted">Catat pengeluaran baru</small>
-        </button>
-
-        <button class="action-btn" onclick="window.location.href='{{ route('admin.grafik.index') }}'">
-            <div class="action-icon">
-                <i class="fas fa-chart-pie"></i>
-            </div>
-            <span class="fw-bold">Detail Grafik</span>
-            <small class="text-muted">Analisis lengkap keuangan</small>
-        </button>
-
-        <button class="action-btn" onclick="generateLaporan()">
-            <div class="action-icon">
-                <i class="fas fa-file-pdf"></i>
-            </div>
-            <span class="fw-bold">Export Laporan</span>
-            <small class="text-muted">Download PDF laporan</small>
-        </button>
     </div>
 </div>
 

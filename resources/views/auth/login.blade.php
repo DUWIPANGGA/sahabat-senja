@@ -412,8 +412,7 @@
             <!-- Bagian Kiri dengan Gambar/Ikon -->
             <div class="col-lg-6 login-left">
                 <div class="login-content">
-                    <h1 class="login-title">Sahabat Senja</h1>
-                    <p class="login-subtitle">Sistem Informasi Layanan Panti Jompo Berbasis Website & Mobile</p>
+                    
                 </div>
             </div>
             
@@ -476,9 +475,6 @@
                         </button>
                     </form>
 
-                    <button type="button" class="btn-google">
-                        <i class="fab fa-google me-2"></i>Masuk dengan Google
-                    </button>
 
                     <div class="forgot-password">
                         <a href="#">

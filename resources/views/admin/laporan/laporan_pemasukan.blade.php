@@ -5,6 +5,58 @@
 @section('icon', 'fas fa-chart-pie')
 
 @section('content')
+<script>
+    
+    // Edit Pemasukan
+        function editPemasukan(id) {
+            fetch(`/laporan/pemasukan/${id}/edit`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        document.getElementById('edit_tanggal').value = data.pemasukan.tanggal;
+                        document.getElementById('edit_sumber').value = data.pemasukan.sumber;
+                        document.getElementById('edit_keterangan').value = data.pemasukan.keterangan || '';
+                        
+                        // Format jumlah dengan pemisah ribuan
+                        const jumlah = data.pemasukan.jumlah;
+                        if (jumlah) {
+                            document.getElementById('edit_jumlah').value = 
+                                parseInt(jumlah).toLocaleString('id-ID');
+                        }
+                        
+                        // Set form action
+                        const form = document.getElementById('editPemasukanForm');
+                        form.action = `/laporan/pemasukan/${id}`;
+                        
+                        // Trigger Select2 update
+                        $('#edit_sumber').val(data.pemasukan.sumber).trigger('change');
+                        
+                        // Show modal
+                        const editModal = new bootstrap.Modal(document.getElementById('editPemasukanModal'));
+                        editModal.show();
+                    } else {
+                        alert(data.message || 'Terjadi kesalahan saat mengambil data');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Terjadi kesalahan saat mengambil data. Silakan coba lagi.');
+                });
+        }
+        // Reset form edit pemasukan saat modal ditutup
+        document.getElementById('editPemasukanModal')?.addEventListener('hidden.bs.modal', function () {
+            const form = document.getElementById('editPemasukanForm');
+            if (form) {
+                form.reset();
+                $('#edit_sumber').val(null).trigger('change');
+            }
+        });
+</script>
     <div class="content-container">
         {{-- Alert sukses --}}
         @if(session('success'))
@@ -23,7 +75,7 @@
         @endif
 
         {{-- Summary Cards --}}
-        <div class="row mb-5">
+        <div class="row mb-5 dashboard-card">
             <div class="col-md-4 mb-3 mb-md-0">
                 <div class="summary-card income p-4">
                     <i class="fas fa-money-bill-wave mb-3"></i>
@@ -359,6 +411,12 @@
                 allowClear: true,
                 width: '100%'
             });
+            
+            $('#edit_sumber').select2({
+                placeholder: 'Pilih sumber pemasukan',
+                allowClear: true,
+                width: '100%'
+            });
         });
 
         // Format currency untuk input
@@ -422,10 +480,10 @@
         // Chart.js
         @if($chartData->count() > 0)
         const ctx = document.getElementById('pemasukanChart').getContext('2d');
-        const labels = {!! $chartData->map(function($item) {
-            return \Carbon\Carbon::createFromDate($item->tahun, $item->bulan, 1)->format('M Y');
-        }) !!};
-        const data = {!! $chartData->pluck('total') !!};
+        const labels = {!! json_encode($chartData->map(function($item) {
+            return \Carbon\Carbon::createFromFormat('Y-m', $item->bulan_tahun)->format('M Y');
+        })) !!};
+        const data = {!! json_encode($chartData->pluck('total')) !!};
 
         const pemasukanChart = new Chart(ctx, {
             type: 'line',
@@ -523,38 +581,7 @@
         });
         @endif
 
-        // Edit Pemasukan
-        function editPemasukan(id) {
-            fetch(`/laporan/pemasukan/edit/${id}`)
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        document.getElementById('edit_tanggal').value = data.pemasukan.tanggal;
-                        document.getElementById('edit_sumber').value = data.pemasukan.sumber;
-                        document.getElementById('edit_keterangan').value = data.pemasukan.keterangan || '';
-                        
-                        // Format jumlah dengan pemisah ribuan
-                        const jumlah = data.pemasukan.jumlah;
-                        if (jumlah) {
-                            document.getElementById('edit_jumlah').value = 
-                                parseInt(jumlah).toLocaleString('id-ID');
-                        }
-                        
-                        // Set form action
-                        document.getElementById('editPemasukanForm').action = `/laporan/pemasukan/update/${id}`;
-                        
-                        // Show modal
-                        const editModal = new bootstrap.Modal(document.getElementById('editPemasukanModal'));
-                        editModal.show();
-                    } else {
-                        alert(data.message || 'Terjadi kesalahan saat mengambil data');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('Terjadi kesalahan saat mengambil data');
-                });
-        }
+        
 
         // Validasi input hanya angka
         function validateNumberInput(event) {
@@ -585,15 +612,10 @@
             if (form) {
                 form.reset();
                 document.getElementById('tanggal').value = new Date().toISOString().split('T')[0];
+                $('#sumber').val(null).trigger('change');
             }
         });
 
-        // Reset form edit pemasukan saat modal ditutup
-        document.getElementById('editPemasukanModal')?.addEventListener('hidden.bs.modal', function () {
-            const form = document.getElementById('editPemasukanForm');
-            if (form) {
-                form.reset();
-            }
-        });
+        
     </script>
 @endpush

@@ -52,12 +52,16 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('/laporan/pemasukan/{id}', [LaporanController::class, 'destroyPemasukan'])->name('laporan.pemasukan.destroy');
     
     // Laporan Pengeluaran
-    Route::get('/laporan/pengeluaran', [LaporanController::class, 'pengeluaran'])->name('laporan.pengeluaran');
-    Route::post('/laporan/pengeluaran/store', [LaporanController::class, 'storePengeluaran'])->name('laporan.pengeluaran.store');
-    Route::get('/laporan/pengeluaran/edit/{id}', [LaporanController::class, 'editPengeluaran'])->name('laporan.pengeluaran.edit');
-    Route::post('/laporan/pengeluaran/update/{id}', [LaporanController::class, 'updatePengeluaran'])->name('laporan.pengeluaran.update');
-    Route::delete('/laporan/pengeluaran/{id}', [LaporanController::class, 'destroyPengeluaran'])->name('laporan.pengeluaran.destroy');
-    
+// Laporan Pengeluaran
+Route::get('/laporan/pengeluaran', [LaporanController::class, 'pengeluaran'])->name('laporan.pengeluaran');
+Route::post('/laporan/pengeluaran/store', [LaporanController::class, 'storePengeluaran'])->name('laporan.pengeluaran.store');
+// Route untuk API edit pemasukan (JSON)
+Route::get('/laporan/pemasukan/{id}/edit', action: [LaporanController::class, 'getPemasukanForEdit'])->name('laporan.pemasukan.edit.json');
+
+// Update menggunakan PUT
+Route::put('/laporan/pemasukan/{id}', [LaporanController::class, 'updatePemasukan'])->name('laporan.pemasukan.update');Route::get('/laporan/pengeluaran/{id}/edit', [LaporanController::class, 'getPengeluaranForEdit'])->name('laporan.pengeluaran.edit.json');
+Route::put('/laporan/pengeluaran/{id}', [LaporanController::class, 'updatePengeluaran'])->name('laporan.pengeluaran.update');
+Route::delete('/laporan/pengeluaran/{id}', [LaporanController::class, 'destroyPengeluaran'])->name('laporan.pengeluaran.destroy');
     // Export Routes
     Route::get('/laporan/pemasukan/export-pdf', [LaporanController::class, 'exportPemasukanPdf'])->name('laporan.pemasukan.export.pdf');
     Route::get('/laporan/pengeluaran/export-pdf', [LaporanController::class, 'exportPengeluaranPdf'])->name('laporan.pengeluaran.export.pdf');

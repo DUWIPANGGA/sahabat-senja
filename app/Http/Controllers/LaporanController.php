@@ -19,6 +19,33 @@ class LaporanController extends Controller
     /**
      * Menampilkan laporan pemasukan
      */
+    /**
+ * Get pemasukan data for edit (API)
+ */
+public function getPemasukanForEdit($id)
+{
+    try {
+        $pemasukan = Pemasukan::with('user')->findOrFail($id);
+        
+        return response()->json([
+            'success' => true,
+            'pemasukan' => [
+                'id' => $pemasukan->id,
+                'tanggal' => $pemasukan->tanggal->format('Y-m-d'),
+                'sumber' => $pemasukan->sumber,
+                'jumlah' => $pemasukan->jumlah,
+                'keterangan' => $pemasukan->keterangan,
+                'user' => $pemasukan->user ? $pemasukan->user->name : null
+            ]
+        ]);
+    } catch (\Exception $e) {
+        \Log::error('Error getting pemasukan for edit: ' . $e->getMessage());
+        return response()->json([
+            'success' => false,
+            'message' => 'Data tidak ditemukan'
+        ], 404);
+    }
+}
     public function pemasukan(Request $request)
     {
         $query = Pemasukan::query();
@@ -164,26 +191,57 @@ class LaporanController extends Controller
     /**
      * Menyimpan data pengeluaran baru
      */
-    public function storePengeluaran(Request $request)
+    public function getPengeluaranForEdit($id)
     {
-        $request->validate([
-            'tanggal' => 'required|date',
-            'keterangan' => 'required|string|max:255',
-            'jumlah' => 'required|numeric|min:0',
-            'bukti' => 'nullable|string'
-        ]);
-
-        Pengeluaran::create([
-            'tanggal' => $request->tanggal,
-            'keterangan' => $request->keterangan,
-            'jumlah' => $request->jumlah,
-            'bukti' => $request->bukti,
-            'user_id' => auth()->id()
-        ]);
-
-        return redirect()->route('laporan.pengeluaran')
-            ->with('success', 'Data pengeluaran berhasil ditambahkan.');
+        try {
+            $pengeluaran = Pengeluaran::with('user')->findOrFail($id);
+            
+            return response()->json([
+                'success' => true,
+                'pengeluaran' => [
+                    'id' => $pengeluaran->id,
+                    'tanggal' => $pengeluaran->tanggal->format('Y-m-d'),
+                    'keterangan' => $pengeluaran->keterangan,
+                    'jumlah' => $pengeluaran->jumlah,
+                    'bukti' => $pengeluaran->bukti,
+                    'user' => $pengeluaran->user ? $pengeluaran->user->name : null
+                ]
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Data tidak ditemukan'
+            ], 404);
+        }
     }
+    
+    public function storePengeluaran(Request $request)
+{
+    $request->validate([
+        'tanggal' => 'required|date',
+        'keterangan' => 'required|string|max:255',
+        'jumlah' => 'required|numeric|min:0',
+        'bukti' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048' // Perbaiki validasi
+    ]);
+
+    $data = [
+        'tanggal' => $request->tanggal,
+        'keterangan' => $request->keterangan,
+        'jumlah' => $request->jumlah,
+        'user_id' => auth()->id()
+    ];
+
+    // Handle file upload
+    if ($request->hasFile('bukti')) {
+        $path = $request->file('bukti')->store('bukti-pengeluaran', 'public');
+        $data['bukti'] = $path;
+    }
+
+    Pengeluaran::create($data);
+
+    return redirect()->route('laporan.pengeluaran')
+        ->with('success', 'Data pengeluaran berhasil ditambahkan.');
+}
 
     /**
      * Menampilkan form edit pemasukan
@@ -197,7 +255,7 @@ class LaporanController extends Controller
     /**
      * Update data pemasukan
      */
-    public function updatePemasukan(Request $request, $id)
+     public function updatePemasukan(Request $request, $id)
     {
         $request->validate([
             'tanggal' => 'required|date',
@@ -206,17 +264,25 @@ class LaporanController extends Controller
             'keterangan' => 'nullable|string'
         ]);
 
-        $pemasukan = Pemasukan::findOrFail($id);
-        $pemasukan->update([
-            'tanggal' => $request->tanggal,
-            'sumber' => $request->sumber,
-            'jumlah' => $request->jumlah,
-            'keterangan' => $request->keterangan
-        ]);
+        try {
+            $pemasukan = Pemasukan::findOrFail($id);
+            $pemasukan->update([
+                'tanggal' => $request->tanggal,
+                'sumber' => $request->sumber,
+                'jumlah' => $request->jumlah,
+                'keterangan' => $request->keterangan
+            ]);
 
-        return redirect()->route('laporan.pemasukan')
-            ->with('success', 'Data pemasukan berhasil diperbarui.');
+            return redirect()->route('laporan.pemasukan')
+                ->with('success', 'Data pemasukan berhasil diperbarui.');
+                
+        } catch (\Exception $e) {
+            \Log::error('Error updating pemasukan: ' . $e->getMessage());
+            return redirect()->route('laporan.pemasukan')
+                ->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
+        }
     }
+
 
     /**
      * Menampilkan form edit pengeluaran
