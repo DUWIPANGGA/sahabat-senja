@@ -20,20 +20,22 @@ class UserController extends Controller
         try {
             $user = $request->user();
             
-            return response()->json([
-                'success' => true,
-                'message' => 'Profile berhasil diambil',
-                'data' => [
-                    'id' => $user->id,
-                    'name' => $user->name,
-                    'email' => $user->email,
-                    'role' => $user->role,
-                    'no_telepon' => $user->no_telepon,
-                    'alamat' => $user->alamat,
-                    'created_at' => $user->created_at,
-                    'updated_at' => $user->updated_at,
-                ]
-            ], 200);
+           return response()->json([
+            'success' => true,
+            'message' => 'Profile berhasil diambil',
+            'data' => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'role' => $user->role,
+                'no_telepon' => $user->no_telepon,
+                'alamat' => $user->alamat,
+                'profile_picture' => $user->profile_picture, // ✅ Tambahkan ini
+                'foto_url' => $user->foto_url, // ✅ Mengakses accessor yang sudah diperbaiki
+                'created_at' => $user->created_at,
+                'updated_at' => $user->updated_at,
+            ]
+        ], 200);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -47,82 +49,83 @@ class UserController extends Controller
      * Update profile user
      */
     public function updateProfile(Request $request)
-    {
-        try {
-            $user = $request->user();
-            
-            $validator = Validator::make($request->all(), [
-                'name' => 'sometimes|string|max:255',
-                'email' => 'sometimes|string|email|max:255|unique:users,email,' . $user->id,
-                'no_telepon' => 'sometimes|string|max:15',
-                'alamat' => 'sometimes|string|max:500',
-            ], [
-                'email.unique' => 'Email sudah digunakan oleh user lain',
-                'name.max' => 'Nama maksimal 255 karakter',
-                'no_telepon.max' => 'Nomor telepon maksimal 15 digit',
-                'alamat.max' => 'Alamat maksimal 500 karakter',
-            ]);
-            
-            if ($validator->fails()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Validasi gagal',
-                    'errors' => $validator->errors()
-                ], 422);
-            }
-            
-            // Update data
-            $dataToUpdate = [];
-            
-            if ($request->has('name')) {
-                $dataToUpdate['name'] = $request->name;
-            }
-            
-            if ($request->has('email') && $request->email !== $user->email) {
-                $dataToUpdate['email'] = $request->email;
-            }
-            
-            if ($request->has('no_telepon')) {
-                $dataToUpdate['no_telepon'] = $request->no_telepon;
-            }
-            
-            if ($request->has('alamat')) {
-                $dataToUpdate['alamat'] = $request->alamat;
-            }
-            
-            // Jika ada data yang diupdate
-            if (!empty($dataToUpdate)) {
-                $user->update($dataToUpdate);
-                
-                return response()->json([
-                    'success' => true,
-                    'message' => 'Profile berhasil diperbarui',
-                    'data' => [
-                        'id' => $user->id,
-                        'name' => $user->name,
-                        'email' => $user->email,
-                        'role' => $user->role,
-                        'no_telepon' => $user->no_telepon,
-                        'alamat' => $user->alamat,
-                        'updated_at' => $user->updated_at,
-                    ]
-                ], 200);
-            }
-            
+{
+    try {
+        $user = $request->user();
+        
+        $validator = Validator::make($request->all(), [
+            'name' => 'sometimes|string|max:255',
+            'email' => 'sometimes|string|email|max:255|unique:users,email,' . $user->id,
+            'no_telepon' => 'sometimes|string|max:15',
+            'alamat' => 'sometimes|string|max:500',
+        ], [
+            'email.unique' => 'Email sudah digunakan oleh user lain',
+            'name.max' => 'Nama maksimal 255 karakter',
+            'no_telepon.max' => 'Nomor telepon maksimal 15 digit',
+            'alamat.max' => 'Alamat maksimal 500 karakter',
+        ]);
+        
+        if ($validator->fails()) {
             return response()->json([
                 'success' => false,
-                'message' => 'Tidak ada data yang diperbarui'
-            ], 400);
-            
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Gagal memperbarui profile',
-                'error' => $e->getMessage()
-            ], 500);
+                'message' => 'Validasi gagal',
+                'errors' => $validator->errors()
+            ], 422);
         }
+        
+        // Update data
+        $dataToUpdate = [];
+        
+        if ($request->has('name')) {
+            $dataToUpdate['name'] = $request->name;
+        }
+        
+        if ($request->has('email') && $request->email !== $user->email) {
+            $dataToUpdate['email'] = $request->email;
+        }
+        
+        if ($request->has('no_telepon')) {
+            $dataToUpdate['no_telepon'] = $request->no_telepon;
+        }
+        
+        if ($request->has('alamat')) {
+            $dataToUpdate['alamat'] = $request->alamat;
+        }
+        
+        // Jika ada data yang diupdate
+        if (!empty($dataToUpdate)) {
+            $user->update($dataToUpdate);
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Profile berhasil diperbarui',
+                'data' => [
+                    'id' => $user->id,
+                    'name' => $user->name,
+                    'email' => $user->email,
+                    'role' => $user->role,
+                    'no_telepon' => $user->no_telepon,
+                    'alamat' => $user->alamat,
+                    'profile_picture' => $user->profile_picture, // ✅ Tambahkan
+                    'foto_url' => $user->foto_url, // ✅ Tambahkan
+                    'updated_at' => $user->updated_at,
+                ]
+            ], 200);
+        }
+        
+        return response()->json([
+            'success' => false,
+            'message' => 'Tidak ada data yang diperbarui'
+        ], 400);
+        
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Gagal memperbarui profile',
+            'error' => $e->getMessage()
+        ], 500);
     }
-
+}
     /**
      * Update password user
      */
@@ -235,8 +238,7 @@ class UserController extends Controller
                     'success' => true,
                     'message' => 'Foto profil berhasil diperbarui',
                     'data' => [
-                        'profile_picture' => $fullUrl,
-                        'profile_picture_url' => asset($fullUrl)
+                        'profile_picture' => asset($fullUrl)
                     ]
                 ], 200);
             }

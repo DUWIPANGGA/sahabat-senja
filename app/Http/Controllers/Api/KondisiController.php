@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use Exception;
 use Throwable;
 use App\Models\Kondisi;
+use App\Models\Datalansia;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
@@ -192,34 +193,43 @@ public function getLatestAll()
         }
     }
 
-    public function getToday($datalansiaId, $tanggal)
+    public function getToday($namaLansia, $tanggal)
 {
     try {
-        // Cari berdasarkan datalansia_id
-        $kondisi = Kondisi::where('datalansia_id', $datalansiaId)
-            ->whereDate('tanggal', $tanggal)
-            ->first();
-        
-        if (!$kondisi) {
+        $lansia = Datalansia::where('nama_lansia', urldecode($namaLansia))->first();
+
+        if (!$lansia) {
             return response()->json([
                 'status' => 'success',
-                'message' => 'Tidak ada data untuk hari ini',
+                'message' => 'Data lansia tidak ditemukan',
                 'data' => null
             ], 200);
         }
-        
-        // Load relasi
+
+        $kondisi = Kondisi::where('datalansia_id', $lansia->id)
+            ->whereDate('tanggal', $tanggal)
+            ->first();
+
+        if (!$kondisi) {
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Tidak ada data kondisi hari ini',
+                'data' => null
+            ], 200);
+        }
+
         $kondisi->load(['datalansia', 'perawat']);
-        
+
         return response()->json([
             'status' => 'success',
             'message' => 'Data kondisi hari ini berhasil diambil',
             'data' => $kondisi
         ], 200);
+
     } catch (\Exception $e) {
         return response()->json([
             'status' => 'error',
-            'message' => 'Gagal mengambil data kondisi hari ini',
+            'message' => 'Gagal mengambil data',
             'error' => $e->getMessage()
         ], 500);
     }

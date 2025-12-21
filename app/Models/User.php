@@ -19,7 +19,7 @@ class User extends Authenticatable
         'role',
         'no_telepon',
         'alamat',
-                'foto_profil' 
+                'profile_picture' 
 
     ];
 protected $appends = ['foto_url'];
@@ -38,7 +38,7 @@ protected $appends = ['foto_url'];
 public function getFotoUrlAttribute()
     {
         if ($this->foto_profil) {
-            return Storage::disk('public')->url($this->foto_profil);
+            return Storage::disk('public')->url($this->profile_picture);
         }
         return asset('assets/images/default-avatar.png'); // Default avatar
     }

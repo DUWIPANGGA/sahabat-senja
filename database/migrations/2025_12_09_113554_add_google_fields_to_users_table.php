@@ -13,8 +13,8 @@ class AddGoogleFieldsToUsersTable extends Migration
                 $table->string('firebase_uid')->nullable()->unique()->after('id');
             }
             
-            if (!Schema::hasColumn('users', 'profile_photo')) {
-                $table->string('profile_photo')->nullable()->after('alamat');
+            if (!Schema::hasColumn('users', 'profile_picture')) {
+                $table->string('profile_picture')->nullable()->after('alamat');
             }
         });
     }
@@ -22,7 +22,7 @@ class AddGoogleFieldsToUsersTable extends Migration
     public function down()
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->dropColumn(['firebase_uid', 'profile_photo']);
+            $table->dropColumn(['firebase_uid', 'profile_picture']);
         });
     }
 }
