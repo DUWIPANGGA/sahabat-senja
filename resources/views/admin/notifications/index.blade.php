@@ -29,7 +29,7 @@
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
                         <p class="card-title">Total Notifikasi</p>
-                        <h3 class="card-value">{{ $stats['total'] }}</h3>
+                        <h3 class="card-value">{{ $stats['total'] ?? 0 }}</h3>
                     </div>
                     <div class="card-icon primary">
                         <i class="fas fa-bell"></i>
@@ -42,7 +42,7 @@
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
                         <p class="card-title">Belum Dibaca</p>
-                        <h3 class="card-value" style="color: var(--warning-color);">{{ $stats['unread'] }}</h3>
+                        <h3 class="card-value" style="color: var(--warning-color);">{{ $stats['unread'] ?? 0 }}</h3>
                     </div>
                     <div class="card-icon warning">
                         <i class="fas fa-clock"></i>
@@ -55,7 +55,7 @@
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
                         <p class="card-title">Darurat Hari Ini</p>
-                        <h3 class="card-value" style="color: var(--danger);">{{ $stats['emergency'] }}</h3>
+                        <h3 class="card-value" style="color: var(--danger);">{{ $stats['emergency'] ?? 0 }}</h3>
                     </div>
                     <div class="card-icon" style="background-color: rgba(244, 67, 54, 0.1); color: #f44336;">
                         <i class="fas fa-exclamation-triangle"></i>
@@ -68,7 +68,7 @@
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
                         <p class="card-title">Kritis</p>
-                        <h3 class="card-value">{{ $stats['critical'] }}</h3>
+                        <h3 class="card-value">{{ $stats['critical'] ?? 0 }}</h3>
                     </div>
                     <div class="card-icon info">
                         <i class="fas fa-stethoscope"></i>
@@ -153,7 +153,7 @@
             </button>
         </div>
         <div>
-            <button class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#bulkDeleteModal">
+            <button class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#bulkDeleteModal" id="bulkDeleteBtn" disabled>
                 <i class="fas fa-trash me-1"></i>Hapus Massal
             </button>
         </div>
@@ -191,7 +191,7 @@
                 </thead>
                 <tbody>
                     @foreach($notifications as $notification)
-                    <tr class="{{ $notification->is_read ? '' : 'table-warning' }}">
+                    <tr class="{{ $notification->is_read ? '' : 'unread-row' }}">
                         <td>
                             <input type="checkbox" name="notification_ids[]" 
                                    value="{{ $notification->id }}" class="form-check-input notification-checkbox">
@@ -219,6 +219,10 @@
                                     <small class="text-muted">{{ $notification->user->role }}</small>
                                 </div>
                             </div>
+                            @elseif($notification->broadcast_type == 'all')
+                            <span class="badge bg-info">
+                                <i class="fas fa-broadcast-tower me-1"></i>Semua Pengguna
+                            </span>
                             @else
                             <span class="text-muted">-</span>
                             @endif
@@ -252,7 +256,7 @@
                                     'critical' => 'danger'
                                 ];
                             @endphp
-                            <span class="badge bg-{{ $urgencyColors[$notification->urgency_level] }}">
+                            <span class="badge bg-{{ $urgencyColors[$notification->urgency_level] ?? 'info' }}">
                                 {{ ucfirst($notification->urgency_level) }}
                             </span>
                         </td>
@@ -314,7 +318,7 @@
         <div class="d-flex justify-content-between align-items-center mt-3">
             <div>
                 <p class="mb-0 text-muted">
-                    Menampilkan {{ $notifications->firstItem() }} - {{ $notifications->lastItem() }} dari {{ $notifications->total() }} notifikasi
+                    Menampilkan {{ $notifications->firstItem() ?? 0 }} - {{ $notifications->lastItem() ?? 0 }} dari {{ $notifications->total() }} notifikasi
                 </p>
             </div>
             <div>
@@ -329,7 +333,7 @@
 <div class="modal fade" id="emergencyModal" tabindex="-1">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
-            <form action="{{ route('admin.notifications.send-emergency') }}" method="POST">
+            <form action="{{ route('admin.notifications.send-emergency') }}" method="POST" id="emergencyForm">
                 @csrf
                 <div class="modal-header bg-danger text-white">
                     <h5 class="modal-title">
@@ -348,7 +352,7 @@
                             <label for="emergency_datalansia_id" class="form-label">Lansia <span class="text-danger">*</span></label>
                             <select class="form-select" id="emergency_datalansia_id" name="datalansia_id" required>
                                 <option value="">Pilih Lansia...</option>
-                                @foreach($lansias as $lansia)
+                                @foreach($lansias ?? [] as $lansia)
                                 <option value="{{ $lansia->id }}">{{ $lansia->nama_lansia }} ({{ $lansia->umur_lansia }} tahun)</option>
                                 @endforeach
                             </select>
@@ -446,7 +450,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-                    <button type="submit" class="btn btn-danger">
+                    <button type="submit" class="btn btn-danger" id="emergencySubmitBtn">
                         <i class="fas fa-paper-plane me-2"></i>Kirim Notifikasi Darurat
                     </button>
                 </div>
@@ -459,7 +463,7 @@
 <div class="modal fade" id="testModal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
-            <form action="{{ route('admin.notifications.send-test') }}" method="POST">
+            <form action="{{ route('admin.notifications.send-test') }}" method="POST" id="testForm">
                 @csrf
                 <div class="modal-header">
                     <h5 class="modal-title">
@@ -472,7 +476,7 @@
                         <label for="test_user_id" class="form-label">Penerima Test <span class="text-danger">*</span></label>
                         <select class="form-select" id="test_user_id" name="user_id" required>
                             <option value="">Pilih User...</option>
-                            @foreach($users as $user)
+                            @foreach($users ?? [] as $user)
                             <option value="{{ $user->id }}">{{ $user->name }} ({{ $user->role }})</option>
                             @endforeach
                         </select>
@@ -496,14 +500,12 @@
                     
                     <div class="mb-3">
                         <label for="test_message" class="form-label">Pesan <span class="text-danger">*</span></label>
-                        <textarea class="form-control" id="test_message" name="message" rows="3" required>
-Ini adalah pesan notifikasi test dari sistem. Harap abaikan jika Anda menerima pesan ini.
-                        </textarea>
+                        <textarea class="form-control" id="test_message" name="message" rows="3" required>Ini adalah pesan notifikasi test dari sistem. Harap abaikan jika Anda menerima pesan ini.</textarea>
                     </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-                    <button type="submit" class="btn btn-primary">
+                    <button type="submit" class="btn btn-primary" id="testSubmitBtn">
                         <i class="fas fa-paper-plane me-2"></i>Kirim Test
                     </button>
                 </div>
@@ -516,7 +518,7 @@ Ini adalah pesan notifikasi test dari sistem. Harap abaikan jika Anda menerima p
 <div class="modal fade" id="bulkDeleteModal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
-            <form action="{{ route('admin.notifications.bulk-delete') }}" method="POST">
+            <form action="{{ route('admin.notifications.bulk-delete') }}" method="POST" id="bulkDeleteForm">
                 @csrf
                 <div class="modal-header">
                     <h5 class="modal-title">Hapus Notifikasi Massal</h5>
@@ -536,114 +538,325 @@ Ini adalah pesan notifikasi test dari sistem. Harap abaikan jika Anda menerima p
     </div>
 </div>
 
+@push('styles')
+<style>
+    .unread-row {
+        background-color: rgba(255, 193, 7, 0.1) !important;
+        border-left: 3px solid var(--warning-color);
+    }
+    
+    .dashboard-card {
+        background: white;
+        border-radius: 10px;
+        padding: 20px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        transition: transform 0.3s ease;
+    }
+    
+    .dashboard-card:hover {
+        transform: translateY(-5px);
+    }
+    
+    .card-icon {
+        width: 50px;
+        height: 50px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 20px;
+    }
+    
+    .card-icon.primary {
+        background-color: rgba(var(--primary-rgb), 0.1);
+        color: var(--primary-color);
+    }
+    
+    .card-icon.warning {
+        background-color: rgba(255, 193, 7, 0.1);
+        color: var(--warning-color);
+    }
+    
+    .card-icon.info {
+        background-color: rgba(23, 162, 184, 0.1);
+        color: #17a2b8;
+    }
+    
+    .filter-card {
+        background: white;
+        border-radius: 10px;
+        padding: 20px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    
+    .activity-card {
+        background: white;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    
+    .activity-card .card-header {
+        background-color: var(--light-bg);
+        padding: 15px 20px;
+        border-bottom: 1px solid #dee2e6;
+    }
+</style>
+@endpush
+
 @push('scripts')
 <script>
-    // Select all checkboxes
-    document.getElementById('selectAll').addEventListener('change', function() {
-        const checkboxes = document.querySelectorAll('.notification-checkbox');
-        checkboxes.forEach(checkbox => {
-            checkbox.checked = this.checked;
-        });
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize
         updateSelectedCount();
+        
+        // Select all checkboxes
+        const selectAll = document.getElementById('selectAll');
+        if (selectAll) {
+            selectAll.addEventListener('change', function() {
+                const checkboxes = document.querySelectorAll('.notification-checkbox');
+                checkboxes.forEach(checkbox => {
+                    checkbox.checked = this.checked;
+                });
+                updateSelectedCount();
+            });
+        }
+        
+        // Emergency form submission
+        const emergencyForm = document.getElementById('emergencyForm');
+        if (emergencyForm) {
+            emergencyForm.addEventListener('submit', function(e) {
+                const submitBtn = document.getElementById('emergencySubmitBtn');
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Mengirim...';
+                submitBtn.disabled = true;
+            });
+        }
+        
+        // Test form submission
+        const testForm = document.getElementById('testForm');
+        if (testForm) {
+            testForm.addEventListener('submit', function(e) {
+                const submitBtn = document.getElementById('testSubmitBtn');
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Mengirim...';
+                submitBtn.disabled = true;
+            });
+        }
+        
+        // Event listener for individual checkboxes
+        document.querySelectorAll('.notification-checkbox').forEach(checkbox => {
+            checkbox.addEventListener('change', updateSelectedCount);
+        });
     });
     
     // Update selected count
     function updateSelectedCount() {
         const selected = document.querySelectorAll('.notification-checkbox:checked').length;
-        document.getElementById('selectedCount').textContent = selected + ' notifikasi dipilih';
+        const countElement = document.getElementById('selectedCount');
+        const bulkDeleteBtn = document.getElementById('bulkDeleteBtn');
+        
+        if (countElement) {
+            countElement.textContent = selected + ' notifikasi dipilih';
+        }
+        
+        if (bulkDeleteBtn) {
+            bulkDeleteBtn.disabled = selected === 0;
+        }
     }
     
-    // Event listener for individual checkboxes
-    document.querySelectorAll('.notification-checkbox').forEach(checkbox => {
-        checkbox.addEventListener('change', updateSelectedCount);
-    });
-    
     // Mark as read
-    function markAsRead(notificationId) {
-        fetch(`/admin/notifications/${notificationId}/read`, {
-            method: 'POST',
-            headers: {
-                'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                'Content-Type': 'application/json'
+    async function markAsRead(notificationId) {
+        if (confirm('Tandai notifikasi ini sebagai sudah dibaca?')) {
+            try {
+                const response = await fetch(`/admin/notifications/${notificationId}/read`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showToast('success', 'Notifikasi ditandai sebagai sudah dibaca');
+                    setTimeout(() => location.reload(), 1000);
+                } else {
+                    throw new Error(data.message || 'Terjadi kesalahan');
+                }
+            } catch (error) {
+                showToast('error', error.message || 'Gagal memperbarui status');
+                console.error('Error:', error);
             }
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                location.reload();
-            }
-        });
+        }
     }
     
     // Mark all as read
-    function markAllAsRead() {
-        if (confirm('Tandai semua notifikasi sebagai sudah dibaca?')) {
-            const selectedIds = Array.from(document.querySelectorAll('.notification-checkbox:checked'))
-                .map(checkbox => checkbox.value);
-                
-            if (selectedIds.length === 0) {
-                alert('Pilih notifikasi terlebih dahulu!');
-                return;
-            }
+    async function markAllAsRead() {
+        const selectedIds = Array.from(document.querySelectorAll('.notification-checkbox:checked'))
+            .map(checkbox => checkbox.value);
             
-            // Implement bulk mark as read
-            fetch('/admin/notifications/bulk-read', {
-                method: 'POST',
-                headers: {
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ notification_ids: selectedIds })
-            })
-            .then(response => response.json())
-            .then(data => {
+        if (selectedIds.length === 0) {
+            alert('Pilih notifikasi terlebih dahulu!');
+            return;
+        }
+        
+        if (confirm(`Tandai ${selectedIds.length} notifikasi sebagai sudah dibaca?`)) {
+            try {
+                const response = await fetch('/admin/notifications/bulk-read', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({ notification_ids: selectedIds })
+                });
+                
+                const data = await response.json();
+                
                 if (data.success) {
-                    location.reload();
+                    showToast('success', `${selectedIds.length} notifikasi ditandai sebagai sudah dibaca`);
+                    setTimeout(() => location.reload(), 1000);
+                } else {
+                    throw new Error(data.message || 'Terjadi kesalahan');
                 }
-            });
+            } catch (error) {
+                showToast('error', error.message || 'Gagal memperbarui status');
+                console.error('Error:', error);
+            }
         }
     }
     
     // Mark as archived
-    function markAsArchived(notificationId) {
-        fetch(`/admin/notifications/${notificationId}/archive`, {
-            method: 'POST',
-            headers: {
-                'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                'Content-Type': 'application/json'
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                location.reload();
-            }
-        });
-    }
-    
-    // Delete notification
-    function deleteNotification(notificationId) {
-        if (confirm('Hapus notifikasi ini?')) {
-            fetch(`/admin/notifications/${notificationId}`, {
-                method: 'DELETE',
-                headers: {
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                    'Content-Type': 'application/json'
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
+    async function markAsArchived(notificationId) {
+        if (confirm('Arsipkan notifikasi ini?')) {
+            try {
+                const response = await fetch(`/admin/notifications/${notificationId}/archive`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    }
+                });
+                
+                const data = await response.json();
+                
                 if (data.success) {
-                    location.reload();
+                    showToast('success', 'Notifikasi diarsipkan');
+                    setTimeout(() => location.reload(), 1000);
+                } else {
+                    throw new Error(data.message || 'Terjadi kesalahan');
                 }
-            });
+            } catch (error) {
+                showToast('error', error.message || 'Gagal mengarsipkan');
+                console.error('Error:', error);
+            }
         }
     }
     
-    // Initialize
-    document.addEventListener('DOMContentLoaded', function() {
-        updateSelectedCount();
+    // Delete notification
+    async function deleteNotification(notificationId) {
+        if (confirm('Apakah Anda yakin ingin menghapus notifikasi ini?')) {
+            try {
+                const response = await fetch(`/admin/notifications/${notificationId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showToast('success', 'Notifikasi berhasil dihapus');
+                    setTimeout(() => location.reload(), 1000);
+                } else {
+                    throw new Error(data.message || 'Terjadi kesalahan');
+                }
+            } catch (error) {
+                showToast('error', error.message || 'Gagal menghapus notifikasi');
+                console.error('Error:', error);
+            }
+        }
+    }
+    
+    // Bulk delete
+    document.getElementById('bulkDeleteForm')?.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const selectedIds = Array.from(document.querySelectorAll('.notification-checkbox:checked'))
+            .map(checkbox => checkbox.value);
+        
+        if (selectedIds.length === 0) return;
+        
+        const formData = new FormData(this);
+        formData.append('notification_ids', selectedIds.join(','));
+        
+        try {
+            const response = await fetch(this.action, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                body: formData
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                showToast('success', `${selectedIds.length} notifikasi berhasil dihapus`);
+                setTimeout(() => location.reload(), 1000);
+            } else {
+                throw new Error(data.message || 'Terjadi kesalahan');
+            }
+        } catch (error) {
+            showToast('error', error.message || 'Gagal menghapus notifikasi');
+            console.error('Error:', error);
+        }
     });
+    
+    // Toast notification function
+    function showToast(type, message) {
+        // Create toast container if not exists
+        let toastContainer = document.querySelector('.toast-container');
+        if (!toastContainer) {
+            toastContainer = document.createElement('div');
+            toastContainer.className = 'toast-container position-fixed top-0 end-0 p-3';
+            document.body.appendChild(toastContainer);
+        }
+        
+        const toastId = 'toast-' + Date.now();
+        const bgColor = type === 'success' ? 'bg-success' : type === 'error' ? 'bg-danger' : 'bg-info';
+        const icon = type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle';
+        
+        const toastHTML = `
+            <div id="${toastId}" class="toast align-items-center text-white ${bgColor} border-0" role="alert">
+                <div class="d-flex">
+                    <div class="toast-body">
+                        <i class="fas fa-${icon} me-2"></i>${message}
+                    </div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+                </div>
+            </div>
+        `;
+        
+        toastContainer.insertAdjacentHTML('beforeend', toastHTML);
+        
+        const toastEl = document.getElementById(toastId);
+        const toast = new bootstrap.Toast(toastEl, {
+            autohide: true,
+            delay: 3000
+        });
+        toast.show();
+        
+        toastEl.addEventListener('hidden.bs.toast', function() {
+            this.remove();
+        });
+    }
 </script>
 @endpush
 @endsection

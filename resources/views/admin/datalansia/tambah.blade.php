@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
-@section('title', 'Tambah Data Perawat')
-@section('page-title', 'Tambah Data Perawat')
+@section('title', 'Tambah Data Lansia')
+@section('page-title', 'Tambah Data Lansia')
 @section('icon', 'fas fa-chart-pie')
 
 @section('content')

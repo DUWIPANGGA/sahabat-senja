@@ -308,7 +308,7 @@
                     <label class="form-label">Link Kampanye</label>
                     <div class="input-group">
                         <input type="text" class="form-control" id="shareLink" 
-                               value="{{ route('donasi.show', $kampanye->slug) }}" readonly>
+                               value="{{ route('admin.donasi.show', $kampanye->slug) }}" readonly>
                         <button class="btn btn-primary" onclick="copyShareLink()">
                             <i class="fas fa-copy"></i>
                         </button>
@@ -384,7 +384,7 @@
     }
     
     function copyDonationLink() {
-        const link = '{{ route('donasi.show', $kampanye->slug) }}';
+        const link = '{{ route('admin.donasi.show', $kampanye->slug) }}';
         copyToClipboard(link);
     }
     
