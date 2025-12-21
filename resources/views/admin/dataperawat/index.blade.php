@@ -48,9 +48,9 @@
                             <a href="{{ route('admin.DataPerawat.index') }}" class="btn btn-outline-secondary">
                                 <i class="fas fa-refresh"></i>
                             </a>
-                            {{-- <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#exportModal">
+                            <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#exportModal">
                                 <i class="fas fa-download me-2"></i>Export
-                            </button> --}}
+                            </button>
                         </div>
                     </div>
                 </form>
