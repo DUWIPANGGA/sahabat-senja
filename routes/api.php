@@ -271,7 +271,7 @@ Route::prefix('iuran')->group(function () {
     // Midtrans notification (no auth required)
     Route::post('/notification', [IuranController::class, 'handleMidtransNotification']);
 });
-Route::middleware('auth')->prefix('profile')->group(function () {
+Route::middleware('auth')->prefix('profile')->name('profile')->group(function () {
     Route::get('/', [UserController::class, 'getProfile'])->name('getProfile');
     Route::put('/update', [UserController::class, 'updateProfile']);
     Route::put('/password', [UserController::class, 'updatePassword']);
