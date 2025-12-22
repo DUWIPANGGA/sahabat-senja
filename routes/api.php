@@ -271,21 +271,14 @@ Route::prefix('iuran')->group(function () {
     // Midtrans notification (no auth required)
     Route::post('/notification', [IuranController::class, 'handleMidtransNotification']);
 });
-Route::prefix('profile')->group(function () {
-        Route::get('/', [UserController::class, 'getProfile'])->name('getProfile');
-        
-        // Update profile
-        Route::put('/update', [UserController::class, 'updateProfile']);
-        
-        // Change password
-        Route::put('/password', [UserController::class, 'updatePassword']);
-        
-        // Upload profile picture
-        Route::post('/picture', [UserController::class, 'updateProfilePicture']);
-        
-        // Remove profile picture
-        Route::delete('/picture', [UserController::class, 'removeProfilePicture']);
-    });
+Route::middleware('auth')->prefix('profile')->group(function () {
+    Route::get('/', [UserController::class, 'getProfile'])->name('getProfile');
+    Route::put('/update', [UserController::class, 'updateProfile']);
+    Route::put('/password', [UserController::class, 'updatePassword']);
+    Route::post('/picture', [UserController::class, 'updateProfilePicture']);
+    Route::delete('/picture', [UserController::class, 'removeProfilePicture']);
+});
+
     // ============ ROLE-BASED ROUTES ============
     
     // Admin only routes

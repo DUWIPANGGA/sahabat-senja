@@ -798,27 +798,29 @@
                     </h1>
                 </div>
 
-                <div class="d-flex align-items-center">
-                    <a href="{{ route('getProfile') }}" class="text-decoration-none text-dark">
-                        <div class="user-info d-none d-md-flex align-items-center">
-                            <div class="user-avatar">
-                                {{ substr(Auth::user()->name ?? 'A', 0, 1) }}
-                            </div>
-                            <div class="ms-2">
-                                <div class="fw-bold">{{ Auth::user()->name ?? 'Admin' }}</div>
-                                <small class="text-muted">Administrator</small>
-                            </div>
-                        </div>
-                    </a>
+                <div class="d-flex align-items-center gap-3">
+    <a href="{{ route('getProfile') }}" 
+       class="text-decoration-none text-dark user-info-link">
+        <div class="user-info d-none d-md-flex align-items-center">
+            <div class="user-avatar">
+                {{ substr(Auth::user()->name ?? 'A', 0, 1) }}
+            </div>
+            <div class="ms-2">
+                <div class="fw-bold">{{ Auth::user()->name ?? 'Admin' }}</div>
+                <small class="text-muted">Administrator</small>
+            </div>
+        </div>
+    </a>
 
-                    <form method="POST" action="{{ route('logout') }}" class="ms-3">
-                        @csrf
-                        <button type="submit" class="logout-btn">
-                            <i class="fas fa-sign-out-alt me-2"></i>
-                            <span>Logout</span>
-                        </button>
-                    </form>
-                </div>
+    <form method="POST" action="{{ route('logout') }}">
+        @csrf
+        <button type="submit" class="logout-btn">
+            <i class="fas fa-sign-out-alt me-2"></i>
+            Logout
+        </button>
+    </form>
+</div>
+
             </div>
 
             <!-- Main Container -->
