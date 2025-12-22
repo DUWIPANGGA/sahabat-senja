@@ -799,7 +799,7 @@
                 </div>
 
                 <div class="d-flex align-items-center gap-3">
-    <a href="{{ route('profile') }}" 
+    <a href="{{ route('profile.index') }}" 
        class="text-decoration-none text-dark user-info-link">
         <div class="user-info d-none d-md-flex align-items-center">
             <div class="user-avatar">
