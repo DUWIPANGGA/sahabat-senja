@@ -778,15 +778,18 @@
                 </div>
                 
                 <div class="d-flex align-items-center">
-                    <div class="user-info d-none d-md-flex">
-                        <div class="user-avatar">
-                            {{ substr(Auth::user()->name ?? 'A', 0, 1) }}
-                        </div>
-                        <div>
-                            <div class="fw-bold">{{ Auth::user()->name ?? 'Admin' }}</div>
-                            <small class="text-muted">Administrator</small>
-                        </div>
-                    </div>
+                    <a href="{{ route('profile') }}" class="text-decoration-none text-dark">
+    <div class="user-info d-none d-md-flex align-items-center">
+        <div class="user-avatar">
+            {{ substr(Auth::user()->name ?? 'A', 0, 1) }}
+        </div>
+        <div class="ms-2">
+            <div class="fw-bold">{{ Auth::user()->name ?? 'Admin' }}</div>
+            <small class="text-muted">Administrator</small>
+        </div>
+    </div>
+</a>
+
                     <form method="POST" action="{{ route('logout') }}" class="ms-3">
                         @csrf
                         <button type="submit" class="logout-btn">
