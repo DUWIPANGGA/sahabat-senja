@@ -4,50 +4,62 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@yield('title', 'Sahabat Senja') - Sistem Informasi Layanan Panti Jompo</title>
-    
+
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
+
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-    
+
     <!-- Custom CSS -->
     <link rel="stylesheet" href="{{ asset('css/app.css') }}">
-    
+
     <!-- Additional CSS per page -->
     @stack('styles')
-    
+
     <style>
         /* VARIABLES */
         :root {
-            --primary-color: #8B7355; /* Coklat susu utama */
-            --secondary-color: #A67B5B; /* Coklat susu lebih terang */
-            --accent-color: #D7CCC8; /* Coklat susu sangat terang */
-            --dark-brown: #5D4037; /* Coklat tua untuk kontras */
-            --light-bg: #FAF3E0; /* Cream sangat terang */
-            --text-dark: #4E342E; /* Coklat tua untuk teks */
-            --text-light: #8D6E63; /* Coklat medium untuk teks sekunder */
-            --success-color: #7CB342; /* Hijau yang cocok dengan tema */
-            --warning-color: #FFB74D; /* Oranye yang cocok dengan tema */
-            --info-color: #4DB6AC; /* Biru kehijauan yang cocok */
-            --danger-color: #e53935; /* Merah untuk danger */
+            --primary-color: #8B7355;
+            /* Coklat susu utama */
+            --secondary-color: #A67B5B;
+            /* Coklat susu lebih terang */
+            --accent-color: #D7CCC8;
+            /* Coklat susu sangat terang */
+            --dark-brown: #5D4037;
+            /* Coklat tua untuk kontras */
+            --light-bg: #FAF3E0;
+            /* Cream sangat terang */
+            --text-dark: #4E342E;
+            /* Coklat tua untuk teks */
+            --text-light: #8D6E63;
+            /* Coklat medium untuk teks sekunder */
+            --success-color: #7CB342;
+            /* Hijau yang cocok dengan tema */
+            --warning-color: #FFB74D;
+            /* Oranye yang cocok dengan tema */
+            --info-color: #4DB6AC;
+            /* Biru kehijauan yang cocok */
+            --danger-color: #e53935;
+            /* Merah untuk danger */
             --card-shadow: 0 4px 6px rgba(139, 115, 85, 0.1);
             --hover-shadow: 0 8px 15px rgba(139, 115, 85, 0.15);
         }
-        
+
         /* RESET & STRUCTURE */
-        html, body {
+        html,
+        body {
             height: 100%;
             margin: 0;
             padding: 0;
         }
-        
+
         body {
             display: flex;
             flex-direction: column;
@@ -57,14 +69,14 @@
             color: var(--text-dark);
             transition: all 0.3s ease;
         }
-        
+
         /* APP WRAPPER */
         #app-wrapper {
             display: flex;
             flex: 1;
             min-height: 100vh;
         }
-        
+
         /* SIDEBAR */
         .sidebar {
             background: linear-gradient(180deg, var(--primary-color) 0%, var(--dark-brown) 100%);
@@ -81,26 +93,26 @@
             overflow-y: auto;
             overflow-x: hidden;
         }
-        
+
         .sidebar.collapsed {
             width: 80px;
         }
-        
+
         .sidebar.collapsed .sidebar-brand h1 span,
         .sidebar.collapsed .nav-link span,
         .sidebar.collapsed .nav-item .dropdown-toggle::after {
             display: none;
         }
-        
+
         .sidebar.collapsed .sidebar-brand i,
         .sidebar.collapsed .nav-link i {
             margin-right: 0;
         }
-        
+
         .sidebar.collapsed .dropdown-menu {
             display: none !important;
         }
-        
+
         /* SIDEBAR BRAND */
         .sidebar-brand {
             padding: 1.5rem;
@@ -112,7 +124,7 @@
             align-items: center;
             justify-content: center;
         }
-        
+
         .sidebar-brand h1 {
             font-weight: 700;
             font-size: 1.5rem;
@@ -123,13 +135,13 @@
             transition: all 0.3s;
             white-space: nowrap;
         }
-        
+
         .sidebar-brand i {
             margin-right: 10px;
             font-size: 1.8rem;
             transition: all 0.3s;
         }
-        
+
         /* TOGGLE BUTTON */
         .toggle-btn {
             position: absolute;
@@ -150,27 +162,27 @@
             transition: all 0.3s;
             z-index: 1001;
         }
-        
+
         .toggle-btn:hover {
             background: var(--dark-brown);
             transform: translateY(-50%) scale(1.1);
         }
-        
+
         .sidebar.collapsed .toggle-btn {
             transform: translateY(-50%) rotate(180deg);
         }
-        
+
         /* SIDEBAR NAV */
         .sidebar-nav {
             padding: 1rem 0;
             flex: 1;
         }
-        
+
         .nav-item {
             margin-bottom: 0.5rem;
             position: relative;
         }
-        
+
         .nav-link {
             color: rgba(255, 255, 255, 0.85);
             padding: 0.8rem 1.5rem;
@@ -182,13 +194,14 @@
             overflow: hidden;
             text-decoration: none;
         }
-        
-        .nav-link:hover, .nav-link.active {
+
+        .nav-link:hover,
+        .nav-link.active {
             background-color: rgba(255, 255, 255, 0.1);
             color: white;
             border-left-color: var(--accent-color);
         }
-        
+
         .nav-link i {
             width: 24px;
             margin-right: 12px;
@@ -196,7 +209,7 @@
             transition: all 0.3s;
             flex-shrink: 0;
         }
-        
+
         /* MAIN CONTENT AREA */
         .main-content {
             flex: 1;
@@ -206,11 +219,11 @@
             margin-left: 280px;
             transition: all 0.3s ease;
         }
-        
+
         .main-content.expanded {
             margin-left: 80px;
         }
-        
+
         /* TOP HEADER */
         .top-header {
             background-color: white;
@@ -221,7 +234,7 @@
             z-index: 100;
             flex-shrink: 0;
         }
-        
+
         .header-title {
             font-weight: 600;
             color: var(--dark-brown);
@@ -230,19 +243,19 @@
             align-items: center;
             font-size: 1.5rem;
         }
-        
+
         .header-title i {
             margin-right: 10px;
             color: var(--primary-color);
         }
-        
+
         /* USER INFO */
         .user-info {
             display: flex;
             align-items: center;
             margin-right: 1.5rem;
         }
-        
+
         .user-avatar {
             width: 40px;
             height: 40px;
@@ -256,7 +269,7 @@
             margin-right: 10px;
             font-size: 1.2rem;
         }
-        
+
         .logout-btn {
             background-color: var(--primary-color);
             border: none;
@@ -269,20 +282,20 @@
             align-items: center;
             justify-content: center;
         }
-        
+
         .logout-btn:hover {
             background-color: var(--dark-brown);
             transform: translateY(-2px);
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
-        
+
         /* MAIN CONTAINER */
         .main-container {
             flex: 1 0 auto;
             padding: 2rem;
             min-height: calc(100vh - 180px);
         }
-        
+
         /* STICKY FOOTER */
         .sticky-footer {
             background: linear-gradient(90deg, var(--dark-brown) 0%, var(--primary-color) 100%);
@@ -295,21 +308,21 @@
             position: relative;
             z-index: 99;
         }
-        
+
         .sticky-footer .container {
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 60px;
         }
-        
+
         .sticky-footer p {
             margin: 0;
             font-size: 0.95rem;
             opacity: 0.9;
             text-align: center;
         }
-        
+
         /* MOBILE MENU BUTTON */
         .mobile-menu-btn {
             display: none;
@@ -323,11 +336,11 @@
             border-radius: 6px;
             transition: all 0.3s;
         }
-        
+
         .mobile-menu-btn:hover {
             background-color: rgba(139, 115, 85, 0.1);
         }
-        
+
         /* TABLE STYLES */
         .table {
             width: 100%;
@@ -336,7 +349,7 @@
             border-collapse: separate;
             border-spacing: 0;
         }
-        
+
         .table thead th {
             background-color: rgba(139, 115, 85, 0.1);
             border-bottom: 2px solid var(--accent-color);
@@ -346,26 +359,26 @@
             font-size: 0.85rem;
             letter-spacing: 0.5px;
         }
-        
+
         .table tbody tr {
             border-bottom: 1px solid var(--accent-color);
             transition: all 0.3s;
         }
-        
+
         .table tbody tr:hover {
             background-color: rgba(139, 115, 85, 0.05);
         }
-        
+
         .table tbody td {
             padding: 1rem;
             vertical-align: middle;
         }
-        
+
         .table-responsive {
             overflow-x: auto;
             -webkit-overflow-scrolling: touch;
         }
-        
+
         /* BUTTON STYLES */
         .btn {
             padding: 0.5rem 1.5rem;
@@ -378,69 +391,69 @@
             justify-content: center;
             gap: 0.5rem;
         }
-        
+
         .btn-primary {
             background-color: var(--primary-color);
             color: white;
         }
-        
+
         .btn-primary:hover {
             background-color: var(--dark-brown);
             transform: translateY(-2px);
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
-        
+
         .btn-success {
             background-color: var(--success-color);
             color: white;
         }
-        
+
         .btn-success:hover {
             background-color: #689F38;
             transform: translateY(-2px);
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
-        
+
         .btn-warning {
             background-color: var(--warning-color);
             color: var(--text-dark);
         }
-        
+
         .btn-warning:hover {
             background-color: #FFA000;
             transform: translateY(-2px);
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
-        
+
         .btn-danger {
             background-color: var(--danger-color);
             color: white;
         }
-        
+
         .btn-danger:hover {
             background-color: #c62828;
             transform: translateY(-2px);
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
-        
+
         .btn-outline-secondary {
             background-color: transparent;
             border: 1px solid var(--text-light);
             color: var(--text-light);
         }
-        
+
         .btn-outline-secondary:hover {
             background-color: var(--text-light);
             color: white;
             transform: translateY(-2px);
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
-        
+
         .btn-sm {
             padding: 0.375rem 0.75rem;
             font-size: 0.875rem;
         }
-        
+
         /* CARD STYLES */
         .card {
             border: none;
@@ -450,34 +463,36 @@
             margin-bottom: 1.5rem;
             transition: all 0.3s;
         }
-        
+
         .card:hover {
             box-shadow: var(--hover-shadow);
         }
-        
+
         .card-header {
             background-color: white;
             border-bottom: 1px solid var(--accent-color);
             padding: 1.5rem;
         }
-        
+
         .card-body {
             padding: 1.5rem;
         }
-        
+
         /* FORM STYLES */
-        .form-control, .form-select {
+        .form-control,
+        .form-select {
             border: 1px solid var(--accent-color);
             border-radius: 8px;
             padding: 0.75rem 1rem;
             transition: all 0.3s;
         }
-        
-        .form-control:focus, .form-select:focus {
+
+        .form-control:focus,
+        .form-select:focus {
             border-color: var(--primary-color);
             box-shadow: 0 0 0 0.25rem rgba(139, 115, 85, 0.25);
         }
-        
+
         /* BADGE STYLES */
         .badge {
             padding: 0.5rem 1rem;
@@ -488,19 +503,19 @@
             align-items: center;
             gap: 0.5rem;
         }
-        
+
         .bg-primary {
             background-color: var(--primary-color) !important;
         }
-        
+
         .bg-info {
             background-color: var(--info-color) !important;
         }
-        
+
         .bg-warning {
             background-color: var(--warning-color) !important;
         }
-        
+
         /* ALERT STYLES */
         .alert {
             border-radius: 10px;
@@ -510,22 +525,22 @@
             align-items: center;
             margin-bottom: 1.5rem;
         }
-        
+
         .alert-success {
             background-color: rgba(124, 179, 66, 0.1);
             color: var(--success-color);
             border-left: 4px solid var(--success-color);
         }
-        
+
         .alert-dismissible .btn-close {
             padding: 1rem;
         }
-        
+
         /* PAGINATION */
         .pagination {
             margin-bottom: 0;
         }
-        
+
         .page-link {
             color: var(--primary-color);
             border: 1px solid var(--accent-color);
@@ -533,56 +548,56 @@
             border-radius: 6px !important;
             transition: all 0.3s;
         }
-        
+
         .page-link:hover {
             background-color: var(--primary-color);
             color: white;
             border-color: var(--primary-color);
         }
-        
+
         .page-item.active .page-link {
             background-color: var(--primary-color);
             border-color: var(--primary-color);
             color: white;
         }
-        
+
         /* EMPTY STATE */
         .empty-state {
             padding: 3rem 1rem;
             text-align: center;
         }
-        
+
         .empty-state i {
             margin-bottom: 1rem;
             opacity: 0.5;
         }
-        
+
         /* RESPONSIVE STYLES */
         @media (max-width: 992px) {
             .sidebar {
                 width: 80px;
             }
-            
+
             .sidebar .sidebar-brand h1 span,
             .sidebar .nav-link span,
             .sidebar .nav-item .dropdown-toggle::after {
                 display: none;
             }
-            
+
             .sidebar .sidebar-brand i,
             .sidebar .nav-link i {
                 margin-right: 0;
             }
-            
+
             .main-content {
                 margin-left: 80px;
             }
-            
+
             .toggle-btn {
                 display: none;
             }
         }
-        
+
         @media (max-width: 768px) {
             .sidebar {
                 width: 0;
@@ -591,95 +606,102 @@
                 height: 100vh;
                 z-index: 1050;
             }
-            
+
             .sidebar.show {
                 width: 280px;
                 transform: translateX(0);
             }
-            
+
             .main-content {
                 margin-left: 0;
             }
-            
+
             .mobile-menu-btn {
                 display: block;
             }
-            
+
             .user-info {
                 display: none;
             }
-            
+
             .main-container {
                 padding: 1rem;
             }
-            
+
             .top-header {
                 padding: 1rem;
             }
-            
+
             .sticky-footer {
                 padding: 1rem 0;
             }
-            
+
             .sticky-footer p {
                 font-size: 0.85rem;
                 padding: 0 1rem;
             }
-            
+
             .table-responsive {
                 font-size: 0.9rem;
             }
         }
-        
+
         @media (max-width: 576px) {
             .header-title {
                 font-size: 1.2rem;
             }
-            
+
             .logout-btn span {
                 display: none;
             }
-            
+
             .logout-btn i {
                 margin-right: 0;
             }
-            
+
             .btn {
                 width: 100%;
                 margin-bottom: 0.5rem;
             }
-            
+
             .d-flex.flex-md-row {
                 flex-direction: column !important;
             }
         }
-        
+
         /* ANIMATIONS */
         @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
         }
-        
+
         @keyframes slideInUp {
             from {
                 opacity: 0;
                 transform: translateY(20px);
             }
+
             to {
                 opacity: 1;
                 transform: translateY(0);
             }
         }
-        
+
         .fade-in {
             animation: fadeIn 0.5s ease-out;
         }
-        
+
         .slide-in-up {
             animation: slideInUp 0.5s ease-out;
         }
+
     </style>
-    
+
     <!-- Additional Head Content -->
     @stack('head')
 </head>
@@ -697,7 +719,7 @@
                     <i class="fas fa-chevron-left"></i>
                 </div>
             </div>
-            
+
             <div class="sidebar-nav">
                 <div class="nav-item">
                     <a href="{{ route('admin.dashboard') }}" class="nav-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
@@ -712,8 +734,7 @@
                     </a>
                 </div>
                 <div class="nav-item">
-                    <a href="{{ route('admin.DataPerawat.index') }}" 
-                    class="nav-link {{ request()->routeIs('admin.DataPerawat.*') ? 'active' : '' }}">
+                    <a href="{{ route('admin.DataPerawat.index') }}" class="nav-link {{ request()->routeIs('admin.DataPerawat.*') ? 'active' : '' }}">
                         <i class="fas fa-user-md"></i>
                         <span>Data Perawat</span>
                     </a>
@@ -776,19 +797,19 @@
                         @yield('page-title', 'Dashboard')
                     </h1>
                 </div>
-                
+
                 <div class="d-flex align-items-center">
-                    <a href="{{ route('profile.index') }}" class="text-decoration-none text-dark">
-    <div class="user-info d-none d-md-flex align-items-center">
-        <div class="user-avatar">
-            {{ substr(Auth::user()->name ?? 'A', 0, 1) }}
-        </div>
-        <div class="ms-2">
-            <div class="fw-bold">{{ Auth::user()->name ?? 'Admin' }}</div>
-            <small class="text-muted">Administrator</small>
-        </div>
-    </div>
-</a>
+                    <a href="{{ route('getProfile') }}" class="text-decoration-none text-dark">
+                        <div class="user-info d-none d-md-flex align-items-center">
+                            <div class="user-avatar">
+                                {{ substr(Auth::user()->name ?? 'A', 0, 1) }}
+                            </div>
+                            <div class="ms-2">
+                                <div class="fw-bold">{{ Auth::user()->name ?? 'Admin' }}</div>
+                                <small class="text-muted">Administrator</small>
+                            </div>
+                        </div>
+                    </a>
 
                     <form method="POST" action="{{ route('logout') }}" class="ms-3">
                         @csrf
@@ -805,7 +826,7 @@
                 <!-- Page Content -->
                 @yield('content')
             </div>
-            
+
             <!-- Sticky Footer -->
             <footer class="sticky-footer">
                 <div class="container">
@@ -817,7 +838,7 @@
 
     <!-- Bootstrap Bundle with Popper -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    
+
     <!-- Custom JavaScript -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
@@ -825,12 +846,12 @@
             const toggleSidebar = document.getElementById('toggleSidebar');
             const sidebar = document.getElementById('sidebar');
             const mainContent = document.getElementById('mainContent');
-            
+
             if (toggleSidebar) {
                 toggleSidebar.addEventListener('click', function() {
                     sidebar.classList.toggle('collapsed');
                     mainContent.classList.toggle('expanded');
-                    
+
                     // Update icon
                     const icon = this.querySelector('i');
                     if (sidebar.classList.contains('collapsed')) {
@@ -838,7 +859,7 @@
                     } else {
                         icon.className = 'fas fa-chevron-left';
                     }
-                    
+
                     // Save state to localStorage
                     localStorage.setItem('sidebarCollapsed', sidebar.classList.contains('collapsed'));
                 });
@@ -849,7 +870,7 @@
             if (mobileMenuBtn) {
                 mobileMenuBtn.addEventListener('click', function() {
                     sidebar.classList.toggle('show');
-                    
+
                     // Update icon
                     const icon = this.querySelector('i');
                     if (sidebar.classList.contains('show')) {
@@ -864,10 +885,10 @@
 
             // Close sidebar when clicking outside on mobile
             document.addEventListener('click', function(event) {
-                if (window.innerWidth <= 768 && 
-                    sidebar && 
+                if (window.innerWidth <= 768 &&
+                    sidebar &&
                     mobileMenuBtn &&
-                    !sidebar.contains(event.target) && 
+                    !sidebar.contains(event.target) &&
                     !mobileMenuBtn.contains(event.target) &&
                     sidebar.classList.contains('show')) {
                     sidebar.classList.remove('show');
@@ -895,7 +916,7 @@
                     }
                     document.body.style.overflow = '';
                 }
-                
+
                 // Adjust content padding for footer
                 adjustContentPadding();
             }
@@ -904,7 +925,7 @@
             function adjustContentPadding() {
                 const footer = document.querySelector('.sticky-footer');
                 const mainContainer = document.querySelector('.main-container');
-                
+
                 if (footer && mainContainer) {
                     const footerHeight = footer.offsetHeight;
                     mainContainer.style.paddingBottom = (footerHeight + 20) + 'px';
@@ -915,10 +936,10 @@
             loadSidebarState();
             handleResize();
             adjustContentPadding();
-            
+
             // Event listeners
             window.addEventListener('resize', handleResize);
-            
+
             // Auto-hide sidebar on mobile after clicking a link
             const navLinks = document.querySelectorAll('.sidebar-nav .nav-link');
             navLinks.forEach(link => {
@@ -950,7 +971,10 @@
             document.body.appendChild(scrollToTop);
 
             scrollToTop.addEventListener('click', function() {
-                window.scrollTo({ top: 0, behavior: 'smooth' });
+                window.scrollTo({
+                    top: 0
+                    , behavior: 'smooth'
+                });
             });
 
             window.addEventListener('scroll', function() {
@@ -961,8 +985,9 @@
                 }
             });
         });
+
     </script>
-    
+
     <!-- Additional Scripts -->
     @stack('scripts')
 </body>
