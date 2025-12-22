@@ -778,7 +778,7 @@
                 </div>
                 
                 <div class="d-flex align-items-center">
-                    <a href="{{ route('profile') }}" class="text-decoration-none text-dark">
+                    <a href="{{ route('profile.index') }}" class="text-decoration-none text-dark">
     <div class="user-info d-none d-md-flex align-items-center">
         <div class="user-avatar">
             {{ substr(Auth::user()->name ?? 'A', 0, 1) }}

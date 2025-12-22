@@ -272,7 +272,7 @@ Route::prefix('iuran')->group(function () {
     Route::post('/notification', [IuranController::class, 'handleMidtransNotification']);
 });
 Route::prefix('profile')->group(function () {
-        Route::get('/', [UserController::class, 'getProfile']);
+        Route::get('/', [UserController::class, 'getProfile'])->name('profile.index');
         
         // Update profile
         Route::put('/update', [UserController::class, 'updateProfile']);
