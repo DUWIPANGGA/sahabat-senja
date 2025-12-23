@@ -354,47 +354,53 @@ class DashboardController extends Controller
     }
     
     private function getRecentActivities()
-    {
-        $recent_activities = [];
-        
-        // Get recent financial transactions (2 most recent)
-        $financial_transactions = $this->getRecentFinancialTransactions(2);
-        foreach ($financial_transactions as $transaction) {
-            $recent_activities[] = [
-                'title' => ($transaction->type == 'pemasukan' ? 'Pemasukan: ' : 'Pengeluaran: ') . 
-                          ($transaction->description ?? 'Transaksi'),
-                'time' => Carbon::parse($transaction->tanggal)->diffForHumans(),
-                'icon' => $transaction->type == 'pemasukan' ? 'fa-money-bill-wave' : 'fa-hand-holding-usd'
-            ];
-        }
-        
-        // Data lansia terbaru (2 terbaru)
-        $lansia_terbaru = Datalansia::latest()->take(2)->get();
-        foreach ($lansia_terbaru as $lansia) {
-            $recent_activities[] = [
-                'title' => 'Lansia baru ditambahkan: ' . $lansia->nama_lansia,
-                'time' => Carbon::parse($lansia->created_at)->diffForHumans(),
-                'icon' => 'fa-user-plus'
-            ];
-        }
-        
-        // Data perawat terbaru (2 terbaru)
-        $perawat_terbaru = DataPerawat::latest()->take(2)->get();
-        foreach ($perawat_terbaru as $perawat) {
-            $recent_activities[] = [
-                'title' => 'Perawat baru bergabung: ' . $perawat->nama,
-                'time' => Carbon::parse($perawat->created_at)->diffForHumans(),
-                'icon' => 'fa-user-md'
-            ];
-        }
-        
-        // Sort by time (newest first)
-        usort($recent_activities, function($a, $b) {
-            return Carbon::parse($b['time'])->timestamp - Carbon::parse($a['time'])->timestamp;
-        });
-        
-        return array_slice($recent_activities, 0, 6);
+{
+    $recent_activities = [];
+    
+    // Get recent financial transactions (2 most recent)
+    $financial_transactions = $this->getRecentFinancialTransactions(2);
+    foreach ($financial_transactions as $transaction) {
+        $recent_activities[] = [
+            'title' => ($transaction->type == 'pemasukan' ? 'Pemasukan: ' : 'Pengeluaran: ') . 
+                      ($transaction->description ?? 'Transaksi'),
+            'time' => $transaction->tanggal, // Simpan sebagai tanggal, bukan string relatif
+            'time_display' => Carbon::parse($transaction->tanggal)->diffForHumans(), // Hanya untuk display
+            'icon' => $transaction->type == 'pemasukan' ? 'fa-money-bill-wave' : 'fa-hand-holding-usd',
+            'sort_key' => Carbon::parse($transaction->tanggal)->timestamp // Tambahkan sort key
+        ];
     }
+    
+    // Data lansia terbaru (2 terbaru)
+    $lansia_terbaru = Datalansia::latest()->take(2)->get();
+    foreach ($lansia_terbaru as $lansia) {
+        $recent_activities[] = [
+            'title' => 'Lansia baru ditambahkan: ' . $lansia->nama_lansia,
+            'time' => $lansia->created_at, // Simpan sebagai datetime
+            'time_display' => Carbon::parse($lansia->created_at)->diffForHumans(), // Hanya untuk display
+            'icon' => 'fa-user-plus',
+            'sort_key' => Carbon::parse($lansia->created_at)->timestamp
+        ];
+    }
+    
+    // Data perawat terbaru (2 terbaru)
+    $perawat_terbaru = DataPerawat::latest()->take(2)->get();
+    foreach ($perawat_terbaru as $perawat) {
+        $recent_activities[] = [
+            'title' => 'Perawat baru bergabung: ' . $perawat->nama,
+            'time' => $perawat->created_at, // Simpan sebagai datetime
+            'time_display' => Carbon::parse($perawat->created_at)->diffForHumans(), // Hanya untuk display
+            'icon' => 'fa-user-md',
+            'sort_key' => Carbon::parse($perawat->created_at)->timestamp
+        ];
+    }
+    
+    // Sort by time (newest first) - menggunakan timestamp yang sudah disimpan
+    usort($recent_activities, function($a, $b) {
+        return $b['sort_key'] - $a['sort_key'];
+    });
+    
+    return array_slice($recent_activities, 0, 6);
+}
     
     // Jika Anda ingin memisahkan aktivitas keuangan dari aktivitas umum
     private function getRecentActivitiesSeparated()
